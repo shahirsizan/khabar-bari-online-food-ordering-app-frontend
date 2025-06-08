@@ -23,7 +23,7 @@ const DarkMode = () => {
 	// dark/light korar logic upore shesh. Niche just button er appearence change korar logic
 
 	return (
-		<div className="relative ">
+		<div className="relative rounded-full shadow-md">
 			<img
 				src={lightPng}
 				onClick={() => {

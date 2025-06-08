@@ -56,7 +56,7 @@ const Cart = () => {
 	};
 
 	return (
-		<div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 bg-gray-100 dark:bg-gray-800">
+		<div className="min-h-screen py-16 pt-32 px-4 sm:px-6 lg:px-8 bg-gray-100 dark:bg-gray-800">
 			<div className="max-w-7xl mx-auto">
 				{/* top section */}
 				<h1 className=" text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-12">
@@ -69,14 +69,19 @@ const Cart = () => {
 				{cartItems.length === 0 ? (
 					<div className="text-center pt-12">
 						{/* If cart empty */}
-						<p className="pb-5 dark:text-white font-atma font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary text-4xl mb-4">
-							<span className="text-dark">ফাঁকা!</span>
+						<p className=" mb-10 pb-5 font-atma font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary text-4xl">
+							<span className="py-4 text-3xl md:text-4xl font-atma font-bold bg-clip-text text-transparent drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary">
+								ফাঁকা!
+							</span>
 						</p>
+
 						<Link
-							to={"/"}
-							className="my-11 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+							to={"/#recipeList"}
+							className=" py-4 px-4 rounded-lg bg-gray-200/10 border border-gray-500 drop-shadow-[0_1px_1px_gray] shadow-md"
 						>
-							খাবারের তালিকা ব্রাউজ করুন
+							<span className="font-atma max-[430px]:text-lg text-2xl font-bold bg-clip-text text-transparent drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary">
+								খাবারের তালিকা দেখুন
+							</span>
 						</Link>
 					</div>
 				) : (
@@ -179,6 +184,9 @@ const Cart = () => {
 										<div className=" flex items-center justify-between w-full">
 											{/* remove button */}
 											<button
+												onClick={() => {
+													removeFromCart(item.id);
+												}}
 												className=" rounded-full text-xs uppercase flex items-center gap-1 cursor-pointer
                                            "
 											>
@@ -203,31 +211,46 @@ const Cart = () => {
 					</div>
 				)}
 
-				{/* bottom section */}
-				<div className=" mt-12 pt-8 border-t border-amber-800/30">
-					<div className=" flex flex-col sm:flex-row justify-between items-center gap-8">
-						{/* continue shopping button */}
-						<Link
+				{/* bottom section renders only when cart has items */}
+				{cartItems.length > 0 && (
+					<div className=" mt-12 pt-8 border-t border-amber-800/30">
+						<div className=" flex flex-col sm:flex-row justify-between items-center gap-8">
+							{/* continue shopping button */}
+							{/* <Link
 							to={"/menu"}
 							className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
 						>
 							<span className="text-gray-800">
 								আরো অর্ডার করতে
 							</span>
-						</Link>
+							<br />
+						</Link> */}
 
-						<div className=" flex items-center gap-8">
-							{/* cartTotalAmount */}
-							<h2 className="font-atma text-3xl font-semibold">
-								সর্বমোট: ৳{toBanglaNumber(cartTotal)}
-							</h2>
+							<Link
+								to={"/#recipeList"}
+								className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
+							>
+								<span className="text-gray-800">
+									আরো অর্ডার করতে
+								</span>
+								<br />
+							</Link>
 
-							<button className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl ">
-								<span className="text-gray-800">চেকআউট</span>
-							</button>
+							<div className=" flex items-center gap-8">
+								{/* cartTotalAmount */}
+								<h2 className="font-atma text-3xl font-semibold">
+									সর্বমোট: ৳{toBanglaNumber(cartTotal)}
+								</h2>
+
+								<button className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl ">
+									<span className="text-gray-800">
+										চেকআউট
+									</span>
+								</button>
+							</div>
 						</div>
 					</div>
-				</div>
+				)}
 			</div>
 
 			{showImageModal && imageModal()}

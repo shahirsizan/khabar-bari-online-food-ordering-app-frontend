@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaLocationArrow, FaMobileAlt } from "react-icons/fa";
 import footerLogo from "../../assets/food-logo.png";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
 	const year = new Date().getFullYear();
@@ -35,6 +36,17 @@ const Footer = () => {
 					<div>
 						<div className="font-atma text-center py-1 border-t-2 border-gray-300/50">
 							© Copyright {year} All rights reserved
+						</div>
+
+						<div className="font-atma text-center py-1 text-xl border-gray-300/50">
+							Developed by{" "}
+							<Link
+								to={"https://github.com/shahirsizan"}
+								target="_blank"
+								className="text-yellow-500"
+							>
+								Shahir Adil Sizan
+							</Link>
 						</div>
 					</div>
 				</div>

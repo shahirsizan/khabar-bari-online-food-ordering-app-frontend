@@ -16,8 +16,17 @@ const Menu = [
 const Navbar = () => {
 	const { totalItemsCount } = useCart();
 
+	const toBanglaNumber = (number) => {
+		const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+		return number
+			.toString()
+			.split("")
+			.map((d) => banglaDigits[parseInt(d)])
+			.join("");
+	};
+
 	return (
-		<div className="font-atma shadow-md bg-gray-300 dark:bg-gray-900 dark:text-white py-3">
+		<div className="font-atma  bg-white dark:bg-gray-800 dark:text-white py-3 fixed w-full z-10 shadow-lg">
 			<div className="container py-3 sm:py-0">
 				<div className="flex justify-between items-center">
 					{/* left */}
@@ -44,7 +53,7 @@ const Navbar = () => {
 						<div className=" flex items-center space-x-2 md:space-x-3 lg:space-x-4 ml-3 md:ml-3 lg:ml-6 mr-2 md:mr-3 lg:mr-4">
 							<Link
 								to={"/cart"}
-								className="p-2 lg:p-3 rounded-xl relative group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+								className="p-2 font-serif rounded-xl relative group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
 							>
 								<svg
 									stroke="currentColor"
@@ -63,8 +72,8 @@ const Navbar = () => {
 									<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
 								</svg>
 								{totalItemsCount > 0 && (
-									<span className="absolute -top-2 -right-2 bg-amber-600 text-xs w-5 h5 rounded-full flex items-center justify-center">
-										{totalItemsCount}
+									<span className="absolute -top-2 -right-2 bg-amber-600 text-lg w-5 h5 rounded-full flex items-center justify-center">
+										{toBanglaNumber(totalItemsCount)}
 									</span>
 								)}
 							</Link>

@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AchariChicken from "../../assets/AchariChicken.png";
 import BeefBrainMasala from "../../assets/BeefBrainMasala.png";
 import chickenkarai from "../../assets/chickenkarai.png";
 import ChickenTikkaButterMasala from "../../assets/ChickenTikkaButterMasala.png";
+import ShahiMorogPolao from "../../assets/ShahiMorogPolao.png";
 import rice from "../../assets/rice.png";
+import EggKhichuri from "../../assets/EggKhichuri.png";
 import { useCart } from "../../CartContext";
+import { useLocation } from "react-router-dom";
 
 const RecipeList = () => {
 	const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
@@ -45,6 +48,20 @@ const RecipeList = () => {
 			name: "ভাত",
 			desc: "সাদা ভাত",
 		},
+		{
+			id: 6,
+			image: ShahiMorogPolao,
+			price: 153,
+			name: "শাহী মোরগ পোলাও",
+			desc: "মোরগ পোলাও. ডিম ও কাবাব সহযোগে পরিবেশিত। অন্যান্য নাম, শাহী মোরগ পোলাও, ঢাকাইয়া মোরগ পোলাও",
+		},
+		{
+			id: 7,
+			image: EggKhichuri,
+			price: 85,
+			name: "ডিম খিচুড়ি",
+			desc: "ডিম খিচুড়ি",
+		},
 	];
 
 	// `cartItems` e already item ta thakle count return koro. Nahole return 0.
@@ -52,10 +69,21 @@ const RecipeList = () => {
 		return cartItems.find((item) => item.id === id)?.quantity || 0;
 	};
 
-	return (
-		<div className="container py-16">
-			{/* header section */}
+	const location = useLocation();
+	useEffect(() => {
+		// Check if there's a hash in the URL
+		if (location.hash) {
+			const id = location.hash.replace("#", "");
+			const element = document.getElementById(id);
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth" });
+			}
+		}
+	}, []);
 
+	return (
+		<div className="container py-16" id="recipeList">
+			{/* header text */}
 			<div className="text-center mb-14  mx-auto">
 				<p className="py-4 text-5xl md:text-7xl font-atma font-bold bg-clip-text text-transparent drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary ">
 					আমাদের রেসিপিগুলো
@@ -63,7 +91,7 @@ const RecipeList = () => {
 			</div>
 
 			{/* card section */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
 				{FoodData.map((item, index) => {
 					const quantity = getQuantity(item.id);
 					const toBanglaNumber = (number) => {

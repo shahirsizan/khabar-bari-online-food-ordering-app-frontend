@@ -1,7 +1,6 @@
 import React from "react";
 import AppStoreImg from "../../assets/app_store.png";
 import PlayStoreImg from "../../assets/play_store.png";
-import Gif from "../../assets/mobile_bike.gif";
 import cook from "../../assets/cooking.png";
 
 const AppStore = () => {
@@ -13,7 +12,7 @@ const AppStore = () => {
 						{/* left */}
 						<div
 							data-aos="fade-up"
-							data-aos-duration="200"
+							data-aos-duration="50"
 							className="space-y-6 max-w-lg mx-auto"
 						>
 							<h1 className="font-atma text-3xl text-center sm:text-5xl font-semibold text-gray-900 dark:text-gray-400">
@@ -54,11 +53,11 @@ const AppStore = () => {
 						</div>
 
 						{/* right */}
-						<div data-aos="zoom-in" data-aos-duration="200">
+						<div data-aos="zoom-in" data-aos-duration="50">
 							<img
 								src={cook}
 								// className="animate-float rotate-6 w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
-								className=" rotate-3 rounded-3xl w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+								className=" rotate-3 w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
 							/>
 						</div>
 					</div>
