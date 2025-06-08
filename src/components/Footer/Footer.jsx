@@ -24,12 +24,16 @@ const Footer = () => {
 
 						<div className="flex max-sm:m-auto max-sm:text-xl items-center gap-3">
 							<FaLocationArrow />
-							<p>Dhaka, Bangladesh</p>
+							<p className="bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_0_1px_black]">
+								Dhaka, Bangladesh
+							</p>
 						</div>
 
 						<div className="flex max-sm:m-auto max-sm:text-xl items-center gap-3">
 							<FaMobileAlt />
-							<p>01819991239</p>
+							<p className="bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_0_1px_black]">
+								01819991239
+							</p>
 						</div>
 					</div>
 
@@ -39,13 +43,26 @@ const Footer = () => {
 						</div>
 
 						<div className="font-atma text-center py-1 text-xl border-gray-300/50">
-							Developed by{" "}
+							Developed by:{" "}
 							<Link
 								to={"https://github.com/shahirsizan"}
 								target="_blank"
-								className="text-yellow-500"
+								className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_0_1px_black]"
 							>
 								Shahir Adil Sizan
+							</Link>
+						</div>
+
+						<div className="font-atma text-center py-1 text-xl border-gray-300/50">
+							Source Code:{" "}
+							<Link
+								to={
+									"https://github.com/shahirsizan/khabar-bari-online-food-ordering-app-frontend"
+								}
+								target="_blank"
+								className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_0_1px_black]"
+							>
+								Github
 							</Link>
 						</div>
 					</div>
