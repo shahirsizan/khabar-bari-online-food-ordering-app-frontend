@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCart } from "../../CartContext";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Cart = () => {
 	const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -53,6 +54,23 @@ const Cart = () => {
 				</div>
 			</div>
 		);
+	};
+
+	const pay = async (e) => {
+		try {
+			const { data } = await axios.post(
+				"http://localhost:5000/api/bkash/payment/create",
+				{
+					amount: cartTotal,
+					orderId: 1,
+				},
+				{ withCredentials: true }
+			);
+			console.log(data);
+			window.location.href = data.bkashURL;
+		} catch (error) {
+			console.log(error.response.data);
+		}
 	};
 
 	return (
@@ -216,16 +234,6 @@ const Cart = () => {
 					<div className=" mt-12 pt-8 border-t border-amber-800/30">
 						<div className=" flex flex-col sm:flex-row justify-between items-center gap-8">
 							{/* continue shopping button */}
-							{/* <Link
-							to={"/menu"}
-							className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
-						>
-							<span className="text-gray-800">
-								আরো অর্ডার করতে
-							</span>
-							<br />
-						</Link> */}
-
 							<Link
 								to={"/#recipeList"}
 								className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
@@ -233,7 +241,6 @@ const Cart = () => {
 								<span className="text-gray-800">
 									আরো অর্ডার করতে
 								</span>
-								<br />
 							</Link>
 
 							<div className=" flex items-center gap-8">
@@ -242,7 +249,12 @@ const Cart = () => {
 									সর্বমোট: ৳{toBanglaNumber(cartTotal)}
 								</h2>
 
-								<button className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl ">
+								<button
+									onClick={(e) => {
+										pay(e);
+									}}
+									className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
+								>
 									<span className="text-gray-800">
 										চেকআউট
 									</span>

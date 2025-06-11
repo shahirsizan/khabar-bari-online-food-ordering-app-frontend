@@ -138,7 +138,7 @@ const RecipeList = () => {
 								<p className="font-semibold text-gray-800 dark:text-white text-3xl text-center drop-shadow-[0_1px_0_black]">
 									{item.name}
 								</p>
-								<p className="text-xl ">{item.desc}</p>
+								{/* <p className="text-xl ">{item.desc}</p> */}
 							</div>
 
 							{/* price */}
