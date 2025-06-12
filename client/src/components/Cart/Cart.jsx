@@ -73,7 +73,9 @@ const Cart = () => {
 	const pay = async (e) => {
 		try {
 			const { data } = await axios.post(
-				`${process.env.VITE_BACKEND_BASE_URL}/api/bkash/payment/create`,
+				`${
+					import.meta.env.VITE_BACKEND_BASE_URL
+				}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
@@ -83,7 +85,7 @@ const Cart = () => {
 			console.log(data);
 			window.location.href = data.bkashURL;
 		} catch (error) {
-			console.log(error.response.data);
+			console.log(error);
 		}
 	};
 
