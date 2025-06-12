@@ -71,7 +71,7 @@ class paymentController {
 			// }
 
 			return res.redirect(
-				`http://localhost:5173/error?message=${status}`
+				`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${status}`
 			);
 		}
 
@@ -107,18 +107,18 @@ class paymentController {
 
 					// `executePayment` successfull, redirect to success page with trxId
 					return res.redirect(
-						`http://localhost:5173/success?message=${status}&trxId=${data.trxID}`
+						`${process.env.VITE_FRONTEND_BASE_URL}/success?message=${status}&trxId=${data.trxID}`
 					);
 				} else {
 					// `executePayment` not successfull
 					return res.redirect(
-						`http://localhost:5173/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
+						`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
 					);
 				}
 			} catch (error) {
 				return res.redirect(
 					// error while performing `executePayment`
-					`http://localhost:5173/error?message=${error.message}`
+					`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${error.message}`
 				);
 			}
 		}
