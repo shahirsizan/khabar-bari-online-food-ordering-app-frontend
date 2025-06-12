@@ -72,7 +72,7 @@ const Cart = () => {
 
 	const pay = async (e) => {
 		try {
-			console.log("inside pay");
+			// console.log("inside pay");
 			const { data } = await axios.post(
 				`${
 					import.meta.env.VITE_BACKEND_BASE_URL
@@ -83,7 +83,7 @@ const Cart = () => {
 				},
 				{ withCredentials: true }
 			);
-			console.log(data);
+			// console.log(data);
 			window.location.href = data.bkashURL;
 		} catch (error) {
 			console.log(error);
@@ -307,7 +307,9 @@ const Cart = () => {
 											>
 												X
 											</span>
+
 											<h2>পেমেন্ট মেথড বাছাই করুন</h2>
+
 											<div className="flex gap-3">
 												<button
 													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2"
