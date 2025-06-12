@@ -4,9 +4,23 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
-	const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+	const {
+		cartItems,
+		removeFromCart,
+		updateQuantity,
+		cartTotal,
+		showPaymentOptionsModal,
+		setShowPaymentOptionsModal,
+
+		setPaymentMethod,
+	} = useCart();
+	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
+
+	const handleCheckoutClick = () => {
+		setShowPaymentOptionsModal(true);
+	};
 
 	const toBanglaNumber = (number) => {
 		const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -59,7 +73,7 @@ const Cart = () => {
 	const pay = async (e) => {
 		try {
 			const { data } = await axios.post(
-				"http://localhost:5000/api/bkash/payment/create",
+				`${process.env.VITE_BACKEND_BASE_URL}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
@@ -71,6 +85,22 @@ const Cart = () => {
 		} catch (error) {
 			console.log(error.response.data);
 		}
+	};
+
+	const handleBkashPayment = async (e) => {
+		try {
+			setPaymentMethod("bkash");
+			setShowPaymentOptionsModal(false);
+			pay(e);
+		} catch (err) {
+			console.error("Payment failed:", err);
+		}
+	};
+
+	const handleCOD = (e) => {
+		setPaymentMethod("cod");
+		setPaymentDone(true);
+		setShowPaymentOptionsModal(false);
 	};
 
 	return (
@@ -250,8 +280,8 @@ const Cart = () => {
 								</h2>
 
 								<button
-									onClick={(e) => {
-										pay(e);
+									onClick={() => {
+										setShowPaymentOptionsModal(true);
 									}}
 									className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
 								>
@@ -259,6 +289,43 @@ const Cart = () => {
 										চেকআউট
 									</span>
 								</button>
+
+								{showPaymentOptionsModal && (
+									<div className="fixed inset-0 z-10 flex justify-center items-center bg-gray-800/70 backdrop-blur-sm">
+										<div className="bg-gray-100/90 p-20 rounded-xl font-atma text-lg md:text-xl flex flex-col relative">
+											<span
+												className="absolute right-4 top-4 text-2xl cursor-pointer px-2 py-1 bg-gray-500 rounded-full text-white"
+												onClick={() => {
+													setShowPaymentOptionsModal(
+														false
+													);
+												}}
+											>
+												X
+											</span>
+											<h2>পেমেন্ট মেথড বাছাই করুন</h2>
+											<div className="flex gap-3">
+												<button
+													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2"
+													onClick={(e) => {
+														handleBkashPayment(e);
+													}}
+												>
+													বিকাশে পে করুন
+												</button>
+
+												<button
+													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2"
+													onClick={(e) => {
+														handleCOD(e);
+													}}
+												>
+													ক্যাশ অন ডেলিভারি
+												</button>
+											</div>
+										</div>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>

@@ -80,6 +80,11 @@ export const CartProvider = ({ children }) => {
 		dispatch({ type: "UPDATE_QUANTITY", payload: { itemId, newQuantity } });
 	}, []);
 
+	const [showPaymentOptionsModal, setShowPaymentOptionsModal] =
+		useState(false);
+
+	const [paymentMethod, setPaymentMethod] = useState("");
+
 	return (
 		<CartContext.Provider
 			value={{
@@ -89,6 +94,10 @@ export const CartProvider = ({ children }) => {
 				updateQuantity,
 				cartTotal,
 				totalItemsCount,
+				showPaymentOptionsModal,
+				setShowPaymentOptionsModal,
+				paymentMethod,
+				setPaymentMethod,
 			}}
 		>
 			{children}

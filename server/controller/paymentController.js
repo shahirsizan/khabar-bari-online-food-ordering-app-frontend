@@ -17,8 +17,7 @@ class paymentController {
 					payerReference: " ",
 					// bkash UI theke cancel/confirm korle ei link e navigate korbe.
 					// Mane bkash server amar server ke kon url e call korbe
-					callbackURL:
-						"http://localhost:5000/api/bkash/payment/callback",
+					callbackURL: `${process.env.VITE_BACKEND_BASE_URL}/api/bkash/payment/callback`,
 					amount: amount,
 					currency: "BDT",
 					intent: "sale",

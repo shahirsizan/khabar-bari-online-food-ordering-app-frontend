@@ -28,6 +28,9 @@ const db = async () => {
 
 db();
 
+app.use("/", (req, res) => {
+	res.send("hello from backend base url");
+});
 app.use("/api", routes);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

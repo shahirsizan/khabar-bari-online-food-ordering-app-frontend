@@ -4,6 +4,7 @@ import { data } from "react-router-dom";
 import { useCart } from "../../CartContext";
 
 const Success = () => {
+	const { paymentMethod } = useCart();
 	const { cartItems } = useCart();
 	const [loading, setLoading] = useState(true);
 	const [paymentDetail, setPaymentDetail] = useState(null);
@@ -34,7 +35,7 @@ const Success = () => {
 			);
 
 			const { data } = await axios.get(
-				`http://localhost:5000/api/bkash/payment/${trxID}`
+				`${process.env.VITE_BACKEND_BASE_URL}/api/bkash/payment/${trxID}`
 			);
 			setPaymentDetail(data.paymentDetail);
 			setLoading(false);
@@ -63,14 +64,17 @@ const Success = () => {
 					</h2>
 
 					<div className="mb-4 text-sm md:text-xl duration-200">
-						<p className="">
-							<span className="font-medium">
-								লেনদেন নম্বর (trxID):{" "}
-								<span className="font-semibold">
-									{paymentDetail.trxID}
+						{paymentMethod === "bkash" && (
+							<p>
+								<span className="font-medium">
+									লেনদেন নম্বর (trxID):{" "}
+									<span className="font-semibold">
+										{paymentDetail.trxID}
+									</span>
 								</span>
-							</span>
-						</p>
+							</p>
+						)}
+
 						<p className="">
 							<span className="font-medium">সময়:</span> {}
 							{new Date(
