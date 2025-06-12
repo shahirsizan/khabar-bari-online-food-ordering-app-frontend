@@ -73,9 +73,7 @@ const Cart = () => {
 	const pay = async (e) => {
 		try {
 			const { data } = await axios.post(
-				`${
-					import.meta.env.VITE_BACKEND_BASE_URL
-				}/api/bkash/payment/create`,
+				`${import.meta.env.BACKEND_BASE_URL}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,

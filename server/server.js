@@ -12,7 +12,7 @@ const port = process.env.PORT;
 app.use(bodyParser.json());
 app.use(
 	cors({
-		origin: `${process.env.VITE_FRONTEND_BASE_URL}`,
+		origin: `${process.env.FRONTEND_BASE_URL}`,
 		credentials: true,
 	})
 );

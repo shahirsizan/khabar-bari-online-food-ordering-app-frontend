@@ -17,7 +17,7 @@ class paymentController {
 					payerReference: " ",
 					// bkash UI theke cancel/confirm korle ei link e navigate korbe.
 					// Mane bkash server amar server ke kon url e call korbe
-					callbackURL: `${process.env.VITE_BACKEND_BASE_URL}/api/bkash/payment/callback`,
+					callbackURL: `${process.env.BACKEND_BASE_URL}/api/bkash/payment/callback`,
 					amount: amount,
 					currency: "BDT",
 					intent: "sale",
@@ -71,7 +71,7 @@ class paymentController {
 			// }
 
 			return res.redirect(
-				`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${status}`
+				`${process.env.FRONTEND_BASE_URL}/error?message=${status}`
 			);
 		}
 
@@ -107,18 +107,18 @@ class paymentController {
 
 					// `executePayment` successfull, redirect to success page with trxId
 					return res.redirect(
-						`${process.env.VITE_FRONTEND_BASE_URL}/success?message=${status}&trxId=${data.trxID}`
+						`${process.env.FRONTEND_BASE_URL}/success?message=${status}&trxId=${data.trxID}`
 					);
 				} else {
 					// `executePayment` not successfull
 					return res.redirect(
-						`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
+						`${process.env.FRONTEND_BASE_URL}/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
 					);
 				}
 			} catch (error) {
 				return res.redirect(
 					// error while performing `executePayment`
-					`${process.env.VITE_FRONTEND_BASE_URL}/error?message=${error.message}`
+					`${process.env.FRONTEND_BASE_URL}/error?message=${error.message}`
 				);
 			}
 		}
