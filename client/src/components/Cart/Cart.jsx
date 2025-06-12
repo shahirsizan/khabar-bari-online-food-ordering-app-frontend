@@ -72,8 +72,11 @@ const Cart = () => {
 
 	const pay = async (e) => {
 		try {
+			console.log("inside pay");
 			const { data } = await axios.post(
-				`${import.meta.env.BACKEND_BASE_URL}/api/bkash/payment/create`,
+				`${
+					import.meta.env.VITE_BACKEND_BASE_URL
+				}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
@@ -280,8 +283,9 @@ const Cart = () => {
 								</h2>
 
 								<button
-									onClick={() => {
-										setShowPaymentOptionsModal(true);
+									onClick={(e) => {
+										// setShowPaymentOptionsModal(true);
+										pay(e);
 									}}
 									className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
 								>

@@ -35,7 +35,9 @@ const Success = () => {
 			);
 
 			const { data } = await axios.get(
-				`${import.meta.env.BACKEND_BASE_URL}/api/bkash/payment/${trxID}`
+				`${
+					import.meta.env.VITE_BACKEND_BASE_URL
+				}/api/bkash/payment/${trxID}`
 			);
 			setPaymentDetail(data.paymentDetail);
 			setLoading(false);

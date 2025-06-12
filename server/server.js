@@ -28,9 +28,10 @@ const db = async () => {
 
 db();
 
-app.use("/", (req, res) => {
-	res.send("hello from backend base url");
-});
+// app.use("/", (req, res) => {
+// 	res.send("hello from backend base url");
+// });
+// caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
 app.use("/api", routes);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
