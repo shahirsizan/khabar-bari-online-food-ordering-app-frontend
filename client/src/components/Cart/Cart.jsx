@@ -284,8 +284,8 @@ const Cart = () => {
 
 								<button
 									onClick={(e) => {
-										// setShowPaymentOptionsModal(true);
-										pay(e);
+										setShowPaymentOptionsModal(true);
+										// pay(e);
 									}}
 									className="my-2 py-2 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl "
 								>
