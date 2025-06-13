@@ -74,9 +74,7 @@ const Cart = () => {
 		try {
 			// console.log("inside pay");
 			const { data } = await axios.post(
-				`${
-					import.meta.env.VITE_BACKEND_BASE_URL
-				}/api/bkash/payment/create`,
+				`https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
