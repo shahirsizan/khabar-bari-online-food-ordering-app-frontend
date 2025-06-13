@@ -35,7 +35,7 @@ const AppStore = () => {
 									<img
 										src={PlayStoreImg}
 										alt="Play store"
-										className="max-w-[150px] sm:max-w-[120px] md:max-w-[200px]"
+										className="max-w-[150px] sm:max-w-[180px] md:max-w-[220px]"
 									/>
 								</a>
 
@@ -46,7 +46,7 @@ const AppStore = () => {
 									<img
 										src={AppStoreImg}
 										alt="App store"
-										className="max-w-[150px] sm:max-w-[120px] md:max-w-[200px]"
+										className="max-w-[150px] sm:max-w-[180px] md:max-w-[220px]"
 									/>
 								</a>
 							</div>
@@ -57,7 +57,7 @@ const AppStore = () => {
 							<img
 								src={cook}
 								// className="animate-float rotate-6 w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
-								className=" rotate-3 w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+								className=" rotate-3 w-full max-w-md sm:max-w-lg lg:max-w-[60%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
 							/>
 						</div>
 					</div>

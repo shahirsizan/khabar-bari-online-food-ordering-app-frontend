@@ -42,8 +42,8 @@ const Success = () => {
 			setPaymentDetail(data.paymentDetail);
 			setLoading(false);
 
-			console.log(data.paymentDetail);
-			console.log(cartItems);
+			console.log("data.paymentDetail: ", data.paymentDetail);
+			console.log("cartItems: ", cartItems);
 		};
 
 		func();
