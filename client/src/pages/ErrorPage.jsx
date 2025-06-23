@@ -5,9 +5,13 @@ import Error from "../components/Error/Error";
 
 const ErrorPage = () => {
 	return (
-		<div>
+		<div className="min-h-screen flex flex-col">
 			<Navbar />
-			<Error />
+			<section className="flex-grow">
+				{" "}
+				<Error />
+			</section>
+
 			<Footer />
 		</div>
 	);

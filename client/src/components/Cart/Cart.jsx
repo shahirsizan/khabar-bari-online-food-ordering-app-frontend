@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useCart } from "../../CartContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
@@ -17,6 +17,9 @@ const Cart = () => {
 	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
+	const [loadingBkash, setLoadingBkash] = useState(false);
+
+	const navigate = useNavigate();
 
 	const handleCheckoutClick = () => {
 		setShowPaymentOptionsModal(true);
@@ -72,7 +75,6 @@ const Cart = () => {
 
 	const pay = async (e) => {
 		try {
-			// console.log("inside pay");
 			const { data } = await axios.post(
 				`${
 					import.meta.env.VITE_BACKEND_BASE_URL
@@ -83,8 +85,22 @@ const Cart = () => {
 				},
 				{ withCredentials: true }
 			);
-			// console.log(data);
-			window.location.href = data.bkashURL;
+
+			// github e upload er por nicher code use korte hobe. uporer code local machine er jonno
+			// const { data } = await axios.post(
+			// 	`https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
+			// 	{
+			// 		amount: cartTotal,
+			// 		orderId: 1,
+			// 	},
+			// 	{ withCredentials: true }
+			// );
+
+			// Artificial delay before redirecting
+			setTimeout(() => {
+				setLoadingBkash(false);
+				window.location.href = data.bkashURL;
+			}, 4000);
 		} catch (error) {
 			console.log(error);
 		}
@@ -94,6 +110,7 @@ const Cart = () => {
 		try {
 			setPaymentMethod("bkash");
 			setShowPaymentOptionsModal(false);
+			setLoadingBkash(true); // Start loading
 			pay(e);
 		} catch (err) {
 			console.error("Payment failed:", err);
@@ -104,6 +121,7 @@ const Cart = () => {
 		setPaymentMethod("cod");
 		setPaymentDone(true);
 		setShowPaymentOptionsModal(false);
+		navigate("/success/cod");
 	};
 
 	return (
@@ -145,14 +163,14 @@ const Cart = () => {
 									className=" bg-gray-400/30 dark:bg-gray-200/20 text-gray-700 dark:text-white p-5 lg:p-6 rounded-xl shadow-lg 
                                     flex flex-col font-atma group backdrop-blur-md h-full items-center gap-3"
 								>
-									<div className=" w-28 h-28 flex-shrink-0 relative overflow-hidden rounded-lg cursor-pointer">
+									<div className=" w-28 h-28 flex-shrink-0 relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-all ">
 										<img
 											onClick={() => {
 												setSelectedImage(item.image);
 												setShowImageModal(true);
 												console.log(item.image);
 											}}
-											className=" w-full h-full object-cover"
+											className=" w-full h-full object-cover "
 											src={item.image}
 										/>
 									</div>
@@ -297,6 +315,7 @@ const Cart = () => {
 								{showPaymentOptionsModal && (
 									<div className="fixed inset-0 z-10 flex justify-center items-center bg-gray-800/70 backdrop-blur-sm">
 										<div className="bg-gray-100/90 p-20 rounded-xl font-atma text-lg md:text-xl flex flex-col relative">
+											{/* close button */}
 											<span
 												className="absolute right-4 top-4 text-2xl cursor-pointer px-2 py-1 bg-gray-500 rounded-full text-white"
 												onClick={() => {
@@ -308,26 +327,54 @@ const Cart = () => {
 												X
 											</span>
 
-											<h2>পেমেন্ট মেথড বাছাই করুন</h2>
-
-											<div className="flex gap-3">
+											{/* buttons */}
+											<div className="flex justify-center gap-3 ">
+												{/* bkash */}
 												<button
-													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2"
+													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2 hover:scale-105 transition-all"
 													onClick={(e) => {
 														handleBkashPayment(e);
 													}}
 												>
 													বিকাশে পে করুন
 												</button>
-
+												{/* cod */}
 												<button
-													className="bg-green-600 text-white mt-3 rounded-md px-3 py-2"
+													disabled
+													className="bg-green-600  disabled:bg-gray-500 text-white mt-3 rounded-md px-3 py-2"
 													onClick={(e) => {
 														handleCOD(e);
 													}}
 												>
-													ক্যাশ অন ডেলিভারি
+													ক্যাশ অন ডেলিভারি{" "}
+													<span className="text-sm">
+														(শীঘ্রই চালু হবে)
+													</span>
 												</button>
+											</div>
+
+											{/* bkash notes */}
+											<div className="bg-amber-100 text-amber-900 p-4 rounded-md border border-amber-300  shadow-sm leading-7 mt-4">
+												<p>
+													১। Successfull transaction
+													টেস্ট করার জন্য{" "}
+													<strong>01929918378</strong>{" "}
+													ব্যবহার করুন
+												</p>
+												<p>
+													২। Insufficient balance
+													টেস্ট করার জন্য{" "}
+													<strong>01823074817</strong>{" "}
+													ব্যবহার করুন
+												</p>
+												<p>
+													৩। উভয় ক্ষেত্রে Verification
+													code <strong>123456</strong>{" "}
+												</p>
+												<p>
+													৪। উভয় ক্ষেত্রে PIN{" "}
+													<strong>12121</strong>{" "}
+												</p>
 											</div>
 										</div>
 									</div>
@@ -339,6 +386,20 @@ const Cart = () => {
 			</div>
 
 			{showImageModal && imageModal()}
+
+			{loadingBkash && (
+				<div className="font-atma fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg">
+					<div className="flex flex-col items-center gap-4 bg-white/90 dark:bg-gray-900/90 p-8 rounded-2xl shadow-2xl">
+						{/* Spinner */}
+						<div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-pink-500 border-t-transparent"></div>
+
+						{/* Text */}
+						<h2 className="text-xl md:text-3xl font-bold text-pink-600 dark:text-pink-400 tracking-wide text-center">
+							বিকাশ লোড হচ্ছে...
+						</h2>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

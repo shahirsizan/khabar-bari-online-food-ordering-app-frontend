@@ -124,6 +124,8 @@ class paymentController {
 		}
 	};
 
+	cashOnDelivery = async (req, res) => {};
+
 	getPaymentInfo = async (req, res) => {
 		try {
 			const trxID = req.params.trxID;

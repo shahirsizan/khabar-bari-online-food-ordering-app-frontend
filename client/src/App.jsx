@@ -23,7 +23,7 @@ const App = () => {
 			<Routes>
 				<Route path="/" element={<LandingPage />} />
 				<Route path="/cart" element={<CartPage />} />
-				<Route path="/success" element={<SuccessPage />} />
+				<Route path="/success/*" element={<SuccessPage />} />
 				<Route path="/error" element={<ErrorPage />} />
 			</Routes>
 		</div>
