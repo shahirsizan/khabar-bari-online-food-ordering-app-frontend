@@ -38,9 +38,7 @@ const Success = () => {
 			);
 
 			const { data } = await axios.get(
-				`${
-					import.meta.env.VITE_BACKEND_BASE_URL
-				}/api/bkash/payment/${trxID}`
+				`https://khabar-bari-server.onrender.com/api/bkash/payment/${trxID}`
 			);
 			setPaymentDetail(data.paymentDetail);
 			setLoading(false);
