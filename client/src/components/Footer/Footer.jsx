@@ -31,14 +31,10 @@ const Footer = () => {
 						01819991239
 					</p>
 				</div>
-
-				<div className=" font-semibold text-center bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]">
-					© Copyright {year} All rights reserved
-				</div>
 			</div>
 
 			<div className=" text-center py-1 text-xl border-gray-300/50">
-				Developed by:{" "}
+				Developer:{" "}
 				<Link
 					to={"https://github.com/shahirsizan"}
 					target="_blank"
