@@ -6,7 +6,7 @@ if (mode === "dev") {
 	backend_base_url = "http://localhost:5000";
 } else {
 	frontend_base_url = "https://khabar-bari-client.vercel.app";
-	backend_base_url = "https://khabar-bari-server.vercel.app";
+	backend_base_url = "https://khabar-bari-backend.onrender.com";
 }
 
 export { frontend_base_url, backend_base_url };
