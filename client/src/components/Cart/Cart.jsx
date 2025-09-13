@@ -77,6 +77,7 @@ const Cart = () => {
 
 	const pay = async (e) => {
 		try {
+			console.log("invoking pay()");
 			const { data } = await axios.post(
 				// `https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
 				`${backend_base_url}/api/bkash/payment/create`,
