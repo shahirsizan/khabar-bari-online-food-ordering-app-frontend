@@ -31,36 +31,34 @@ const Footer = () => {
 						01819991239
 					</p>
 				</div>
-			</div>
 
-			<div>
-				<div className=" text-center py-1 border-t-2 border-gray-200/20">
+				<div className=" font-semibold text-center bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]">
 					© Copyright {year} All rights reserved
 				</div>
+			</div>
 
-				<div className=" text-center py-1 text-xl border-gray-300/50">
-					Developed by:{" "}
-					<Link
-						to={"https://github.com/shahirsizan"}
-						target="_blank"
-						className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]"
-					>
-						<span className="flex-nowrap">Shahir Adil Sizan</span>
-					</Link>
-				</div>
+			<div className=" text-center py-1 text-xl border-gray-300/50">
+				Developed by:{" "}
+				<Link
+					to={"https://github.com/shahirsizan"}
+					target="_blank"
+					className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]"
+				>
+					<span className="flex-nowrap">Shahir Adil Sizan</span>
+				</Link>
+			</div>
 
-				<div className=" text-center py-1 text-xl border-gray-300/50">
-					Source Code:{" "}
-					<Link
-						to={
-							"https://github.com/shahirsizan/khabar-bari-online-food-ordering-app-frontend"
-						}
-						target="_blank"
-						className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]"
-					>
-						Github
-					</Link>
-				</div>
+			<div className=" text-center py-1 text-xl border-gray-300/50">
+				Source Code:{" "}
+				<Link
+					to={
+						"https://github.com/shahirsizan/khabar-bari-online-food-ordering-app-frontend"
+					}
+					target="_blank"
+					className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_0px_black]"
+				>
+					Github
+				</Link>
 			</div>
 		</section>
 	);
