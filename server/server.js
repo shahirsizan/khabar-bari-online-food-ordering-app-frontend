@@ -1,18 +1,19 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const routes = require("./routes/routes.js");
-dotenv.config();
+import { mode, frontend_base_url } from "./workMode.js";
+
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cors from "cors";
+import router from "./routes/routes.js";
+import "dotenv/config";
 
 const app = express();
-const port = process.env.PORT;
+const port = 5000;
 
 app.use(bodyParser.json());
 app.use(
 	cors({
-		origin: `${process.env.FRONTEND_BASE_URL}`,
+		origin: frontend_base_url,
 		credentials: true,
 	})
 );
@@ -32,6 +33,8 @@ db();
 // 	res.send("hello from backend base url");
 // });
 // caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
-app.use("/api", routes);
+app.use("/api", router);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () =>
+	console.log(`Listening on port ${port} in ${mode} mode`)
+);

@@ -1,7 +1,7 @@
-const axios = require("axios");
-const globals = require("node-global-storage");
+import axios from "axios";
+import globals from "node-global-storage";
 
-class middleware {
+class Middleware {
 	// To get `Grant_Token`
 	bkash_auth = async (req, res, next) => {
 		globals.unsetValue("id_token"); //because upon grant_token call, a new id_token will be returned. SO we first delete the existing one
@@ -35,4 +35,6 @@ class middleware {
 	};
 }
 
-module.exports = new middleware();
+const middleware = new Middleware();
+
+export { middleware };

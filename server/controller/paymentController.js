@@ -1,11 +1,14 @@
-const axios = require("axios");
-const paymentModel = require("../model/paymentModel.js");
-const globals = require("node-global-storage");
-const { v4: uuidv4 } = require("uuid");
-const mongoose = require("mongoose");
+import { backend_base_url, frontend_base_url } from "../workMode.js";
 
-class paymentController {
+import axios from "axios";
+import paymentModel from "../model/paymentModel.js";
+import globals from "node-global-storage";
+import { v4 as uuidv4 } from "uuid";
+
+class PaymentController {
 	payment_create = async (req, res) => {
+		console.log("payment_create called");
+
 		const { amount, userId } = req.body;
 		globals.setValue("userId", userId);
 
@@ -17,7 +20,7 @@ class paymentController {
 					payerReference: " ",
 					// bkash UI theke cancel/confirm korle ei link e navigate korbe.
 					// Mane bkash server amar server ke kon url e call korbe
-					callbackURL: `${process.env.BACKEND_BASE_URL}/api/bkash/payment/callback`,
+					callbackURL: `${backend_base_url}/api/bkash/payment/callback`,
 					amount: amount,
 					currency: "BDT",
 					intent: "sale",
@@ -74,9 +77,7 @@ class paymentController {
 			//   apiVersion: '1.2.0-beta/'
 			// }
 
-			return res.redirect(
-				`${process.env.FRONTEND_BASE_URL}/error?message=${status}`
-			);
+			return res.redirect(`${frontend_base_url}/error?message=${status}`);
 		}
 
 		if (status === "success") {
@@ -111,18 +112,18 @@ class paymentController {
 
 					// `executePayment` successfull, redirect to success page with trxId
 					return res.redirect(
-						`${process.env.FRONTEND_BASE_URL}/success?message=${status}&trxId=${data.trxID}`
+						`${frontend_base_url}/success?message=${status}&trxId=${data.trxID}`
 					);
 				} else {
 					// `executePayment` not successfull
 					return res.redirect(
-						`${process.env.FRONTEND_BASE_URL}/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
+						`${frontend_base_url}/error?message=${status}&messageFromMe=executePaymentUnsuccessfull`
 					);
 				}
 			} catch (error) {
 				return res.redirect(
 					// error while performing `executePayment`
-					`${process.env.FRONTEND_BASE_URL}/error?message=${error.message}`
+					`${frontend_base_url}/error?message=${error.message}`
 				);
 			}
 		}
@@ -150,4 +151,6 @@ class paymentController {
 	refund = async (req, res) => {};
 }
 
-module.exports = new paymentController();
+const paymentController = new PaymentController();
+
+export { paymentController };

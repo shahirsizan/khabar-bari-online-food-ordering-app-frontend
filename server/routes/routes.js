@@ -1,6 +1,9 @@
-const router = require("express").Router();
-const paymentController = require("../controller/paymentController");
-const middleware = require("../middleware/middleware");
+import { Router } from "express";
+
+import { middleware } from "../middleware/middleware.js";
+import { paymentController } from "../controller/paymentController.js";
+
+const router = Router();
 
 router.post(
 	"/bkash/payment/create",
@@ -26,4 +29,4 @@ router.get(
 	paymentController.refund
 );
 
-module.exports = router;
+export default router;
