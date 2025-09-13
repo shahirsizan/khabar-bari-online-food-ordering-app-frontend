@@ -12,14 +12,14 @@ const port = 5000;
 
 app.use(bodyParser.json());
 
-const allowedOrigins = ["https://tokenized.sandbox.bka.sh", frontend_base_url];
+// const allowedOrigins = ["https://tokenized.sandbox.bka.sh", frontend_base_url];
 // app.use(
 // 	cors({
 // 		origin: allowedOrigins,
 // 		credentials: true,
 // 	})
 // );
-app.use(cors({ origin: "*" }));
+app.use(cors());
 
 const db = async () => {
 	try {
