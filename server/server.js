@@ -36,9 +36,7 @@ db();
 // 	res.send("hello from backend base url");
 // });
 // caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
-app.use("/", (req, res) => {
-	res.send("hello");
-});
+
 app.use("/api", router);
 
 app.listen(port, () =>
