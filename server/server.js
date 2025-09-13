@@ -11,12 +11,15 @@ const app = express();
 const port = 5000;
 
 app.use(bodyParser.json());
-app.use(
-	cors({
-		origin: frontend_base_url,
-		credentials: true,
-	})
-);
+
+const allowedOrigins = ["https://tokenized.sandbox.bka.sh", frontend_base_url];
+// app.use(
+// 	cors({
+// 		origin: allowedOrigins,
+// 		credentials: true,
+// 	})
+// );
+app.use(cors());
 
 const db = async () => {
 	try {
