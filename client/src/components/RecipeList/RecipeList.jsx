@@ -6,6 +6,9 @@ import ChickenTikkaButterMasala from "../../assets/ChickenTikkaButterMasala.png"
 import ShahiMorogPolao from "../../assets/ShahiMorogPolao.png";
 import rice from "../../assets/rice.png";
 import EggKhichuri from "../../assets/EggKhichuri.png";
+import mixedvegetable from "../../assets/mixedvegetable.jpg";
+import moogdal from "../../assets/moogdal.png";
+
 import { useCart } from "../../CartContext";
 import { useLocation } from "react-router-dom";
 
@@ -62,6 +65,20 @@ const RecipeList = () => {
 			name: "ডিম খিচুড়ি",
 			desc: "ডিম খিচুড়ি",
 		},
+		{
+			id: 8,
+			image: moogdal,
+			price: 40,
+			name: "মুগ ডাল",
+			desc: "মুগ ডাল ও মশলা সহযোগে প্রস্তুতকৃত, প্রোটিন সমৃদ্ধ",
+		},
+		{
+			id: 9,
+			image: mixedvegetable,
+			price: 40,
+			name: "মিক্সড সবজি",
+			desc: "আলু, লাউ, মিষ্টিকুমড়াসহ কয়েক পদের সবজি সহযোগে প্রস্তুতকৃত",
+		},
 	];
 
 	// `cartItems` e already item ta thakle count return koro. Nahole return 0.
@@ -69,9 +86,10 @@ const RecipeList = () => {
 		return cartItems.find((item) => item.id === id)?.quantity || 0;
 	};
 
+	// scroll to selected-id section
 	const location = useLocation();
 	useEffect(() => {
-		// Check if there's a hash in the URL
+		// if there's a hash in the URL
 		if (location.hash) {
 			const id = location.hash.replace("#", "");
 			const element = document.getElementById(id);
@@ -82,16 +100,19 @@ const RecipeList = () => {
 	}, []);
 
 	return (
-		<div className="container py-16" id="recipeList">
+		<section
+			className="recipeSection font-atma container py-8 lg:py-12"
+			id="recipeList"
+		>
 			{/* header text */}
-			<div className="text-center mb-14  mx-auto">
-				<p className="py-4 text-5xl md:text-7xl font-atma font-bold bg-clip-text text-transparent drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary ">
-					আমাদের রেসিপিগুলো
+			<div className="text-center mb-14 mx-auto">
+				<p className="py-4 text-5xl xl:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_0px_black]">
+					আমাদের রেসিপিসমূহ{" "}
 				</p>
 			</div>
 
-			{/* card section */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+			{/* CARDS */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-fluid-grid gap-3 xl:gap-4">
 				{FoodData.map((item, index) => {
 					const quantity = getQuantity(item.id);
 					const toBanglaNumber = (number) => {
@@ -122,126 +143,114 @@ const RecipeList = () => {
 					return (
 						<div
 							key={index}
-							className="bg-white dark:bg-gray-800 dark:text-white p-5 lg:p-6 rounded-3xl shadow-2xl flex flex-col font-atma"
+							// nicher dark/bright class gula rakhte hobe. Do not remove
+							className="flex flex-col font-atma bg-white dark:bg-gray-800 p-2 xl:p-4 rounded-2xl shadow-2xl"
 						>
 							{/* image */}
-							<div className="flex justify-center ">
+							<div className="w-full h-32 md:h-40 flex justify-center items-center rounded-2xl overflow-hidden shadow-sm">
 								<img
 									src={item.image}
-									// className="w-60 sm:w-40 lg:w-[240px] mx-auto object-contain "
-									className="h-[160px] w-[160px] aspect-square rounded-md overflow-hidden drop-shadow-[0_1px_1px_black]"
+									className="object-cover"
 								/>
 							</div>
 
 							{/* name & desc */}
-							<div className="py-5 space-y-2">
-								<p className="font-semibold text-gray-800 dark:text-white text-3xl text-center drop-shadow-[0_1px_0_black]">
+							<div className="py-2 xl:py-3">
+								<p className="font-bold text-xl lg:text-4xl text-center ">
 									{item.name}
 								</p>
-								{/* <p className="text-xl ">{item.desc}</p> */}
 							</div>
 
-							{/* price */}
-							<div className="mt-auto">
-								<p className="dark:text-white font-bold text-2xl text-center">
-									৳ {toBanglaNumber(item.price)}
-								</p>
-							</div>
+							<div className="flex-grow"></div>
 
-							<div>
-								{quantity > 0 ? (
-									<div className="mt-5 flex items-center gap-2 justify-center">
-										{/* Already selected */}
+							<div className="">
+								{/* price */}
+								<div>
+									<p className="font-semibold text-lg lg:text-3xl text-center">
+										৳ {toBanglaNumber(item.price)}
+									</p>
+								</div>
 
-										{/* Minus button */}
-										<button
-											onClick={() => {
-												quantity > 1
-													? updateQuantity(
-															item.id,
-															quantity - 1
-													  )
-													: //   const updateQuantity = useCallback((itemId, newQuantity) => {
-													  // 	dispatch({ type: "UPDATE_QUANTITY", payload: { itemId, newQuantity } });
-													  // }, []);
-													  removeFromCart(item.id);
-												// const removeFromCart = useCallback((itemId) => {
-												// 	dispatch({ type: "REMOVE_ITEM", payload: { itemId } });
-												// }, []);
-											}}
-											className=" w-8 h-8 rounded-full bg-amber-900/40 dark:bg-dark  flex items-center justify-center hover:bg-amber-800/50 transition-colors"
-										>
-											<svg
-												stroke="currentColor"
-												fill="currentColor"
-												strokeWidth="0"
-												viewBox="0 0 448 512"
-												className=" text-gray-900 dark:text-white"
-												height="1em"
-												width="1em"
-												xmlns="http://www.w3.org/2000/svg"
+								<div>
+									{quantity > 0 ? (
+										<div className="mt-5 flex items-center gap-2 justify-center">
+											{/* Already selected */}
+
+											{/* Minus button */}
+											<button
+												onClick={() => {
+													quantity > 1
+														? updateQuantity(
+																item.id,
+																quantity - 1
+														  )
+														: removeFromCart(
+																item.id
+														  );
+												}}
 											>
-												<path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-											</svg>
-										</button>
+												<svg
+													stroke="currentColor"
+													fill="currentColor"
+													viewBox="0 0 448 512"
+													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
+												</svg>
+											</button>
 
-										{/* quantity */}
-										<span className=" w-8 text-center text-gray-900 dark:text-white font-bold text-2xl">
-											{toBanglaNumber(quantity)}
-										</span>
-
-										{/* Plus button */}
-										<button
-											onClick={() => {
-												updateQuantity(
-													item.id,
-													quantity + 1
-												);
-												//   const updateQuantity = useCallback((itemId, newQuantity) => {
-												// 	dispatch({ type: "UPDATE_QUANTITY", payload: { itemId, newQuantity } });
-												// }, []);
-											}}
-											className=" w-8 h-8 rounded-full bg-amber-900/40 dark:bg-dark flex items-center justify-center hover:bg-amber-800/50 transition-colors"
-										>
-											<svg
-												stroke="currentColor"
-												fill="currentColor"
-												strokeWidth="0"
-												viewBox="0 0 448 512"
-												className=" text-gray-900 dark:text-white"
-												height="1em"
-												width="1em"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-											</svg>
-										</button>
-									</div>
-								) : (
-									<div className=" flex justify-center gap-2">
-										{/* Not selected */}
-										<button
-											onClick={() => {
-												addToCart(item, 1);
-												// DEFINITION
-												// const addToCart = useCallback((item, quantity) => {
-												// 		dispatch({ type: "ADD_ITEM", payload: { item, quantity } });
-												// 	}, []);
-											}}
-											className="my-2 py-1 px-4 rounded-full drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
-										>
-											<span className=" relative z-10 text-gray-900">
-												অর্ডার করুন
+											{/* quantity */}
+											<span className=" w-8 text-center text-gray-900 dark:text-white font-bold text-2xl">
+												{toBanglaNumber(quantity)}
 											</span>
-										</button>
-									</div>
-								)}
+
+											{/* Plus button */}
+											<button
+												onClick={() => {
+													updateQuantity(
+														item.id,
+														quantity + 1
+													);
+												}}
+											>
+												<svg
+													stroke="currentColor"
+													fill="currentColor"
+													viewBox="0 0 448 512"
+													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
+												</svg>
+											</button>
+										</div>
+									) : (
+										<div className="flex justify-center gap-2">
+											{/* Not selected */}
+											<button
+												onClick={() => {
+													addToCart(item, 1);
+													// DEFINITION
+													// const addToCart = useCallback((item, quantity) => {
+													// 		dispatch({ type: "ADD_ITEM", payload: { item, quantity } });
+													// 	}, []);
+												}}
+												className="my-2 py-1 px-4 rounded-full bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold drop-shadow-[1px_1px_0px_black]"
+											>
+												<span className=" relative z-10 text-gray-900/90">
+													অর্ডার করুন
+												</span>
+											</button>
+										</div>
+									)}
+								</div>
 							</div>
 						</div>
 					);
 				})}
 			</div>
-		</div>
+		</section>
 	);
 };
 
