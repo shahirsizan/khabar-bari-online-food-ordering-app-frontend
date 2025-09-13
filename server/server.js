@@ -19,7 +19,7 @@ const allowedOrigins = ["https://tokenized.sandbox.bka.sh", frontend_base_url];
 // 		credentials: true,
 // 	})
 // );
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 const db = async () => {
 	try {
