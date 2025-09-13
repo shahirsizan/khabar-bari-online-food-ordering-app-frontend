@@ -40,7 +40,7 @@ const Services = () => {
 				{ServicesData.map((service, idx) => (
 					<div
 						key={idx}
-						className="w-full bg-gradient-to-r from-primary to-secondary text-white rounded-2xl  dark:text-white  relative shadow-xl group "
+						className="w-full bg-gradient-to-r from-primary to-secondary text-white rounded-2xl relative shadow-xl group "
 					>
 						{/* image */}
 						<div className="w-full flex justify-center items-center">
