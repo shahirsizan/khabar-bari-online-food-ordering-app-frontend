@@ -51,6 +51,10 @@ class paymentController {
 			// }
 
 			return res.status(200).json({ bkashURL: data.bkashURL });
+			// response back the `bkashURL` to frontend so that
+			// user can be redirected to bkash UI.
+			// note: upore `callbackURL` hocche bkash UI er kaj sheshe
+			// bkash user ke jekhane redirected korbe setar URL.
 		} catch (error) {
 			return res.status(401).json({ error: error.message });
 		}
