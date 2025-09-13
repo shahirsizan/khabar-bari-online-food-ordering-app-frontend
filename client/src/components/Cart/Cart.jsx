@@ -106,7 +106,7 @@ const Cart = () => {
 
 			window.location.href = data.bkashURL;
 		} catch (error) {
-			console.log(error);
+			console.log("error in pay(): ", error);
 		}
 	};
 
