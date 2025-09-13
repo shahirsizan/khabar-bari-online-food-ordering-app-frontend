@@ -4,6 +4,10 @@ export default {
 	darkMode: "class",
 	theme: {
 		extend: {
+			gridTemplateColumns: {
+				"fluid-grid": "repeat(auto-fit, minmax(260px, 1fr))",
+			},
+
 			fontFamily: {
 				sans: ["Poppins", "sans-serif"],
 			},
