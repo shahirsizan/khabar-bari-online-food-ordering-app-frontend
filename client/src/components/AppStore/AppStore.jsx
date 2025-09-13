@@ -5,65 +5,56 @@ import cook from "../../assets/cooking.png";
 
 const AppStore = () => {
 	return (
-		<>
-			<div className="bg-gray-100 dark:bg-gray-800 py-12">
-				<div className="px-8">
-					<div className="grid sm:grid-cols-2 grid-cols-1 items-center gap-4">
-						{/* left */}
-						<div
-							data-aos="fade-up"
-							data-aos-duration="50"
-							className="space-y-6 max-w-lg mx-auto"
+		<section className="appstoreSection py-8 lg:py-12">
+			<div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
+				{/* LEFT */}
+				<div className="space-y-6 max-w-lg mx-auto">
+					{/* TEXT */}
+					<h1 className="font-atma text-3xl xl:text-5xl text-center font-semibold">
+						<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+							Android
+						</span>{" "}
+						এবং{" "}
+						<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+							iOS
+						</span>{" "}
+						<br />
+						ব্যবহারকারীদের জন্য
+					</h1>
+
+					{/* BUTTONS */}
+					<div className="flex flex-wrap justify-center items-center max-sm:pb-5">
+						<a
+							href="https://play.google.com/store/apps?hl=en"
+							target="_blank"
 						>
-							<h1 className="font-atma text-3xl text-center sm:text-5xl font-semibold text-gray-900 dark:text-gray-400">
-								<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-									Android
-								</span>{" "}
-								এবং{" "}
-								<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-									iOS
-								</span>{" "}
-								<br />
-								ব্যবহারকারীদের জন্য
-							</h1>
-
-							<div className="flex flex-wrap justify-center sm:justify-start items-center">
-								<a
-									href="https://play.google.com/store/apps?hl=en"
-									target="_blank"
-								>
-									<img
-										src={PlayStoreImg}
-										alt="Play store"
-										className="max-w-[150px] sm:max-w-[180px] md:max-w-[220px]"
-									/>
-								</a>
-
-								<a
-									href="https://www.apple.com/app-store/"
-									target="_blank"
-								>
-									<img
-										src={AppStoreImg}
-										alt="App store"
-										className="max-w-[150px] sm:max-w-[180px] md:max-w-[220px]"
-									/>
-								</a>
-							</div>
-						</div>
-
-						{/* right */}
-						<div data-aos="zoom-in" data-aos-duration="50">
 							<img
-								src={cook}
-								// className="animate-float rotate-6 w-full max-w-md sm:max-w-lg lg:max-w-[70%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
-								className=" rotate-3 w-full max-w-md sm:max-w-lg lg:max-w-[60%] block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+								src={PlayStoreImg}
+								className="max-w-[150px] lg:max-w-[200px]"
 							/>
-						</div>
+						</a>
+
+						<a
+							href="https://www.apple.com/app-store/"
+							target="_blank"
+						>
+							<img
+								src={AppStoreImg}
+								className="max-w-[150px] lg:max-w-[200px]"
+							/>
+						</a>
 					</div>
 				</div>
+
+				{/* RIGHT */}
+				<div>
+					<img
+						src={cook}
+						className="rotate-2 w-full block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+					/>
+				</div>
 			</div>
-		</>
+		</section>
 	);
 };
 
