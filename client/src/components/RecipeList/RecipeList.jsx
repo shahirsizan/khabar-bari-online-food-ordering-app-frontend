@@ -101,7 +101,7 @@ const RecipeList = () => {
 
 	return (
 		<section
-			className="recipeSection font-atma container py-8 lg:py-12"
+			className="recipeSection font-atma py-8 lg:py-12"
 			id="recipeList"
 		>
 			{/* header text */}
@@ -144,10 +144,10 @@ const RecipeList = () => {
 						<div
 							key={index}
 							// nicher dark/bright class gula rakhte hobe. Do not remove
-							className="flex flex-col font-atma bg-white dark:bg-gray-800 p-2 xl:p-4 rounded-2xl shadow-2xl"
+							className="flex flex-col font-atma bg-gradient-to-r from-primary to-secondary text-white p-2 xl:p-4 rounded-2xl shadow-xl"
 						>
 							{/* image */}
-							<div className="w-full h-32 md:h-40 flex justify-center items-center rounded-2xl overflow-hidden shadow-sm">
+							<div className="w-full h-32 md:h-40 flex justify-center items-center rounded-2xl overflow-hidden shadow-lg">
 								<img
 									src={item.image}
 									className="object-cover"
@@ -156,17 +156,18 @@ const RecipeList = () => {
 
 							{/* name & desc */}
 							<div className="py-2 xl:py-3">
-								<p className="font-bold text-xl lg:text-4xl text-center ">
+								<p className="font-bold text-2xl lg:text-4xl text-center drop-shadow-[1px_1px_0px_black]">
 									{item.name}
 								</p>
 							</div>
 
 							<div className="flex-grow"></div>
 
+							{/* price and counts */}
 							<div className="">
 								{/* price */}
 								<div>
-									<p className="font-semibold text-lg lg:text-3xl text-center">
+									<p className="font-semibold text-xl lg:text-3xl text-center drop-shadow-[1px_1px_0px_black]">
 										৳ {toBanglaNumber(item.price)}
 									</p>
 								</div>
@@ -178,6 +179,7 @@ const RecipeList = () => {
 
 											{/* Minus button */}
 											<button
+												className="transition-all hover:scale-110"
 												onClick={() => {
 													quantity > 1
 														? updateQuantity(
@@ -193,7 +195,7 @@ const RecipeList = () => {
 													stroke="currentColor"
 													fill="currentColor"
 													viewBox="0 0 448 512"
-													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full"
+													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full drop-shadow-[1px_1px_0px_black]"
 													xmlns="http://www.w3.org/2000/svg"
 												>
 													<path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
@@ -201,12 +203,13 @@ const RecipeList = () => {
 											</button>
 
 											{/* quantity */}
-											<span className=" w-8 text-center text-gray-900 dark:text-white font-bold text-2xl">
+											<span className=" w-8 text-center font-semibold text-2xl drop-shadow-[1px_1px_0px_black]">
 												{toBanglaNumber(quantity)}
 											</span>
 
 											{/* Plus button */}
 											<button
+												className="transition-all hover:scale-110"
 												onClick={() => {
 													updateQuantity(
 														item.id,
@@ -218,7 +221,7 @@ const RecipeList = () => {
 													stroke="currentColor"
 													fill="currentColor"
 													viewBox="0 0 448 512"
-													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full"
+													className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full drop-shadow-[1px_1px_0px_black]"
 													xmlns="http://www.w3.org/2000/svg"
 												>
 													<path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
@@ -236,9 +239,9 @@ const RecipeList = () => {
 													// 		dispatch({ type: "ADD_ITEM", payload: { item, quantity } });
 													// 	}, []);
 												}}
-												className="my-2 py-1 px-4 rounded-full bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold drop-shadow-[1px_1px_0px_black]"
+												className="my-2 py-1 px-4 rounded-full bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold drop-shadow-[1px_1px_2px_black] transition-all hover:scale-110"
 											>
-												<span className=" relative z-10 text-gray-900/90">
+												<span className="relative z-10 drop-shadow-[1px_1px_2px_gray]">
 													অর্ডার করুন
 												</span>
 											</button>
