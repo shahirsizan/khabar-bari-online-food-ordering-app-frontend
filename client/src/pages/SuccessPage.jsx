@@ -10,7 +10,7 @@ const SuccessPage = () => {
 			<Navbar />
 			<section className="flex-grow">
 				<Routes>
-					<Route path="/" element={<Success />} />
+					<Route path="/*" element={<Success />} />
 				</Routes>
 			</section>
 			<Footer className="mt-auto" />
