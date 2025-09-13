@@ -7,16 +7,14 @@ const DarkMode = () => {
 		localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
 	);
 
-	const element = document.documentElement;
-	// console.log("element is: ", element);
-	// console.log(element.classList);
+	const rootHtmlElement = document.documentElement;
 
 	useEffect(() => {
 		if (theme === "dark") {
-			element.classList.add("dark");
+			rootHtmlElement.classList.add("dark");
 			localStorage.setItem("theme", "dark");
 		} else {
-			element.classList.remove("dark");
+			rootHtmlElement.classList.remove("dark");
 			localStorage.setItem("theme", "light");
 		}
 	}, [theme]);
