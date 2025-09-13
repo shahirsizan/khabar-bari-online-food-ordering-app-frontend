@@ -1,3 +1,5 @@
+import { backend_base_url } from "../../workMode";
+
 import React, { useState } from "react";
 import { useCart } from "../../CartContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -77,7 +79,7 @@ const Cart = () => {
 		try {
 			const { data } = await axios.post(
 				// `https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
-				`http://localhost:5000/api/bkash/payment/create`,
+				`${backend_base_url}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
