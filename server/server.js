@@ -8,18 +8,20 @@ import router from "./routes/routes.js";
 import "dotenv/config";
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 
-// const allowedOrigins = ["https://tokenized.sandbox.bka.sh", frontend_base_url];
-// app.use(
-// 	cors({
-// 		origin: allowedOrigins,
-// 		credentials: true,
-// 	})
-// );
-app.use(cors());
+const allowedOrigins = [
+	"https://khabar-bari-frontend.vercel.app",
+	"https://tokenized.sandbox.bka.sh",
+];
+app.use(
+	cors({
+		origin: allowedOrigins,
+		credentials: true,
+	})
+);
 
 const db = async () => {
 	try {
