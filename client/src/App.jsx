@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Route, Routes } from "react-router-dom";
@@ -8,7 +8,8 @@ import SuccessPage from "./pages/SuccessPage.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
 
 const App = () => {
-	React.useEffect(() => {
+	// smooth intro
+	useEffect(() => {
 		AOS.init({
 			offset: 100,
 			duration: 500,
@@ -19,7 +20,7 @@ const App = () => {
 	}, []);
 
 	return (
-		<div className=" bg-white dark:bg-gray-900 dark:text-white duration-200">
+		<div className=" bg-gray-200/50 dark:bg-gray-900 dark:text-white duration-300">
 			<Routes>
 				<Route path="/" element={<LandingPage />} />
 				<Route path="/cart" element={<CartPage />} />

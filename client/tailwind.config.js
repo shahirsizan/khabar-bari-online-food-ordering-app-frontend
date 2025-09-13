@@ -5,7 +5,7 @@ export default {
 	theme: {
 		extend: {
 			gridTemplateColumns: {
-				"fluid-grid": "repeat(auto-fit, minmax(260px, 1fr))",
+				"fluid-grid": "repeat(auto-fit, minmax(250px, 1fr))",
 			},
 
 			fontFamily: {

@@ -1,17 +1,7 @@
-import React from "react";
 import Logo from "../../assets/food-logo.png";
-import { FaCartShopping } from "react-icons/fa6";
 import DarkMode from "./DarkMode";
 import { Link } from "react-router-dom";
 import { useCart } from "../../CartContext";
-
-const Menu = [
-	{
-		id: 2,
-		name: "Services",
-		link: "/#services",
-	},
-];
 
 const Navbar = () => {
 	const { totalItemsCount } = useCart();
@@ -26,24 +16,25 @@ const Navbar = () => {
 	};
 
 	return (
-		<div className="font-atma  bg-white dark:bg-gray-800 dark:text-white py-3 fixed w-full z-10 shadow-lg">
+		<div className="navSection font-atma bg-white dark:bg-gray-800 dark:text-white py-3 fixed w-full z-10 shadow-md">
 			<div className="container py-3 sm:py-0">
 				<div className="flex justify-between items-center">
-					{/* left */}
+					{/* LEFT */}
 					<Link
 						to={"/"}
-						className="font-bold text-2xl sm:text-3xl flex gap-2 justify-center"
+						className="flex gap-2 items-center justify-center"
 					>
 						<img
 							src={Logo}
-							className="max-[320px]:hidden w-10 drop-shadow-[0_1px_1px_black]"
+							className="max-sm:hidden w-12 drop-shadow-[0_1px_1px_black]"
 						/>
-						<span className="max-[320px]:text-2xl drop-shadow-[0_1px_1px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
+
+						<span className="text-3xl md:text-4xl font-bold drop-shadow-[0_1px_1px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
 							খাবারবাড়ি
 						</span>
 					</Link>
 
-					{/* right */}
+					{/* RIGHT */}
 					<div className="flex justify-between items-center gap-4 ">
 						{/* darkmode button */}
 						<div>

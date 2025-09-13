@@ -1,8 +1,8 @@
-import React, { useState } from "react";
 import BiryaniImg1 from "../../assets/biryani3.png";
 import BiryaniImg2 from "../../assets/biryani5.png";
 import BiryaniImg3 from "../../assets/biryani2.png";
-import Vector from "../../assets/vector3.png";
+import biryanihero from "../../assets/biryanihero.png";
+import heroimage from "../../assets/heroimage.jpg";
 
 const ImageList = [
 	{
@@ -21,7 +21,7 @@ const ImageList = [
 
 const Hero2 = () => {
 	const bgImage = {
-		backgroundImage: `url(${Vector})`,
+		backgroundImage: `url(${heroimage})`,
 		backgroundPosition: "center",
 		backgroundRepeat: "no-repeat",
 		backgroundSize: "cover",
@@ -30,51 +30,52 @@ const Hero2 = () => {
 	};
 
 	return (
-		<div
-			className="min-h-[550px] sm:min-h-[600px] pt-32 bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200"
+		<section
+			className="heroSection min-h-[550px] sm:min-h-[600px] pt-20 md:pt-32 pb-8 sm:pb-0 flex justify-center items-center px-[5vw] md:px-[8vw] lg:px-[10vw] "
 			style={bgImage}
 		>
-			<div className="container pb-8 sm:pb-0 sm:px-16 lg:px-32">
-				<div className="grid grid-cols-1 sm:grid-cols-2">
-					{/* LEFT */}
-					<div
-						data-aos="zoom-out"
-						data-aos-duration="400"
-						data-aos-once="true"
-						className="font-atma flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
-					>
-						<h1 className=" text-5xl sm:text-6xl lg:text-8xl font-bold">
-							<span class="drop-shadow-[0_1px_1px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
-								খাবারবাড়ি
-								<br />
-							</span>{" "}
+			<div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-20 xl:gap-x-36">
+				{/* <div className="flex flex-col sm:flex-row justify-center items-center"> */}
+				{/* LEFT */}
+				<div
+					data-aos="zoom-out"
+					data-aos-duration="400"
+					data-aos-once="true"
+					className="font-atma text-white flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
+				>
+					<h1 className="font-bold">
+						<span class="text-6xl md:text-8xl xl:text-9xl drop-shadow-[0_2px_5px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
+							খাবারবাড়ি
+							<br />
+						</span>{" "}
+						<span className="text-4xl md:text-5xl xl:text-7xl whitespace-nowrap drop-shadow-[5px_5px_5px_black]">
 							তে স্বাগতম!
-						</h1>
-						<p className="text-3xl ">
-							সুস্বাদু খাবারের নির্ভরযোগ্য ঠিকানা
-						</p>
-						<div>
-							<button className="drop-shadow-[0_1px_1px_black] bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-white text-2xl py-3 px-8 rounded-full">
-								অর্ডার করুন
-							</button>
-						</div>
-					</div>
+						</span>
+					</h1>
 
-					{/* RIGHT */}
-					<div className="relative min-h-[250px] sm:min-h-[450px] flex space-x-3 justify-center items-center order-1 sm:order-2 ">
-						<div className="absolute h-[250px] sm:h-[550px] overflow-hidden flex justify-center items-center">
-							<img
-								data-aos="zoom-in"
-								data-aos-duration="200"
-								data-aos-once="true"
-								src={ImageList[0].img}
-								className="w-[200px] sm:w-[550px] sm:scale-125 lg:scale-150 mx-auto spin"
-							/>
-						</div>
+					<div>
+						<button className="bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-4 lg:px-6 rounded-full drop-shadow-[2px_3px_2px_black]">
+							<span className="drop-shadow-[1px_1px_1px_black]">
+								অর্ডার করুন
+							</span>
+						</button>
+					</div>
+				</div>
+
+				{/* IMAGE */}
+				<div className="flex items-center justify-center min-h-[250px] sm:min-h-[450px] space-x-3 order-1 sm:order-2 ">
+					<div className="w-full overflow-hidden flex justify-center items-center">
+						<img
+							data-aos="zoom-in"
+							data-aos-duration="200"
+							data-aos-once="true"
+							src={biryanihero}
+							className="w-[200px] sm:w-[4800px] sm:scale-125 lg:scale-150 mx-auto spin"
+						/>
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 };
 

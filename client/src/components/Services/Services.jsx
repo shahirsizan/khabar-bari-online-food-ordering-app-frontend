@@ -27,7 +27,7 @@ const ServicesData = [
 const Services = () => {
 	return (
 		<section
-			className="servicesSection font-atma py-8 lg:py-12"
+			className="servicesSection font-atma py-8 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]"
 			id="services"
 		>
 			<div className="text-center mb-14 mx-auto">

@@ -6,7 +6,7 @@ const Footer = () => {
 	const year = new Date().getFullYear();
 
 	return (
-		<section className="footerSection py-5 font-atma">
+		<section className="footerSection py-5 font-atma px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<div className=" text-lg py-3 px-4 flex flex-col sm:flex-row sm:justify-between">
 				<h1 className="max-sm:m-auto font-bold sm:text-left text-justify flex items-center gap-3">
 					<img
