@@ -41,8 +41,9 @@ db();
 
 app.use("/api", router);
 app.use("/", (req, res) => {
-	console.log("api hit by cron");
+	res.send("cron hit");
 });
+
 app.listen(port, () =>
 	console.log(`Listening on port ${port} in ${mode} mode`)
 );
