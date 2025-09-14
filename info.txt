@@ -1,0 +1,6 @@
+status = "DONE & DUSTED"
+frontend in Vercel
+backend in Render
+
+⚠️⚠️⚠️ Github e push korar somoy always keep the workMode in `prod`. 
+Else render/vercel won't work

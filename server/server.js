@@ -40,7 +40,9 @@ db();
 // caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
 
 app.use("/api", router);
-
+app.use("/", (req, res) => {
+	console.log("api hit by cron");
+});
 app.listen(port, () =>
 	console.log(`Listening on port ${port} in ${mode} mode`)
 );
