@@ -312,9 +312,9 @@ const Cart = () => {
 								onClick={(e) => {
 									setShowPaymentOptionsModal(true);
 								}}
-								className="my-2 py-1 px-2 rounded-2xl drop-shadow-[1px_1px_1px_black] bg-gradient-to-r from-primary to-secondary "
+								className="py-3 px-4 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[0_1px_1px_gray] hover:scale-110 duration-200"
 							>
-								<span className="text-lg sm:text-xl text-white drop-shadow-[1px_1px_1px_black]">
+								<span className="text-white text-lg lg:text-2xl font-semibold drop-shadow-[1px_1px_1px_black] whitespace-nowrap">
 									চেকআউট
 								</span>
 							</button>
