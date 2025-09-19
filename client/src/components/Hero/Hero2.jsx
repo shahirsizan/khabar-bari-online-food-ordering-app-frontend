@@ -1,7 +1,7 @@
 import BiryaniImg1 from "../../assets/biryani3.png";
 import BiryaniImg2 from "../../assets/biryani5.png";
 import BiryaniImg3 from "../../assets/biryani2.png";
-import biryanihero from "../../assets/biryanihero.png";
+import biryaniherocompressed from "../../assets/biryaniherocompressed.png";
 import heroimage from "../../assets/heroimage.jpg";
 
 const ImageList = [
@@ -69,7 +69,7 @@ const Hero2 = () => {
 							data-aos="zoom-in"
 							data-aos-duration="200"
 							data-aos-once="true"
-							src={biryanihero}
+							src={biryaniherocompressed}
 							className="w-[200px] sm:w-[4800px] sm:scale-125 lg:scale-150 mx-auto spin"
 						/>
 					</div>

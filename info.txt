@@ -4,3 +4,6 @@ backend in Render
 
 ⚠️⚠️⚠️ Github e push korar somoy always keep the workMode in `prod`. 
 Else render/vercel won't work
+
+Always keep running the cronjob. Else render instance will pause.
+cronjob dashboard: "https://console.cron-job.org/jobs/6587735/history"
