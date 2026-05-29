@@ -4,21 +4,6 @@ import BiryaniImg3 from "../../assets/biryani2.png";
 import biryaniherocompressed from "../../assets/biryaniherocompressed.png";
 import heroimage from "../../assets/heroimage.jpg";
 
-const ImageList = [
-	{
-		id: 1,
-		img: BiryaniImg1,
-	},
-	{
-		id: 2,
-		img: BiryaniImg2,
-	},
-	{
-		id: 3,
-		img: BiryaniImg3,
-	},
-];
-
 const Hero2 = () => {
 	const bgImage = {
 		backgroundImage: `url(${heroimage})`,
@@ -27,6 +12,13 @@ const Hero2 = () => {
 		backgroundSize: "cover",
 		height: "100%",
 		width: "100%",
+	};
+
+	const scrollToRecipeSection = () => {
+		const section = document.getElementById("recipeList");
+		if (section) {
+			section.scrollIntoView({ behavior: "smooth" });
+		}
 	};
 
 	return (
@@ -39,7 +31,7 @@ const Hero2 = () => {
 				{/* LEFT */}
 				<div
 					data-aos="zoom-out"
-					data-aos-duration="400"
+					data-aos-duration="2500"
 					data-aos-once="true"
 					className="font-atma text-white flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
 				>
@@ -55,9 +47,14 @@ const Hero2 = () => {
 
 					<div>
 						<button className="bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-4 lg:px-6 rounded-full drop-shadow-[2px_3px_2px_black]">
-							<span className="drop-shadow-[1px_1px_1px_black]">
+							<button
+								className="drop-shadow-[1px_1px_1px_black]"
+								onClick={() => {
+									scrollToRecipeSection();
+								}}
+							>
 								অর্ডার করুন
-							</span>
+							</button>
 						</button>
 					</div>
 				</div>
@@ -67,7 +64,7 @@ const Hero2 = () => {
 					<div className="w-full overflow-hidden flex justify-center items-center">
 						<img
 							data-aos="zoom-in"
-							data-aos-duration="200"
+							data-aos-duration="300"
 							data-aos-once="true"
 							src={biryaniherocompressed}
 							className="w-[200px] sm:w-[4800px] sm:scale-125 lg:scale-150 mx-auto spin"

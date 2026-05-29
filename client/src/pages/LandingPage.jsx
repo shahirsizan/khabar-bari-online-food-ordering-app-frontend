@@ -4,6 +4,7 @@ import Services from "../components/Services/Services";
 import RecipeList from "../components/RecipeList/RecipeList";
 import AppStore from "../components/AppStore/AppStore";
 import Footer from "../components/Footer/Footer";
+import Hero from "../components/Hero/Hero";
 
 const LandingPage = () => {
 	return (

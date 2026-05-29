@@ -85,7 +85,7 @@ const Cart = () => {
 					amount: cartTotal,
 					orderId: 1,
 				},
-				{ withCredentials: true }
+				{ withCredentials: true },
 			);
 
 			// github e upload er por nicher code use korte hobe. uporer code local machine er jonno
@@ -204,7 +204,7 @@ const Cart = () => {
 											onClick={() => {
 												updateQuantity(
 													item.id,
-													item.quantity - 1
+													item.quantity - 1,
 												);
 											}}
 											className="transition-all hover:scale-110"
@@ -230,7 +230,7 @@ const Cart = () => {
 											onClick={() => {
 												updateQuantity(
 													item.id,
-													item.quantity + 1
+													item.quantity + 1,
 												);
 											}}
 											className="transition-all hover:scale-110"
@@ -267,7 +267,7 @@ const Cart = () => {
 											<span className="whitespace-nowrap">
 												মোট: ৳
 												{toBanglaNumber(
-													item.quantity * item.price
+													item.quantity * item.price,
 												)}
 											</span>
 										</p>
@@ -327,7 +327,7 @@ const Cart = () => {
 											className="absolute right-4 top-4 text-sm md:text-xl cursor-pointer px-2 py-1 bg-gray-500 rounded-full text-white"
 											onClick={() => {
 												setShowPaymentOptionsModal(
-													false
+													false,
 												);
 											}}
 										>

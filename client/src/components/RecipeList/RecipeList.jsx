@@ -184,11 +184,11 @@ const RecipeList = () => {
 													quantity > 1
 														? updateQuantity(
 																item.id,
-																quantity - 1
-														  )
+																quantity - 1,
+															)
 														: removeFromCart(
-																item.id
-														  );
+																item.id,
+															);
 												}}
 											>
 												<svg
@@ -213,7 +213,7 @@ const RecipeList = () => {
 												onClick={() => {
 													updateQuantity(
 														item.id,
-														quantity + 1
+														quantity + 1,
 													);
 												}}
 											>
