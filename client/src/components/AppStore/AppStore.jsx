@@ -5,7 +5,7 @@ import cook from "../../assets/cooking.png";
 
 const AppStore = () => {
 	return (
-		<section className="appstoreSection py-8 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+		<section className="appstoreSection py-6 lg:py-16 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
 				{/* LEFT */}
 				<div className="space-y-6 max-w-lg mx-auto">
@@ -50,7 +50,7 @@ const AppStore = () => {
 				<div>
 					<img
 						src={cook}
-						className="rotate-2 w-full block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+						className="animate-tilt w-full block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
 					/>
 				</div>
 			</div>

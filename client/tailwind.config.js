@@ -19,6 +19,10 @@ export default {
 					"50%": { transform: "translate(-10px, -5px)" },
 					"80%": { transform: "translate(10px, -5px)" },
 				},
+				tilt: {
+					"0%, 100%": { transform: "rotate(-2deg)" },
+					"50%": { transform: "rotate(2deg)" },
+				},
 			},
 			colors: {
 				primary: "#ffc001",
@@ -36,6 +40,7 @@ export default {
 			animation: {
 				"spin-slow": "spin 40s linear infinite",
 				float: "float 7s ease-in-out infinite",
+				tilt: "tilt 6s infinite ease-in-out",
 			},
 		},
 	},
