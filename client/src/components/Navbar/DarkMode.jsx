@@ -4,7 +4,7 @@ import lightPng from "../../assets/website/light-mode-button.png";
 
 const DarkMode = () => {
 	const [theme, setTheme] = useState(
-		localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
+		localStorage.getItem("theme") ? localStorage.getItem("theme") : "light",
 	);
 
 	const rootHtmlElement = document.documentElement;
