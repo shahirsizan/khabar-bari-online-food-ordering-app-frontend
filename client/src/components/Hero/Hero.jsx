@@ -46,7 +46,7 @@ const Hero = () => {
 						className="font-atma flex flex-col justify-center gap-4 pt-12 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
 					>
 						<h1 className="max-[380px]:text-xl text-5xl sm:text-6xl lg:text-7xl font-bold">
-							<span class="drop-shadow-[0_1px_1px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
+							<span className="drop-shadow-[0_1px_1px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
 								খাবারবাড়ি
 								<br />
 							</span>{" "}
@@ -86,8 +86,8 @@ const Hero = () => {
 											item.id === 1
 												? BiryaniImg1
 												: item.id === 2
-												? BiryaniImg2
-												: BiryaniImg3
+													? BiryaniImg2
+													: BiryaniImg3,
 										);
 									}}
 									className={`max-w-[80px] h-[80px] object-contain inline-block cursor-pointer ${

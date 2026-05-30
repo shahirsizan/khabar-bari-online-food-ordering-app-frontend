@@ -36,7 +36,7 @@ const Hero2 = () => {
 					className="font-atma text-white flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
 				>
 					<h1 className="font-bold">
-						<span class="text-6xl md:text-8xl xl:text-9xl drop-shadow-[0_2px_5px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
+						<span className="text-6xl md:text-8xl xl:text-9xl drop-shadow-[0_2px_5px_black] bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90">
 							খাবারবাড়ি
 							<br />
 						</span>{" "}
@@ -46,15 +46,13 @@ const Hero2 = () => {
 					</h1>
 
 					<div>
-						<button className="bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-4 lg:px-6 rounded-full drop-shadow-[2px_3px_2px_black]">
-							<button
-								className="drop-shadow-[1px_1px_1px_black]"
-								onClick={() => {
-									scrollToRecipeSection();
-								}}
-							>
-								অর্ডার করুন
-							</button>
+						<button
+							onClick={() => {
+								scrollToRecipeSection();
+							}}
+							className="bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-4 lg:px-6 rounded-full drop-shadow-[2px_3px_2px_black]"
+						>
+							অর্ডার করুন
 						</button>
 					</div>
 				</div>
