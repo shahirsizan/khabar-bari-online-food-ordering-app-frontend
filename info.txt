@@ -1,3 +1,6 @@
+status = refining the project. Video er 2:34:49 er google login part skip korsi. 
+    pore somoy pele korbo.
+    
 status = "DONE & DUSTED"
 frontend in Vercel
 backend in Render
