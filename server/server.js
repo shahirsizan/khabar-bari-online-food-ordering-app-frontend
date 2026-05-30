@@ -13,6 +13,7 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 
 const allowedOrigins = [
+	"http://localhost:5173",
 	"https://khabar-bari-frontend.vercel.app",
 	"https://tokenized.sandbox.bka.sh",
 ];
@@ -20,19 +21,17 @@ app.use(
 	cors({
 		origin: allowedOrigins,
 		credentials: true,
-	})
+	}),
 );
 
 const db = async () => {
 	try {
 		await mongoose.connect(process.env.db_url);
-		console.log("db connected");
+		console.log("✅ mongodb connected");
 	} catch (error) {
-		console.log(error.message);
+		console.log("❌ mongodb connection failed: ", error.message);
 	}
 };
-
-db();
 
 // app.use("/", (req, res) => {
 // 	res.send("hello from backend base url");
@@ -44,6 +43,7 @@ app.use("/", (req, res) => {
 	res.send("cron hit");
 });
 
-app.listen(port, () =>
-	console.log(`Listening on port ${port} in ${mode} mode`)
-);
+app.listen(port, () => {
+	db();
+	console.log(`Listening on port ${port} in ${mode} mode`);
+});

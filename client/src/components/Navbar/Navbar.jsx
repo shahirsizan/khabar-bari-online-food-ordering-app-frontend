@@ -1,10 +1,14 @@
 import Logo from "../../assets/food-logo.png";
 import DarkMode from "./DarkMode";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../CartContext";
+import { useUserContext } from "../../UserContext";
 
 const Navbar = () => {
 	const { totalItemsCount } = useCart();
+	const navigate = useNavigate();
+
+	const { loading, user, logoutUser } = useUserContext();
 
 	const toBanglaNumber = (number) => {
 		const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -13,6 +17,11 @@ const Navbar = () => {
 			.split("")
 			.map((d) => banglaDigits[parseInt(d)])
 			.join("");
+	};
+
+	const handleLogout = () => {
+		logoutUser();
+		navigate("/login");
 	};
 
 	return (
@@ -35,16 +44,16 @@ const Navbar = () => {
 					</Link>
 
 					{/* RIGHT */}
-					<div className="flex justify-between items-center gap-4 ">
+					<div className="flex justify-between items-center gap-4 lg:gap-6">
 						{/* darkmode button */}
 						<div>
 							<DarkMode />
 						</div>
 
-						<div className=" flex items-center space-x-2 md:space-x-3 lg:space-x-4 ml-3 md:ml-3 lg:ml-6 mr-2 md:mr-3 lg:mr-4">
+						<div className="flex items-center space-x-2 md:space-x-3 xl:space-x-5 ml-3 md:ml-3 lg:ml-6 mr-2 md:mr-3 lg:mr-4">
 							<Link
 								to={"/cart"}
-								className="p-2 font-serif rounded-xl relative group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+								className=" p-2 font-serif rounded-xl relative group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
 							>
 								<svg
 									stroke="currentColor"
@@ -69,29 +78,34 @@ const Navbar = () => {
 								)}
 							</Link>
 
-							{/* Desktop Login/Logout button component upore */}
-							{/* {renderDesktopAuthButton()} */}
-						</div>
-
-						{/* navlinks */}
-						{/* <ul className="hidden sm:flex items-center gap-4 text-xl">
-							{Menu.map((item, idx) => (
-								<li key={idx}>
-									<a
-										href={item.link}
-										className="inline-block py-4 px-4 transition-all duration-100 hover:text-yellow-500 hover:scale-95"
+							{user ? (
+								<div>
+									<span>{user.name}</span>
+									<button
+										onClick={handleLogout}
+										className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
 									>
-										{item.name}
-									</a>
-								</li>
-							))}
-						</ul> */}
+										লগআউট
+									</button>
+								</div>
+							) : (
+								<div className="flex gap-2">
+									<Link
+										to={"/login"}
+										className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+									>
+										লগইন
+									</Link>
 
-						{/* order button */}
-						{/* <button className="max-[380px]:text-sm bg-gradient-to-r from-primary to-secondary text-xl transition-all duration-100 hover:scale-95 text-gray-800 py-1 px-4 rounded-full flex items-center gap-3">
-							Order
-							<FaCartShopping className="text-xl text-gray-800 drop-shadow-sm cursor-pointer" />
-						</button> */}
+									<Link
+										to={"/register"}
+										className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+									>
+										রেজিস্টার
+									</Link>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</div>
