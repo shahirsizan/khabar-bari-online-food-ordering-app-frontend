@@ -10,6 +10,7 @@ import "dotenv/config";
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.use(express.json());
 app.use(bodyParser.json());
 
 const allowedOrigins = [
@@ -21,6 +22,7 @@ app.use(
 	cors({
 		origin: allowedOrigins,
 		credentials: true,
+		// allowedHeaders: ["Content-Type", "token", "Authorization"],
 	}),
 );
 
