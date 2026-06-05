@@ -6,7 +6,6 @@ import Error from "../components/Error/Error";
 const ErrorPage = () => {
 	return (
 		<div className="min-h-screen flex flex-col">
-			<Navbar />
 			<section className="flex-grow">
 				{" "}
 				<Error />

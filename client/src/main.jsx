@@ -10,10 +10,10 @@ import { UserProvider } from "./UserContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 	<BrowserRouter>
-		<UserProvider>
-			<CartProvider>
+		<CartProvider>
+			<UserProvider>
 				<App />
-			</CartProvider>
-		</UserProvider>
+			</UserProvider>
+		</CartProvider>
 	</BrowserRouter>,
 );

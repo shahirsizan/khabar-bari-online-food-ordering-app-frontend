@@ -8,8 +8,7 @@ import Hero from "../components/Hero/Hero";
 
 const LandingPage = () => {
 	return (
-		<div className="bg-gray-200/50 dark:bg-gray-900 dark:text-white duration-300">
-			<Navbar />
+		<div className=" bg-gray-200/50 dark:bg-gray-900 dark:text-white duration-300">
 			<Hero2 />
 			<Services />
 			<RecipeList />
