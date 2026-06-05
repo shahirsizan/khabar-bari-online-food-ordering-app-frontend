@@ -12,6 +12,15 @@ const schema = new Schema(
 			type: String,
 			required: true,
 		},
+		phone: {
+			type: String,
+		},
+		streetAddress: {
+			type: String,
+		},
+		city: {
+			type: String,
+		},
 		role: {
 			type: String,
 			default: "user",
