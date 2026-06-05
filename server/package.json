@@ -13,16 +13,19 @@
 	"description": "",
 	"dependencies": {
 		"axios": "^1.9.0",
+		"bcrypt": "^5.1.1",
 		"body-parser": "^2.2.0",
+		"cloudinary": "^2.10.0",
 		"cors": "^2.8.5",
-		"dotenv": "^16.5.0",
+		"dotenv": "^16.6.1",
 		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.2",
 		"mongodb": "^6.17.0",
 		"mongoose": "^8.15.1",
+		"multer": "^2.1.1",
 		"node-global-storage": "^3.0.1",
 		"nodemon": "^3.1.10",
-		"uuid": "^11.1.0",
-		"bcrypt": "^5.1.1",
-		"jsonwebtoken": "^9.0.2"
+		"streamifier": "^0.1.1",
+		"uuid": "^11.1.0"
 	}
 }
