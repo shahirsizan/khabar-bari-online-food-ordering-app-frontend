@@ -17,7 +17,7 @@ const cartReducer = (state, action) => {
 			const existingItem = state.find((i) => i.id === item.id);
 			if (existingItem) {
 				return state.map((i) =>
-					i.id === item.id ? { ...i, quantity: quantity } : i
+					i.id === item.id ? { ...i, quantity: quantity } : i,
 				);
 			}
 			return [...state, { ...item, quantity: quantity }];
@@ -32,8 +32,11 @@ const cartReducer = (state, action) => {
 			return state.map((i) =>
 				i.id === itemId
 					? { ...i, quantity: Math.max(1, newQuantity) }
-					: i
+					: i,
 			);
+		}
+		case "CLEAR_CART": {
+			return [];
 		}
 		default:
 			return state;
@@ -48,6 +51,10 @@ const initializer = () => {
 
 export const CartProvider = ({ children }) => {
 	const [cartItems, dispatch] = useReducer(cartReducer, [], initializer);
+
+	const [showPaymentOptionsModal, setShowPaymentOptionsModal] =
+		useState(false);
+	const [paymentMethod, setPaymentMethod] = useState("");
 	// console.log("from cartContext.jsx. Cart is: ", cartItems);
 
 	//  persist cart state to localstorage
@@ -58,16 +65,16 @@ export const CartProvider = ({ children }) => {
 	// calculate total cost
 	const cartTotal = cartItems.reduce(
 		(total, item) => total + item.price * item.quantity,
-		0
+		0,
 	);
 
 	// calculate total items count
 	const totalItemsCount = cartItems.reduce(
 		(sum, item) => sum + item.quantity,
-		0
+		0,
 	);
 
-	//  dispatcher wrapped with useCallback for performance
+	//  dispatcher wrapped with useCallback for performance (stable reference between renders)
 	const addToCart = useCallback((item, quantity) => {
 		dispatch({ type: "ADD_ITEM", payload: { item, quantity } });
 	}, []);
@@ -80,10 +87,9 @@ export const CartProvider = ({ children }) => {
 		dispatch({ type: "UPDATE_QUANTITY", payload: { itemId, newQuantity } });
 	}, []);
 
-	const [showPaymentOptionsModal, setShowPaymentOptionsModal] =
-		useState(false);
-
-	const [paymentMethod, setPaymentMethod] = useState("");
+	const clearCart = useCallback(() => {
+		dispatch({ type: "CLEAR_CART" });
+	}, []);
 
 	return (
 		<CartContext.Provider
@@ -98,6 +104,7 @@ export const CartProvider = ({ children }) => {
 				setShowPaymentOptionsModal,
 				paymentMethod,
 				setPaymentMethod,
+				clearCart,
 			}}
 		>
 			{children}
@@ -105,4 +112,16 @@ export const CartProvider = ({ children }) => {
 	);
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+	const context = useContext(CartContext);
+
+	/***
+	 * To prevent the entire application from crashing if this Provider is intentionally/accidentally removed
+	 * in the future, add a check inside the `useCart` hook.
+	 */
+	if (context === undefined) {
+		throw new Error("useCart must be called from within a CartProvider");
+	}
+
+	return context;
+};
