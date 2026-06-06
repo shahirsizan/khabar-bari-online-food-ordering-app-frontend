@@ -4,9 +4,14 @@ import { FaGoogle } from "react-icons/fa";
 
 const RegisterPage = () => {
 	const backendUrl = "http://localhost:5000";
+
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [phone, setPhone] = useState("");
+	const [streetAddress, setStreetAddress] = useState("");
+	const [city, setCity] = useState("");
+
 	const [creatingUser, setCreatingUser] = useState(false);
 	const [userCreated, setUserCreated] = useState(false);
 	const [error, setError] = useState(false);
@@ -22,7 +27,14 @@ const RegisterPage = () => {
 		try {
 			const response = await fetch(`${backendUrl}/api/register`, {
 				method: "POST",
-				body: JSON.stringify({ name, email, password }),
+				body: JSON.stringify({
+					name,
+					email,
+					password,
+					phone,
+					streetAddress,
+					city,
+				}),
 				headers: { "Content-Type": "application/json" },
 			});
 
@@ -84,11 +96,37 @@ const RegisterPage = () => {
 						onChange={(ev) => setPassword(ev.target.value)}
 					/>
 
-					<button
-						className="border-3 bg-transparent shadow-md p-2"
-						type="submit"
+					<input
+						type="text"
+						placeholder="phone"
+						value={phone}
 						disabled={creatingUser}
 						className={`disabled:bg-gray-200 px-3 py-2 border-2 rounded-md`}
+						onChange={(ev) => setPhone(ev.target.value)}
+					/>
+
+					<input
+						type="text"
+						placeholder="street"
+						value={streetAddress}
+						disabled={creatingUser}
+						className={`disabled:bg-gray-200 px-3 py-2 border-2 rounded-md`}
+						onChange={(ev) => setStreetAddress(ev.target.value)}
+					/>
+
+					<input
+						type="text"
+						placeholder="city"
+						value={city}
+						disabled={creatingUser}
+						className={`disabled:bg-gray-200 px-3 py-2 border-2 rounded-md`}
+						onChange={(ev) => setCity(ev.target.value)}
+					/>
+
+					<button
+						className="border-3 bg-transparent shadow-md p-2 disabled:bg-gray-200 px-3 py-2 border-2 rounded-md"
+						type="submit"
+						disabled={creatingUser}
 					>
 						Register
 					</button>

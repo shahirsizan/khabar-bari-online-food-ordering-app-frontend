@@ -4,7 +4,7 @@ import { User } from "../model/userModel.js";
 
 export const registerUser = async (req, res) => {
 	try {
-		const { name, email, password } = req.body;
+		const { name, email, password, phone, streetAddress, city } = req.body;
 		let user = await User.findOne({ email });
 
 		if (user) {
@@ -20,6 +20,9 @@ export const registerUser = async (req, res) => {
 			name,
 			email,
 			password: hashPassword,
+			phone,
+			streetAddress,
+			city,
 		});
 
 		const userObj = user.toObject();
