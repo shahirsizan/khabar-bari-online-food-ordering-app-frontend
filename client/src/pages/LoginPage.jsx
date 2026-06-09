@@ -82,10 +82,9 @@ const LoginPage = () => {
 							/>
 
 							<button
-								className="border-3 bg-transparent shadow-md p-2"
+								className="border-3 bg-transparent shadow-md p-2 disabled:bg-gray-200 px-3 py-2 border-2 rounded-md"
 								type="submit"
 								disabled={loading}
-								className={`disabled:bg-gray-200 px-3 py-2 border-2 rounded-md`}
 							>
 								Login
 							</button>

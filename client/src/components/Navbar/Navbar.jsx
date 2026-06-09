@@ -79,8 +79,16 @@ const Navbar = () => {
 							</Link>
 
 							{user ? (
-								<div>
-									<span>{user.name}</span>
+								<div className="flex gap-2">
+									<button
+										onClick={() => {
+											navigate("/profile");
+										}}
+										className="flex items-center justify-center"
+									>
+										{user.name}
+									</button>
+
 									<button
 										onClick={handleLogout}
 										className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
