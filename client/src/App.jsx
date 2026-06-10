@@ -12,10 +12,18 @@ import { useUserContext } from "./UserContext.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import ProtectedLayout from "./ProtectedLayout";
 import GuestRoute from "./GuestRoute.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import OrdersPage from "./pages/OrdersPage.jsx";
+import Layout from "./Layout.jsx";
+import ProfileLayout from "./profileLayout.jsx";
+import MenuItemsPage from "./pages/MenuItemsPage.jsx";
+import UsersPage from "./pages/UsersPage.jsx";
+import NewMenuItemPage from "./pages/NewMenuItemPage.jsx";
+import EditMenuItemPage from "./pages/EditMenuItemPage.jsx";
+import EditUserPage from "./pages/EditUserPage.jsx";
 
 const App = () => {
 	const navigate = useNavigate();
-	const { isAuthenticated } = useUserContext();
 
 	// smooth intro
 	useEffect(() => {
@@ -51,10 +59,34 @@ const App = () => {
 
 				{/* Protected Routes (Wrapped in Layout) */}
 				<Route element={<ProtectedLayout />}>
-					<Route path="/" element={<LandingPage />} />
-					<Route path="/cart" element={<CartPage />} />
-					<Route path="/success/*" element={<SuccessPage />} />
-					<Route path="/error" element={<ErrorPage />} />
+					<Route path="/" element={<Layout />}>
+						<Route index element={<LandingPage />} />
+						<Route path="/profile" element={<ProfileLayout />}>
+							<Route index element={<ProfilePage />} />
+							<Route
+								path="menu-items"
+								element={<MenuItemsPage />}
+							/>
+							<Route path="users" element={<UsersPage />} />
+							<Route path="orders" element={<OrdersPage />} />
+						</Route>
+
+						<Route
+							path="/menu-items/new"
+							element={<NewMenuItemPage />}
+						/>
+
+						<Route
+							path="/menu-items/edit/:id"
+							element={<EditMenuItemPage />}
+						/>
+
+						<Route path="/users/:id" element={<EditUserPage />} />
+
+						<Route path="/cart" element={<CartPage />} />
+						<Route path="/success/*" element={<SuccessPage />} />
+						<Route path="/error" element={<ErrorPage />} />
+					</Route>
 				</Route>
 			</Routes>
 		</div>
