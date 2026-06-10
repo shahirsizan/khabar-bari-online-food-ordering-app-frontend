@@ -45,8 +45,9 @@ const cartReducer = (state, action) => {
 
 // initialize cart from localstorage
 const initializer = () => {
-	const localCart = localStorage.getItem("cart");
-	return localCart ? JSON.parse(localCart) : [];
+	return localStorage.getItem("cart")
+		? JSON.parse(localStorage.getItem("cart"))
+		: [];
 };
 
 export const CartProvider = ({ children }) => {
@@ -57,7 +58,7 @@ export const CartProvider = ({ children }) => {
 	const [paymentMethod, setPaymentMethod] = useState("");
 	// console.log("from cartContext.jsx. Cart is: ", cartItems);
 
-	//  persist cart state to localstorage
+	//  persist cart state in localstorage (during initial load AND on every subsequent cart update)
 	useEffect(() => {
 		localStorage.setItem("cart", JSON.stringify(cartItems));
 	}, [cartItems]);
