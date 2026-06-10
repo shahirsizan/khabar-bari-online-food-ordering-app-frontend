@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import { useCart } from "../../CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import ImageModal from "../ImageModal";
+import { MdDeleteForever } from "react-icons/md";
+import { useUserContext } from "../../UserContext";
 
 const Cart = () => {
 	const {
@@ -16,6 +19,7 @@ const Cart = () => {
 
 		setPaymentMethod,
 	} = useCart();
+	const { user } = useUserContext();
 	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
@@ -36,54 +40,21 @@ const Cart = () => {
 			.join("");
 	};
 
-	const imageModal = () => {
-		return (
-			<div
-				onClick={() => {
-					setShowImageModal(false);
-				}}
-				className="fixed inset-0 z-50 flex items-center justify-center bg-amber-900/40 backdrop-blur-sm"
-			>
-				<div className=" relative max-w-full max-h-full">
-					<img
-						className=" max-w-[90vw] max-h-[90vh] rounded-lg object-contain"
-						src={selectedImage}
-					/>
-
-					<button
-						onClick={() => {
-							setShowImageModal(false);
-						}}
-						className=" absolute top-1 right-1 bg-amber-900/80 rounded-full p-2 text-black hover:bg-amber-800/90 transition-all
-                           duration-200"
-					>
-						<svg
-							stroke="currentColor"
-							fill="currentColor"
-							strokeWidth="0"
-							viewBox="0 0 352 512"
-							className="w-6 h-6"
-							height="1em"
-							width="1em"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path>
-						</svg>
-					</button>
-				</div>
-			</div>
-		);
-	};
-
 	const pay = async (e) => {
 		try {
-			console.log("invoking pay()");
+			console.log("invoking pay():", {
+				amount: cartTotal,
+				orderId: 1,
+				user,
+			});
+
 			const { data } = await axios.post(
 				// `https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
 				`${backend_base_url}/api/bkash/payment/create`,
 				{
 					amount: cartTotal,
 					orderId: 1,
+					user,
 				},
 				{ withCredentials: true },
 			);
@@ -129,7 +100,7 @@ const Cart = () => {
 	// };
 
 	return (
-		<section className="relative min-h-screen font-atma pt-32 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+		<section className="relative min-h-screen font-atma px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			{/* TOP: TITLE */}
 			<h1 className=" text-5xl xl:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_1px_black] text-center py-4 mb-12">
 				কার্ট
@@ -137,9 +108,7 @@ const Cart = () => {
 
 			{/* MIDDLE: CART */}
 			{cartItems.length === 0 ? (
-				// IF CART EMPTY
-				<div className="cart-empty text-center pt-4 sm:pt-12">
-					{/* IF CART EMPTY */}
+				<div className="CART-EMPTY text-center pt-4 sm:pt-12">
 					<p className="mb-4 sm:mb-10 pb-5 font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_1px_black]">
 						<span className="py-4 text-3xl xl:text-5xl">
 							আপনার কার্ট ফাঁকা!
@@ -156,126 +125,92 @@ const Cart = () => {
 					</Link>
 				</div>
 			) : (
-				// IF CART NOT EMPTY
-				<div className="cart-not-empty grid grid-cols-fluid-grid gap-3 xl:gap-4">
-					{cartItems.map((item) => {
-						return (
-							// CARD
-							<div
-								key={item.id}
-								className="w-full sm:max-w-[350px] flex flex-col font-atma bg-gradient-to-r from-primary to-secondary text-white p-2 xl:p-3 rounded-2xl shadow-xl 
-                                     items-center gap-2"
-							>
-								{/* IMAGE CONTAINER */}
-								<div className="w-full h-32 md:h-40 overflow-hidden flex justify-center items-center rounded-2xl cursor-pointer shadow-lg">
-									<img
-										onClick={() => {
-											setSelectedImage(item.image);
-											setShowImageModal(true);
-										}}
-										className="object-cover"
-										src={item.image}
-									/>
-								</div>
+				<div className="CART-NOT-EMPTY flex flex-col gap-4">
+					{/* TABLE HEADERS (Visible only on desktop) */}
+					<div className="hidden md:grid grid-cols-[80px_1fr_120px_120px_100px] gap-4 items-center px-4 font-bold text-gray-600 border-b-2 pb-2">
+						<div>ছবি</div>
+						<div>আইটেম</div>
+						<div className="text-center">পরিমাণ</div>
+						<div className="text-right">মূল্য</div>
+						<div className="text-center">Action</div>
+					</div>
 
-								{/* ITEM NAME */}
-								<div className="w-full text-center">
-									<h3 className="text-2xl xl:text-3xlxl font-semibold drop-shadow-[1px_1px_1px_black]">
-										{item.name}
-									</h3>
-								</div>
-
-								<div className="flex flex-col items-center mt-auto gap-2 w-full">
-									{/* PRICE */}
-									<p className="mt-1 font-semibold drop-shadow-[1px_1px_1px_black]">
-										<span className="text-2xl">
-											ইউনিট মূল্য
-										</span>{" "}
-										:{" "}
-										<span className="text-2xl">
-											৳ {toBanglaNumber(item.price)}
-										</span>
-									</p>
-
-									{/* MODIFY QUANTITY */}
-									<div className=" flex items-center gap-1 ">
-										{/* minus button */}
-										<button
-											onClick={() => {
-												updateQuantity(
-													item.id,
-													item.quantity - 1,
-												);
-											}}
-											className="transition-all hover:scale-110"
-										>
-											<svg
-												stroke="currentColor"
-												fill="currentColor"
-												viewBox="0 0 448 512"
-												className=" text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full drop-shadow-[1px_1px_0px_black]"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-											</svg>
-										</button>
-
-										{/* quantity */}
-										<span className="w-8 text-center font-semibold text-2xl drop-shadow-[1px_1px_1px_black]">
-											{toBanglaNumber(item.quantity)}
-										</span>
-
-										{/* plus button */}
-										<button
-											onClick={() => {
-												updateQuantity(
-													item.id,
-													item.quantity + 1,
-												);
-											}}
-											className="transition-all hover:scale-110"
-										>
-											<svg
-												stroke="currentColor"
-												fill="currentColor"
-												viewBox="0 0 448 512"
-												className="text-orange-500 dark:text-orange-500 bg-white border-4 border-orange-500 w-7 h-7 rounded-full drop-shadow-[1px_1px_0px_black]"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-											</svg>
-										</button>
-									</div>
-
-									{/* REMOVE & SUBTOTAL */}
-									<div className="flex items-center justify-between w-full">
-										{/* remove button */}
-										<button
-											onClick={() => {
-												removeFromCart(item.id);
-											}}
-											className="px-2 py-1 rounded-2xl flex items-center cursor-pointer hover:scale-105 transition-all duration-200 bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_2px_2px_black]"
-										>
-											{" "}
-											<span className="text-sm lg:text-xl drop-shadow-[1px_1px_1px_black] font-semibold whitespace-nowrap">
-												বাদ দিন
-											</span>
-										</button>
-
-										{/* item total cost */}
-										<p className="text-xl md:text-2xl font-semibold drop-shadow-[1px_1px_1px_black]">
-											<span className="whitespace-nowrap">
-												মোট: ৳
-												{toBanglaNumber(
-													item.quantity * item.price,
-												)}
-											</span>
-										</p>
-									</div>
-								</div>
+					{/* CART ROWS */}
+					{cartItems.map((item) => (
+						<div
+							key={item.id}
+							className="grid grid-cols-[50px_1fr_60px] md:grid-cols-[80px_1fr_120px_120px_100px] gap-4 items-center bg-white p-3 rounded-xl shadow-md border border-gray-100"
+						>
+							{/* IMAGE */}
+							<div className="w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 overflow-hidden rounded-lg">
+								<img
+									onClick={() => {
+										setSelectedImage(item.image);
+										setShowImageModal(true);
+									}}
+									src={item.image}
+									className="w-full h-full object-cover cursor-pointer"
+								/>
 							</div>
-						);
-					})}
+
+							{/* NAME and PRICE */}
+							<div className="font-semibold text-gray-800 ">
+								<h3 className="text-sm sm:text-lg md:text-xl">
+									{item.name}
+								</h3>
+								{/* Mobile Price Display */}
+								<p className="md:hidden text-orange-600 font-bold text-sm sm:text-lg md:text-xl">
+									৳{toBanglaNumber(item.price)}
+								</p>
+							</div>
+
+							{/* QUANTITY CONTROLLER */}
+							<div className="flex items-center justify-center gap-2">
+								<button
+									onClick={() =>
+										updateQuantity(
+											item.id,
+											item.quantity - 1,
+										)
+									}
+									className="p-1 text-lg md:text-3xl rounded-full bg-gray-100 hover:bg-gray-200"
+								>
+									-
+								</button>
+
+								<span className="w-8 text-center font-semibold text-md sm:text-lg md:text-xl">
+									{toBanglaNumber(item.quantity)}
+								</span>
+
+								<button
+									onClick={() =>
+										updateQuantity(
+											item.id,
+											item.quantity + 1,
+										)
+									}
+									className="p-1 text-lg md:text-3xl rounded-full bg-gray-100 hover:bg-gray-200"
+								>
+									+
+								</button>
+							</div>
+
+							{/* TOTAL PRICE (Hidden on mobile, shown in Name block or separate) */}
+							<div className="hidden md:block text-right font-semibold">
+								৳{toBanglaNumber(item.quantity * item.price)}
+							</div>
+
+							{/* REMOVE BUTTON */}
+							<div className="flex justify-center max-w-10 md:max-w-14">
+								<button
+									onClick={() => removeFromCart(item.id)}
+									className="text-red-500 hover:text-red-700 font-semibold text-sm px-2 py-1"
+								>
+									<MdDeleteForever className="size-7 md:size-10" />
+								</button>
+							</div>
+						</div>
+					))}
 				</div>
 			)}
 
@@ -283,24 +218,14 @@ const Cart = () => {
 			{cartItems.length > 0 && (
 				<div className="mt-12 pt-8 border-t-4 border-amber-800/20">
 					<div className="flex flex-col sm:flex-row justify-between items-center gap-8">
-						{/* CONTINUE SHOPPING BUTTON */}
-						<Link
-							to={"/#recipeList"}
-							className="py-3 px-4 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[0_1px_1px_gray] hover:scale-110 duration-200"
-						>
-							<span className="text-white text-lg lg:text-2xl font-semibold drop-shadow-[1px_1px_1px_black] whitespace-nowrap">
-								আরো অর্ডার করতে
-							</span>
-						</Link>
-
 						<div className="w-full flex items-center gap-5">
 							{/* DUMMY SPACE ELEMENT */}
 							<div className="max-sm:hidden flex-grow"></div>
 
 							{/* CART TOTAL */}
-							<h2 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_1px_black]">
-								<span className="whitespace-nowrap">
-									সর্বমোট: ৳{toBanglaNumber(cartTotal)}
+							<h2 className="text-xl sm:text-2xl lg:text-4xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_1px_black]">
+								<span className="whitespace-nowrap ">
+									সর্বমোট: ৳{toBanglaNumber(cartTotal)}{" "}
 								</span>
 							</h2>
 
@@ -312,96 +237,104 @@ const Cart = () => {
 								onClick={(e) => {
 									setShowPaymentOptionsModal(true);
 								}}
-								className="py-3 px-4 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[0_1px_1px_gray] hover:scale-110 duration-200"
+								className="py-2 px-3 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[2px_1px_2px_gray] hover:scale-105 duration-200"
 							>
-								<span className="text-white text-lg lg:text-2xl font-semibold drop-shadow-[1px_1px_1px_black] whitespace-nowrap">
+								<span className="text-white text-md lg:text-xl font-semibold drop-shadow-[2px_1px_2px_black] whitespace-nowrap">
 									চেকআউট
 								</span>
 							</button>
+						</div>
 
-							{showPaymentOptionsModal && (
-								<div className="fixed inset-0 z-10 flex justify-center items-center bg-gray-800/70 backdrop-blur-sm">
-									<div className="bg-gray-100/90 p-5 sm:p-20 rounded-2xl text-md sm:text-lg md:text-xl flex flex-col relative">
-										{/* CLOSE BUTTON */}
-										<span
-											className="absolute right-4 top-4 text-sm md:text-xl cursor-pointer px-2 py-1 bg-gray-500 rounded-full text-white"
-											onClick={() => {
-												setShowPaymentOptionsModal(
-													false,
-												);
-											}}
-										>
-											x
-										</span>
+						{/* CONTINUE SHOPPING BUTTON */}
+						<Link
+							to={"/#recipeList"}
+							className="py-3 px-4 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[0_1px_1px_gray] hover:scale-110 duration-200"
+						>
+							<span className="text-white text-md lg:text-xl font-semibold drop-shadow-[2px_1px_2px_black] whitespace-nowrap">
+								আরো অর্ডার করতে...
+							</span>
+						</Link>
+					</div>
+				</div>
+			)}
 
-										{/* BUTTONS */}
-										<div className="flex flex-col md:flex-row max-sm:mt-10 justify-center gap-3">
-											{/* BKASH */}
-											<button
-												className="bg-green-600 text-white mt-3 rounded-md px-3 py-2 hover:scale-105 transition-all"
-												onClick={(e) => {
-													handleBkashPayment(e);
-												}}
-											>
-												<span className="whitespace-nowrap">
-													বিকাশে পে করুন
-												</span>
-											</button>
+			{showPaymentOptionsModal && (
+				<div className="fixed inset-0 z-10 flex justify-center items-center bg-gray-800/70 backdrop-blur-sm">
+					<div className="bg-gray-100/90 p-5 sm:p-20 rounded-2xl text-md sm:text-lg md:text-xl flex flex-col relative">
+						{/* CLOSE BUTTON */}
+						<span
+							className="absolute right-4 top-4 text-sm md:text-xl cursor-pointer px-2 py-1 bg-gray-500 rounded-full text-white"
+							onClick={() => {
+								setShowPaymentOptionsModal(false);
+							}}
+						>
+							x
+						</span>
 
-											{/* COD (DISABLED) */}
-											<button
-												disabled
-												className="bg-green-600 disabled:bg-gray-500 text-white mt-3 rounded-md px-3 py-2"
-												onClick={(e) => {
-													handleCOD(e);
-												}}
-											>
-												ক্যাশ অন ডেলিভারি{" "}
-												<span className="text-sm">
-													(শীঘ্রই চালু হবে)
-												</span>
-											</button>
-										</div>
+						{/* BUTTONS */}
+						<div className="flex flex-col md:flex-row max-sm:mt-10 justify-center gap-3">
+							{/* BKASH */}
+							<button
+								className="bg-green-600 text-white mt-3 rounded-md px-3 py-2 hover:scale-105 transition-all"
+								onClick={(e) => {
+									handleBkashPayment(e);
+								}}
+							>
+								<span className="whitespace-nowrap">
+									বিকাশে পে করুন: ৳{toBanglaNumber(cartTotal)}
+								</span>
+							</button>
 
-										{/* bkash notes */}
-										<div className="bg-amber-100 text-amber-900 p-4 rounded-md border border-amber-300  shadow-sm leading-7 mt-4">
-											<p>
-												১। Successfull transaction টেস্ট
-												করার জন্য{" "}
-												<strong>01929918378</strong>{" "}
-												অথবা{" "}
-												<strong>01770618575</strong>
-											</p>
-											{/* <p>
+							{/* COD (DISABLED) */}
+							<button
+								disabled
+								className="bg-green-600 disabled:bg-gray-500 text-white mt-3 rounded-md px-3 py-2"
+								onClick={(e) => {
+									handleCOD(e);
+								}}
+							>
+								ক্যাশ অন ডেলিভারি{" "}
+								<span className="text-sm">
+									(শীঘ্রই চালু হবে)
+								</span>
+							</button>
+						</div>
+
+						{/* bkash notes */}
+						<div className="bg-amber-100 text-amber-900 p-4 rounded-md border border-amber-300  shadow-sm leading-7 mt-4">
+							<p>
+								১। Successfull transaction টেস্ট করার জন্য{" "}
+								<strong>01929918378</strong> অথবা{" "}
+								<strong>01770618575</strong>
+							</p>
+							{/* <p>
 												১। Successfull transaction টেস্ট
 												করার জন্য{" "}
 												<strong>01929918378</strong>{" "}
 												ব্যবহার করুন
 											</p> */}
-											<p>
-												২। Insufficient balance টেস্ট
-												করার জন্য{" "}
-												<strong>01823074817</strong>{" "}
-												ব্যবহার করুন
-											</p>
-											<p>
-												৩। <strong>123456</strong> উভয়
-												ক্ষেত্রে Verification code
-											</p>
-											<p>
-												৪। <strong>12121</strong> উভয়
-												ক্ষেত্রে PIN
-											</p>
-										</div>
-									</div>
-								</div>
-							)}
+							<p>
+								২। Insufficient balance টেস্ট করার জন্য{" "}
+								<strong>01823074817</strong> ব্যবহার করুন
+							</p>
+							<p>
+								৩। <strong>123456</strong> উভয় ক্ষেত্রে
+								Verification code
+							</p>
+							<p>
+								৪। <strong>12121</strong> উভয় ক্ষেত্রে PIN
+							</p>
 						</div>
 					</div>
 				</div>
 			)}
 
-			{showImageModal && imageModal()}
+			{showImageModal && (
+				<ImageModal
+					setShowImageModal={setShowImageModal}
+					selectedImage={selectedImage}
+				/>
+			)}
 
 			{loadingBkash && (
 				<div className="font-atma fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg">
