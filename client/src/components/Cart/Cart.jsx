@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ImageModal from "../ImageModal";
 import { MdDeleteForever } from "react-icons/md";
+import { FaInfoCircle } from "react-icons/fa";
 import { useUserContext } from "../../UserContext";
 
 const Cart = () => {
@@ -86,6 +87,11 @@ const Cart = () => {
 			setPaymentMethod("bkash");
 			setShowPaymentOptionsModal(false);
 			setLoadingBkash(true); // Start loading
+			console.log("invoking pay():", {
+				amount: cartTotal,
+				orderId: 1,
+				user,
+			});
 			pay(e);
 		} catch (err) {
 			console.error("Payment failed:", err);
@@ -298,6 +304,38 @@ const Cart = () => {
 									(শীঘ্রই চালু হবে)
 								</span>
 							</button>
+						</div>
+
+						{/* Address reminder */}
+						<div className="bg-amber-100 text-amber-900 p-4 rounded-md border border-amber-300  shadow-sm leading-7 mt-4">
+							<p>আপনার ঠিকানা:</p>
+
+							<p>
+								<span className="font-semibold">এলাকা:</span>{" "}
+								{user.streetAddress}
+							</p>
+							<p>
+								<span className="font-semibold">শহর:</span>{" "}
+								{user.city}
+							</p>
+							<p>
+								<span className="font-semibold">মোবাইল:</span>{" "}
+								{user.phone}
+							</p>
+
+							<p className=" flex items-center pt-5">
+								<FaInfoCircle /> ঠিকানা পরিবর্তন করতে{" "}
+								<span
+									className="text-blue-900 font-semibold cursor-pointer"
+									onClick={() => {
+										navigate("/profile");
+									}}
+								>
+									{" "}
+									এখানে{" "}
+								</span>{" "}
+								ক্লিক করুন
+							</p>
 						</div>
 
 						{/* bkash notes */}
