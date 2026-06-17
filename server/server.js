@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
 	"http://localhost:5173",

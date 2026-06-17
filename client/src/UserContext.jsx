@@ -21,6 +21,51 @@ export const UserProvider = ({ children }) => {
 	const [token, setToken] = useState(localStorage.getItem("token") || null);
 	const [loading, setLoading] = useState(false);
 
+	// console.log("is authenticated? ", isAuthenticated);
+
+	const verifyUser = async () => {
+		const token = localStorage.getItem("token");
+		const user = localStorage.getItem("user");
+
+		if (!token || !user) {
+			setIsInitializing(false);
+			// `isAuthenticated` remains false, so user gets redirected to login page
+			return;
+		}
+
+		try {
+			const response = await fetch(`${backendUrl}/api/me`, {
+				method: "GET",
+				headers: {
+					token: JSON.parse(token),
+				},
+			});
+
+			if (response.ok) {
+				const user = await response.json();
+				setUser(user);
+				setIsAdmin(user.role === "admin");
+				setIsAuthenticated(true);
+			} else if (response.status === 401) {
+				// console.log("navigating to /login ");
+				localStorage.clear();
+				setUser(null);
+				setIsAuthenticated(false);
+				setIsAdmin(false);
+				window.location.replace("/login");
+			}
+			// throw new Error("Token expired");
+		} catch (error) {
+			localStorage.clear();
+			setUser(null);
+			setIsAuthenticated(false);
+			setIsAdmin(false);
+			navigate("/login");
+		} finally {
+			setIsInitializing(false);
+		}
+	};
+
 	useEffect(() => {
 		// Optional: Load user data from localStorage if token exists
 		// if (localStorage.getItem("user") && localStorage.getItem("token")) {
@@ -41,47 +86,8 @@ export const UserProvider = ({ children }) => {
 		// }
 		// setIsInitializing(false);
 
-		const verifyUser = async () => {
-			const token = localStorage.getItem("token");
-			const user = localStorage.getItem("user");
-
-			if (!token || !user) {
-				setIsInitializing(false);
-				// `isAuthenticated` remains false, so user gets redirected to login page
-				return;
-			}
-
-			try {
-				const response = await fetch(`${backendUrl}/api/me`, {
-					method: "GET",
-					headers: {
-						token: JSON.parse(token),
-					},
-				});
-
-				if (response.ok) {
-					const user = await response.json();
-					setUser(user);
-					setIsAdmin(user.role === "admin");
-					setIsAuthenticated(true);
-				} else {
-					// Token is expired or invalidated
-					throw new Error("Token expired");
-				}
-			} catch (error) {
-				localStorage.clear();
-				setUser(null);
-				setIsAuthenticated(false);
-				setIsAdmin(false);
-			} finally {
-				setIsInitializing(false);
-			}
-		};
-
 		verifyUser();
 	}, []);
-
-	// console.log("is authenticated? ", isAuthenticated);
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
@@ -130,6 +136,8 @@ export const UserProvider = ({ children }) => {
 
 				// 5. Success feedback
 				alert("Profile updated successfully!");
+			} else if (response.status === 401) {
+				logoutUser();
 			} else {
 				const errorData = await response.json();
 				console.error(
@@ -156,11 +164,19 @@ export const UserProvider = ({ children }) => {
 				headers: { "Content-Type": "application/json" },
 			});
 
+			// 1. Check Content-Type before parsing
+			const contentType = response.headers.get("content-type");
+			if (!contentType || !contentType.includes("application/json")) {
+				throw new Error(
+					"Server returned an invalid response (not JSON)",
+				);
+			}
+
 			const res = await response.json();
 			console.log("loginUser -> res: ", res);
 
 			if (!response.ok) {
-				console.log(res.message);
+				console.error(res.message);
 			} else {
 				localStorage.clear();
 				localStorage.setItem("token", JSON.stringify(res.token));
@@ -214,6 +230,7 @@ export const UserProvider = ({ children }) => {
 				isAuthenticated,
 				loginUser,
 				logoutUser,
+				verifyUser,
 				handleProfileInfoUpdate,
 			}}
 		>

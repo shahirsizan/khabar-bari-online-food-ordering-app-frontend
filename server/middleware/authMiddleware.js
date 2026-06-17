@@ -7,7 +7,8 @@ export const isAuth = async (req, res, next) => {
 		// console.log("🔍 Token received in middleware:", token);
 
 		if (!token) {
-			res.status(403).json({
+			// 401 for unauthorized
+			res.status(401).json({
 				message: "⚠️ No token. Please Login",
 			});
 			return;
@@ -20,7 +21,8 @@ export const isAuth = async (req, res, next) => {
 		const decodedValue = jwt.verify(token, process.env.JWT_SEC);
 
 		if (!decodedValue || !decodedValue._id) {
-			res.status(403).json({
+			// 401 for unauthorized
+			res.status(401).json({
 				message: "❌ Invalid token. Please Login",
 			});
 			return;
@@ -32,7 +34,8 @@ export const isAuth = async (req, res, next) => {
 		delete userObj?.password;
 
 		if (!userObj) {
-			res.status(403).json({
+			// 401 for unauthorized
+			res.status(401).json({
 				message: "❌ User Not found. Please Login",
 			});
 
@@ -44,7 +47,8 @@ export const isAuth = async (req, res, next) => {
 
 		next();
 	} catch (error) {
-		res.status(403).json({
+		// 403 would be okay, but we'll send 401 for unauthorized
+		res.status(401).json({
 			message: error.message,
 		});
 	}

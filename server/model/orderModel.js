@@ -1,17 +1,29 @@
-import { model, models, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const OrderSchema = new Schema(
 	{
-		userName: { type: string, required: true },
-		userEmail: { type: string, required: true },
-		phone: { type: string, required: true },
-		streetAddress: { type: string, required: true },
-		city: { type: string, required: true },
-		totalAmount: { type: string, required: true },
+		userName: { type: String, required: true },
+		userEmail: { type: String, required: true },
+		phone: { type: String, required: true },
+		streetAddress: { type: String, required: true },
+		city: { type: String, required: true },
+		totalAmount: { type: String, required: true },
 		cartProducts: Object,
+		tran_id: { type: String, required: true },
 		paid: { type: Boolean, default: false, required: true },
 	},
 	{ timestamps: true },
 );
 
-export const Order = models?.Order || model("Order", OrderSchema);
+// This line tells MongoDB to auto-delete documents where:
+// 1. 'paid' is false
+// 2. 'createdAt' is older than 3600 seconds (1 hour)
+OrderSchema.index(
+	{ createdAt: 1 },
+	{
+		expireAfterSeconds: 3600,
+		partialFilterExpression: { paid: false },
+	},
+);
+
+export const Order = mongoose.models?.Order || model("Order", OrderSchema);

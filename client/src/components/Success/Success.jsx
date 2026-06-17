@@ -36,12 +36,12 @@ const Success = () => {
 	useEffect(() => {
 		const func = async () => {
 			const trxID = new URLSearchParams(window.location.search).get(
-				"trxId"
+				"trxId",
 			);
 
 			const { data } = await axios.get(
 				// `https://khabar-bari-server.onrender.com/api/bkash/payment/${trxID}`
-				`${backend_base_url}/api/bkash/payment/${trxID}`
+				`${backend_base_url}/api/bkash/payment/${trxID}`,
 			);
 			setPaymentDetail(data.paymentDetail);
 			setLoading(false);
@@ -89,7 +89,7 @@ const Success = () => {
 							</span>{" "}
 							{}
 							{new Date(
-								fixBkashTimestamp(paymentDetail.date)
+								fixBkashTimestamp(paymentDetail.date),
 							).toLocaleString("bn-BD", {
 								year: "numeric",
 								month: "long",
@@ -118,7 +118,9 @@ const Success = () => {
 								<span>৳{toBanglaNumber(item.price)}/প্রতি</span>
 								<span>
 									সাবটোটাল ৳
-									{toBanglaNumber(item.quantity * item.price)}{" "}
+									{toBanglaNumber(
+										item.quantity * item.price,
+									)}{" "}
 								</span>
 							</div>
 						))}
