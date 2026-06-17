@@ -45,6 +45,9 @@ const RecipeList = () => {
 					console.log(normalizedItems);
 
 					setMenuItems(normalizedItems);
+				} else if (response.status === 401) {
+					console.log("navigating to /login ");
+					window.location.replace("/login");
 				} else {
 					throw new Error("Error in fetchMenuItems");
 				}

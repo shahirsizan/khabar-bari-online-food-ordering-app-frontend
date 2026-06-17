@@ -20,7 +20,7 @@ const Cart = () => {
 
 		setPaymentMethod,
 	} = useCart();
-	const { user } = useUserContext();
+	const { user, logoutUser } = useUserContext();
 	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
@@ -86,13 +86,40 @@ const Cart = () => {
 		try {
 			setPaymentMethod("bkash");
 			setShowPaymentOptionsModal(false);
-			setLoadingBkash(true); // Start loading
-			console.log("invoking pay():", {
+			// setLoadingBkash(true); // Start loading
+
+			const data = {
 				amount: cartTotal,
 				orderId: 1,
 				user,
-			});
-			pay(e);
+				cartItems,
+			};
+			console.log("invoking pay(), data: ", data);
+
+			try {
+				const response = await fetch(
+					"http://localhost:5000/api/order",
+					{
+						method: "POST",
+						headers: {
+							"content-type": "application/json",
+							token: JSON.parse(localStorage.getItem("token")),
+						},
+						body: JSON.stringify(data),
+					},
+				);
+
+				if (response.ok) {
+					const res = await response.json();
+					// console.log("res: ", res);
+					window.location.replace(res.redirectUrl);
+				} else if (response.status === 401) {
+					logoutUser();
+				}
+			} catch (error) {
+				console.error(error.message);
+			}
+			// pay(e);
 		} catch (err) {
 			console.error("Payment failed:", err);
 		}

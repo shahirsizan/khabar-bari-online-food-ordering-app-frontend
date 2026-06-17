@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useUserContext } from "../UserContext";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const ProfilePage = () => {
 	const { user, handleProfileInfoUpdate } = useUserContext();
