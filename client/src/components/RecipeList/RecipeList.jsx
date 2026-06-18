@@ -21,7 +21,7 @@ const RecipeList = () => {
 		const fetchMenuItems = async () => {
 			try {
 				const response = await fetch(
-					"http://localhost:5000/api/menu-items",
+					"http://localhost:5000/api/public-menu-items",
 					{
 						method: "GET",
 						headers: {
@@ -32,6 +32,8 @@ const RecipeList = () => {
 
 				if (response.ok) {
 					const data = await response.json();
+
+					console.log(data);
 
 					// Map the DB documents to match the UI's expected structure
 					const normalizedItems = data.map((item) => ({
