@@ -12,6 +12,7 @@ import {
 	addMenuItem,
 	deleteMenuItem,
 	getAllMenuItems,
+	getAllPublicMenuItems,
 	getMenuItem,
 	updateMenuItem,
 } from "../controller/menuItemsController.js";
@@ -34,6 +35,7 @@ router.get("/me", isAuth, (req, res) => {
 router.put("/profile", isAuth, updateProfile);
 router.post("/upload", isAuth, upload.single("file"), uploadImage); // 'file' must match the field used in React FormData.set("file", ...)
 router.post("/menu-items", isAuth, addMenuItem);
+router.get("/public-menu-items", isAuth, getAllPublicMenuItems);
 router.get("/menu-items", isAuth, getAllMenuItems);
 router.get("/menu-items/:id", isAuth, getMenuItem);
 router.put("/menu-items/:id", isAuth, updateMenuItem);
@@ -41,6 +43,7 @@ router.delete("/menu-items/:id", isAuth, deleteMenuItem);
 router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
 router.put("/users/:id", isAuth, updateUser);
+router.get("/orders", isAuth, getOrders);
 
 router.post(
 	"/bkash/payment/create",
@@ -68,6 +71,7 @@ router.get(
 
 import SSLCommerzPayment from "sslcommerz-lts";
 import { Order } from "../model/orderModel.js";
+import { getOrders } from "../controller/orderController.js";
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
 const is_live = false;
@@ -240,19 +244,6 @@ router.post("/payment/fail/:tranId", async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 });
-
-// `cancel` route lagbe na. Call hoy na.
-// router.post("/payment/cancel/:tranId", async (req, res) => {
-// 	try {
-// 		console.log("/payment/fail/:tranId called");
-// 		return res.redirect(
-// 			`http://localhost:5173/cancel?tranId=${req.params.tranId}&message=cancelled`,
-// 		);
-// 	} catch (error) {
-// 		console.error("Cancel Redirect Error:", error.message);
-// 		res.status(500).json({ message: "Server error" });
-// 	}
-// });
 
 router.get("/payment/status/:tranId", async (req, res) => {
 	try {
