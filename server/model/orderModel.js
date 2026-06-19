@@ -11,6 +11,11 @@ const OrderSchema = new Schema(
 		cartProducts: Object,
 		tran_id: { type: String, required: true },
 		paid: { type: Boolean, default: false, required: true },
+		status: {
+			type: String,
+			default: "Pending",
+			enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
+		},
 	},
 	{ timestamps: true },
 );

@@ -129,7 +129,7 @@ const Success2 = () => {
 					{orderDetail && (
 						<div className="space-y-4 text-gray-700 ">
 							<div className="border-b pb-2">
-								<p className="text-sm text-gray-600">
+								<p className="text-[12px] md:text-sm text-gray-600">
 									ট্রানজ্যাকশন আইডি
 								</p>
 
