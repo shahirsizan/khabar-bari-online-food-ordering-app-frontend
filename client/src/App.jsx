@@ -21,6 +21,7 @@ import UsersPage from "./pages/UsersPage.jsx";
 import NewMenuItemPage from "./pages/NewMenuItemPage.jsx";
 import EditMenuItemPage from "./pages/EditMenuItemPage.jsx";
 import EditUserPage from "./pages/EditUserPage.jsx";
+import OrderPage from "./pages/OrderPage.jsx";
 
 const App = () => {
 	const navigate = useNavigate();
@@ -82,6 +83,7 @@ const App = () => {
 						/>
 
 						<Route path="/users/:id" element={<EditUserPage />} />
+						<Route path="/order/:id" element={<OrderPage />} />
 
 						<Route path="/cart" element={<CartPage />} />
 						<Route path="/success/*" element={<SuccessPage />} />

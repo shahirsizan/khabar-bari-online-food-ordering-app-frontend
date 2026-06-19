@@ -44,6 +44,8 @@ router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
 router.put("/users/:id", isAuth, updateUser);
 router.get("/orders", isAuth, getOrders);
+router.get("/order/:id", isAuth, getOrder);
+router.put("/order/:id", isAuth, updateOrderStatus);
 
 router.post(
 	"/bkash/payment/create",
@@ -71,7 +73,11 @@ router.get(
 
 import SSLCommerzPayment from "sslcommerz-lts";
 import { Order } from "../model/orderModel.js";
-import { getOrders } from "../controller/orderController.js";
+import {
+	getOrder,
+	getOrders,
+	updateOrderStatus,
+} from "../controller/orderController.js";
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
 const is_live = false;
