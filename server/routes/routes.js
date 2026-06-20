@@ -17,6 +17,7 @@ import {
 	updateMenuItem,
 } from "../controller/menuItemsController.js";
 import {
+	deleteUser,
 	getAllUsers,
 	getUser,
 	updateUser,
@@ -43,6 +44,7 @@ router.delete("/menu-items/:id", isAuth, deleteMenuItem);
 router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
 router.put("/users/:id", isAuth, updateUser);
+router.delete("/users/:id", isAuth, deleteUser);
 router.get("/orders", isAuth, getOrders);
 router.get("/order/:id", isAuth, getOrder);
 router.put("/order/:id", isAuth, updateOrderStatus);
