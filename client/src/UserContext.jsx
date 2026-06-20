@@ -173,19 +173,21 @@ export const UserProvider = ({ children }) => {
 			}
 
 			const res = await response.json();
-			console.log("loginUser -> res: ", res);
+			// console.log("loginUser -> res: ", res);
 
 			if (!response.ok) {
-				console.error(res.message);
+				// console.log(res.message);
+				return {
+					success: false,
+					errorMessage: res.message || "Login failed",
+				};
 			} else {
 				localStorage.clear();
 				localStorage.setItem("token", JSON.stringify(res.token));
 				localStorage.setItem("user", JSON.stringify(res.userObj));
 				setUser(res.userObj);
 				setIsAuthenticated(true);
-				// console.log("loginUser() -> data.userObj: ", data.userObj);
-				// console.log("✅ Logged in successfully");
-				// toast.success(res);
+
 				if (res.userObj?.role === "admin") {
 					setIsAdmin(true);
 					console.log("is admin: ", res.userObj?.role);
@@ -194,10 +196,15 @@ export const UserProvider = ({ children }) => {
 					console.log("is admin: ", res.userObj?.role);
 				}
 				navigate("/");
+				return { success: true };
 			}
 		} catch (error) {
 			// toast.error(error.response?.data?.message || "An error occured");
 			console.log(error);
+			return {
+				success: false,
+				errorMessage: `Catch block: ${error.message}`,
+			};
 		} finally {
 			setLoading(false);
 		}
