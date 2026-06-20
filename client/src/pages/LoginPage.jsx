@@ -7,6 +7,7 @@ const LoginPage = () => {
 	const backendUrl = "http://localhost:5000";
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [errorMessage, seteErrorMessage] = useState(null);
 
 	const navigate = useNavigate();
 
@@ -14,7 +15,13 @@ const LoginPage = () => {
 
 	async function handleLogin(ev) {
 		ev.preventDefault();
-		loginUser(email, password, navigate);
+		const response = await loginUser(email, password, navigate);
+
+		if (!response.success) {
+			console.log(response.errorMessage);
+
+			seteErrorMessage(response.errorMessage);
+		}
 
 		// setLogginInUser(true);
 		// setError(false);
@@ -86,23 +93,21 @@ const LoginPage = () => {
 								type="submit"
 								disabled={loading}
 							>
-								Login
+								লগইন
 							</button>
 
-							<button
-								onClick={() =>
-									signIn("google", { callbackUrl: "/" })
-								}
-								className="flex items-center justify-center gap-2 p-2 border-3 bg-transparent shadow-md"
-							>
-								<FaGoogle />
-								Login with Google
-							</button>
+							{errorMessage && (
+								<div className="my-4 px-3 py-3 text-sm rounded-lg text-center border-2 shadow-lg text-white bg-red-700 ">
+									Error occured!
+									<br />
+									{errorMessage}
+								</div>
+							)}
 
 							<div className="text-center my-4 text-gray-500 border-t pt-4">
-								Don't have an account?{" "}
+								একাউন্ট নেই?{" "}
 								<Link className="underline" to={"/register"}>
-									Register
+									রেজিস্টার করুন
 								</Link>
 							</div>
 						</form>
