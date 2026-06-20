@@ -60,3 +60,28 @@ export const updateUser = async (req, res) => {
 		res.status(500).json({ message: error.message });
 	}
 };
+
+export const deleteUser = async (req, res) => {
+	if (req.user?.role !== "admin") {
+		return res.status(403).json({ message: "You are not admin." });
+	}
+
+	const { id } = req.params;
+
+	try {
+		const deletedUser = await User.findByIdAndDelete(id);
+
+		if (!deletedUser) {
+			return res
+				.status(404)
+				.json({ message: "No such user found to delete!" });
+		}
+
+		res.status(200).json({ message: "User deleted successfully" });
+	} catch (error) {
+		console.error("Error in deleteUser:", error.message);
+		res.status(500).json({
+			message: error.message,
+		});
+	}
+};
