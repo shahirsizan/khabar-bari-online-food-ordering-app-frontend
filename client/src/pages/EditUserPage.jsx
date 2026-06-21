@@ -135,7 +135,7 @@ const EditUserPage = () => {
 	}
 
 	return (
-		<section className="mt-8 mx-auto max-w-2xl">
+		<section className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<div className="max-w-2xl mx-auto mt-8">
 				<button
 					className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md"
@@ -148,12 +148,11 @@ const EditUserPage = () => {
 				</button>
 			</div>
 
-			{/* Assuming you have a standard navigation or tab component */}
-			<h1 className="text-2xl font-bold">Edit User</h1>
-
 			<div className="mt-8">
 				{/* <UserForm user={user} onSave={handleSaveButtonClick} /> */}
 				<div className="max-w-2xl mx-auto mt-8">
+					<h1 className="text-2xl font-bold">Edit User</h1>
+
 					<div className="md:flex gap-4">
 						<form
 							className="flex flex-col grow"

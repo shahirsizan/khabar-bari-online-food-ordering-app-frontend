@@ -27,6 +27,7 @@ const AppStore = () => {
 						<a
 							href="https://play.google.com/store/apps?hl=en"
 							target="_blank"
+							className="border-none"
 						>
 							<img
 								src={PlayStoreImg}
@@ -37,6 +38,7 @@ const AppStore = () => {
 						<a
 							href="https://www.apple.com/app-store/"
 							target="_blank"
+							className="border-none"
 						>
 							<img
 								src={AppStoreImg}

@@ -7,7 +7,7 @@ import Success2 from "../components/Success/Success2";
 
 const SuccessPage = () => {
 	return (
-		<div className="min-h-screen flex flex-col">
+		<div className="min-h-screen flex flex-col px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<section className="flex-grow">
 				<Routes>
 					{/* <Route path="/*" element={<Success />} /> */}

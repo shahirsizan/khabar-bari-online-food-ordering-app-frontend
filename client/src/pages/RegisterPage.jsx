@@ -57,7 +57,7 @@ const RegisterPage = () => {
 	}
 
 	return (
-		<div className="h-screen flex items-center justify-center ">
+		<div className="h-screen flex items-center justify-center text-sm md:text-lg font-atma">
 			<section>
 				<h1 className="text-center text-4xl mb-4 ">
 					<span className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary text-2xl lg:text-4xl font-semibold">
@@ -152,9 +152,9 @@ const RegisterPage = () => {
 					</button>
 
 					<div className="text-center my-4 text-gray-500 border-t pt-4">
-						Already have an account?{" "}
-						<Link className="underline" to={"/login"}>
-							Login
+						একাউন্ট আছে?{" "}
+						<Link className="underline font-semibold" to={"/login"}>
+							লগইন করুন
 						</Link>
 					</div>
 				</form>

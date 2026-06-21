@@ -53,8 +53,6 @@ const initializer = () => {
 export const CartProvider = ({ children }) => {
 	const [cartItems, dispatch] = useReducer(cartReducer, [], initializer);
 
-	const [showPaymentOptionsModal, setShowPaymentOptionsModal] =
-		useState(false);
 	const [paymentMethod, setPaymentMethod] = useState("");
 	// console.log("from cartContext.jsx. Cart is: ", cartItems);
 
@@ -101,8 +99,6 @@ export const CartProvider = ({ children }) => {
 				updateQuantity,
 				cartTotal,
 				totalItemsCount,
-				showPaymentOptionsModal,
-				setShowPaymentOptionsModal,
 				paymentMethod,
 				setPaymentMethod,
 				clearCart,

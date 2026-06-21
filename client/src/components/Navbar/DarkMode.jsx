@@ -18,34 +18,34 @@ const DarkMode = () => {
 			localStorage.setItem("theme", "light");
 		}
 	}, [theme]);
-	// dark/light korar logic upore shesh. Niche just button er appearence change korar logic
+
+	const toggleTheme = () =>
+		setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
 	return (
-		<div className="relative rounded-full shadow-md">
+		<button
+			onClick={() => {
+				toggleTheme();
+			}}
+			className="w-full relative md:border-none md:shadow-none shadow-xl cursor-pointer overflow-hidden h-16 flex items-center justify-center"
+		>
 			<img
 				src={lightPng}
-				onClick={() => {
-					// setTheme((data) => (data === "dark" ? "light" : "dark"))
-					setTheme("dark");
-					console.log("clicked on light button");
-				}}
-				className={`w-16 cursor-pointer drop-shadow-[1px_1px_1px_rgba(0,0,0,0.1)] transition-all duration-300 absolute right-0   ${
-					theme === "light" ? "opacity-100 z-10" : "opacity-0 z-9"
-				} `}
-			/>
-
-			<img
-				src={darkPng}
-				onClick={() => {
-					// setTheme((data) => (data === "dark" ? "light" : "dark"))
-					console.log("clicked on dark button");
-					setTheme("light");
-				}}
-				className={`w-16 cursor-pointer drop-shadow-[1px_1px_2px_rgba(0,0,0,0.5)] duration-300  ${
-					theme === "dark" ? "opacity-100 z-10" : "opacity-0 z-9"
+				className={`w-16 absolute transition-all duration-500 ${
+					theme === "dark"
+						? "opacity-0 rotate-180"
+						: "opacity-100 rotate-0"
 				}`}
 			/>
-		</div>
+			<img
+				src={darkPng}
+				className={`w-16 absolute transition-all duration-500 ${
+					theme === "dark"
+						? "opacity-100 rotate-0"
+						: "opacity-0 -rotate-180"
+				}`}
+			/>
+		</button>
 	);
 };
 

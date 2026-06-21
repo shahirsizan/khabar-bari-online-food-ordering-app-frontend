@@ -71,7 +71,7 @@ const EditMenuItemPage = () => {
 					Loading...
 				</div>
 			) : (
-				<section className="mt-8 max-w-2xl mx-auto">
+				<section className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 					<div className="max-w-2xl mx-auto mt-8">
 						{/* 2️⃣ ei link click korle back to `/menu-items` route */}
 						<button

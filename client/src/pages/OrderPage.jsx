@@ -82,7 +82,7 @@ const OrderPage = () => {
 	}
 
 	return (
-		<div className="mt-8 mx-auto max-w-3xl">
+		<div className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<div className="max-w-2xl mx-auto mb-8">
 				<button
 					className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md"

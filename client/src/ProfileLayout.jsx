@@ -7,7 +7,7 @@ const ProfileLayout = () => {
 	const { user, isAdmin } = useUserContext();
 
 	return (
-		<div className="PROFILELAYOUT">
+		<div className="PROFILELAYOUT pt-10 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 			<div className="tabs flex mx-auto gap-2 tabs justify-center flex-wrap">
 				<Link to={"/profile"}>
 					<span

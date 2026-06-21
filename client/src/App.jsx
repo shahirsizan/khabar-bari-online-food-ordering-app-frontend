@@ -76,16 +76,15 @@ const App = () => {
 							path="/menu-items/new"
 							element={<NewMenuItemPage />}
 						/>
-
 						<Route
 							path="/menu-items/edit/:id"
 							element={<EditMenuItemPage />}
 						/>
-
 						<Route path="/users/:id" element={<EditUserPage />} />
 						<Route path="/order/:id" element={<OrderPage />} />
 
 						<Route path="/cart" element={<CartPage />} />
+
 						<Route path="/success/*" element={<SuccessPage />} />
 						<Route path="/error" element={<ErrorPage />} />
 					</Route>
