@@ -101,7 +101,7 @@ const RecipeList = () => {
 		>
 			{/* header text */}
 			<div className="text-center mb-14 mx-auto">
-				<p className="py-4 text-5xl xl:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_0px_black]">
+				<p className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]">
 					আমাদের রেসিপিসমূহ{" "}
 				</p>
 			</div>

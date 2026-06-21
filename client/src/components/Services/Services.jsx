@@ -31,12 +31,12 @@ const Services = () => {
 			id="services"
 		>
 			<div className="text-center mb-14 mx-auto">
-				<p className="py-4 text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[1px_1px_0px_black]">
+				<p className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]">
 					আমাদের সেবাসমূহ
 				</p>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10 md:gap-5 place-items-center">
+			<div className="grid grid-cols-3 gap-2 md:gap-5 place-items-center">
 				{ServicesData.map((service, idx) => (
 					<div
 						key={idx}
@@ -44,17 +44,17 @@ const Services = () => {
 					>
 						{/* image */}
 						<div className="w-full flex justify-center items-center">
-							<div className="h-[100px] w-[100px] px-3 py-3 rounded-full overflow-hidden">
+							<div className="h-[70px] w-[70px] md:h-[100px] md:w-[100px] px-2 py-2 rounded-full overflow-hidden">
 								<img
 									src={service.img}
-									className="h-full w-full object-cover group-hover:scale-110 group-hover:rotate-6 duration-300"
+									className="h-full w-full object-cover group-hover:rotate-6 duration-300"
 								/>
 							</div>
 						</div>
 
 						{/* texts */}
-						<div className="p-2 text-center">
-							<h1 className="text-xl lg:text-2xl font-semibold drop-shadow-[1px_1px_0px_black]">
+						<div className="p-2 text-center overflow-hidden">
+							<h1 className="text-xs sm:text-sm md:text-xl font-semibold drop-shadow-[2px_1px_2px_black] whitespace-nowrap">
 								{service.name}
 							</h1>
 						</div>

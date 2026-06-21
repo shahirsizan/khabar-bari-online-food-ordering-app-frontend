@@ -32,7 +32,7 @@ const ProfilePage = () => {
 	}
 
 	return (
-		<section className="mt-20">
+		<section className="mt-20 ">
 			{/* Original code er TABS gula `ProfileLayout` e niye gesi */}
 
 			<div className="max-w-2xl mx-auto mt-8">

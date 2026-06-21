@@ -58,10 +58,10 @@ const LoginPage = () => {
 			{loading ? (
 				<div>loading...</div>
 			) : (
-				<div className="h-screen flex items-center justify-center">
+				<div className="h-screen flex items-center justify-center text-sm md:text-lg font-atma">
 					<section>
 						<h1 className="text-center text-4xl mb-4 ">
-							<span className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary text-2xl lg:text-4xl font-semibold">
+							<span className="inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary text-xl lg:text-3xl font-semibold">
 								লগইন
 							</span>
 						</h1>
@@ -89,7 +89,7 @@ const LoginPage = () => {
 							/>
 
 							<button
-								className="border-3 bg-transparent shadow-md p-2 disabled:bg-gray-200 px-3 py-2 border-2 rounded-md"
+								className="border-3 bg-transparent shadow-md font-semibold p-2 disabled:bg-gray-200 px-3 py-2 border-2 rounded-md"
 								type="submit"
 								disabled={loading}
 							>
@@ -106,7 +106,10 @@ const LoginPage = () => {
 
 							<div className="text-center my-4 text-gray-500 border-t pt-4">
 								একাউন্ট নেই?{" "}
-								<Link className="underline" to={"/register"}>
+								<Link
+									className="underline font-semibold"
+									to={"/register"}
+								>
 									রেজিস্টার করুন
 								</Link>
 							</div>
