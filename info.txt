@@ -1,12 +1,15 @@
-status = refining the project. Video er 2:34:49 er google login part skip korsi. 
-    pore somoy pele korbo.
-    
-status = "DONE & DUSTED"
 frontend in Vercel
 backend in Render
 
-⚠️⚠️⚠️ Github e push korar somoy always keep the workMode in `prod`. 
+⚠️ Github e push korar somoy always keep -> workMode in `prod`. 
 Else render/vercel won't work
 
-Always keep running the cronjob. Else render instance will pause.
-cronjob dashboard: "https://console.cron-job.org/jobs/6587735/history"
+ℹ️ Until we host our backend into a cloud server, we have to map the localhost:5000 to the outer world 
+(for sslcommerz IPN api call purpose). We have to install the ngrok agent
+
+1. Download and Install: Grab the appropriate package from ngrok Dashboard.
+2. Authenticate: Sign up for an account, copy the authtoken and add it to 
+    our terminal: `ngrok config add authtoken <your_authtoken>`
+3. Run the Tunnel: We start our local application on port 5000. 
+4. In terminal, run: `ngrok http 5000`
+5. Set the URL: Copy-paste the generated public URL in sslcommerz IPN dashboard.
