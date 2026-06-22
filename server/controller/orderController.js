@@ -13,7 +13,7 @@ export const getOrders = async (req, res) => {
 			orders = await Order.find({ userEmail: email });
 		}
 
-		console.log(orders);
+		// console.log(orders);
 
 		return res.status(200).json(orders.reverse());
 	} catch (error) {

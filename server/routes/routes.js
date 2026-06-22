@@ -220,8 +220,12 @@ router.post("/payment/ipn", async (req, res) => {
 					{ tran_id: tran_id },
 					{ $set: { paid: true } },
 				);
-			} else {
-				await Order.deleteOne({ tran_id: tran_id });
+			}
+			//⚠️ In case of `failed`/`cancelled` transactions, no `tran_id` or `val_id` will be there in the `response`
+			// object returned from the `sslcz.validate()` call above.
+			// So have to get the `tran_id` from the req.body instead.
+			else {
+				await Order.deleteOne({ tran_id: req.body.tran_id });
 			}
 		}
 	} catch (error) {
