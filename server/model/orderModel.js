@@ -9,7 +9,7 @@ const OrderSchema = new Schema(
 		city: { type: String, required: true },
 		totalAmount: { type: String, required: true },
 		cartProducts: Object,
-		tran_id: { type: String, required: true },
+		tran_id: { type: String, required: true, unique: true, index: true },
 		paid: { type: Boolean, default: false, required: true },
 		status: {
 			type: String,
@@ -26,7 +26,7 @@ const OrderSchema = new Schema(
 OrderSchema.index(
 	{ createdAt: 1 },
 	{
-		expireAfterSeconds: 3600,
+		expireAfterSeconds: 1800,
 		partialFilterExpression: { paid: false },
 	},
 );
