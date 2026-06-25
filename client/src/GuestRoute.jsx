@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useUserContext } from "./UserContext";
 
 const GuestRoute = ({ children }) => {
@@ -10,7 +10,7 @@ const GuestRoute = ({ children }) => {
 			Loading...
 		</div>
 	) : !isAuthenticated ? (
-		children
+		<Outlet />
 	) : (
 		<Navigate to="/" replace />
 	);

@@ -5,7 +5,7 @@ import {
 	useEffect,
 	useCallback,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { replace, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 
 const UserContext = createContext();
@@ -23,13 +23,23 @@ export const UserProvider = ({ children }) => {
 
 	// console.log("is authenticated? ", isAuthenticated);
 
+	const { pathname } = useLocation(); // Tracks the current URL path
+
 	const verifyUser = async () => {
+		const publicRoutes = ["/", "/cart"];
+
+		const isPublicRoute = publicRoutes.includes(pathname);
+
 		const token = localStorage.getItem("token");
 		const user = localStorage.getItem("user");
 
 		if (!token || !user) {
 			setIsInitializing(false);
-			// `isAuthenticated` remains false, so user gets redirected to login page
+			// `isAuthenticated` remains false, so user gets redirected to login page,
+			// or stays in the public route
+			if (!isPublicRoute) {
+				navigate("login");
+			}
 			return;
 		}
 
@@ -52,7 +62,12 @@ export const UserProvider = ({ children }) => {
 				setUser(null);
 				setIsAuthenticated(false);
 				setIsAdmin(false);
-				window.location.replace("/login");
+
+				// redirect to login on token failure if they are in a protected page
+				if (!isPublicRoute) {
+					// navigate("/login"); // Used navigate instead of window.location.replace for smoother routing
+					window.location.replace("/login");
+				}
 			}
 			// throw new Error("Token expired");
 		} catch (error) {
@@ -154,61 +169,58 @@ export const UserProvider = ({ children }) => {
 		}
 	};
 
-	const loginUser = useCallback(async (email, password, navigate) => {
-		setLoading(true);
+	const loginUser = useCallback(
+		async (email, password, navigate, targetRoute) => {
+			setLoading(true);
 
-		try {
-			const response = await fetch(`${backendUrl}/api/login`, {
-				method: "POST",
-				body: JSON.stringify({ email, password }),
-				headers: { "Content-Type": "application/json" },
-			});
+			try {
+				const response = await fetch(`${backendUrl}/api/login`, {
+					method: "POST",
+					body: JSON.stringify({ email, password }),
+					headers: { "Content-Type": "application/json" },
+				});
 
-			// 1. Check Content-Type before parsing
-			const contentType = response.headers.get("content-type");
-			if (!contentType || !contentType.includes("application/json")) {
-				throw new Error(
-					"Server returned an invalid response (not JSON)",
-				);
-			}
+				const res = await response.json();
 
-			const res = await response.json();
-			// console.log("loginUser -> res: ", res);
+				if (!response.ok) {
+					// console.log(res.message);
+					return {
+						success: false,
+						errorMessage: res.message || "Login failed",
+					};
+				} else {
+					console.log("targetRoute: ", targetRoute);
 
-			if (!response.ok) {
-				// console.log(res.message);
+					// if user has a populated cart, redirect them to cart page after login
+					localStorage.setItem("token", JSON.stringify(res.token));
+					localStorage.setItem("user", JSON.stringify(res.userObj));
+					setUser(res.userObj);
+					setIsAuthenticated(true);
+					if (res.userObj?.role === "admin") {
+						setIsAdmin(true);
+						// console.log("is admin: ", res.userObj?.role);
+					} else {
+						setIsAdmin(false);
+						// console.log("is admin: ", res.userObj?.role);
+					}
+					navigate(`${targetRoute ? targetRoute : "/"}`, {
+						replace: true,
+					});
+					return { success: true };
+				}
+			} catch (error) {
+				// toast.error(error.response?.data?.message || "An error occured");
+				console.error(error.message);
 				return {
 					success: false,
-					errorMessage: res.message || "Login failed",
+					errorMessage: `Catch block: ${error.message}`,
 				};
-			} else {
-				localStorage.clear();
-				localStorage.setItem("token", JSON.stringify(res.token));
-				localStorage.setItem("user", JSON.stringify(res.userObj));
-				setUser(res.userObj);
-				setIsAuthenticated(true);
-
-				if (res.userObj?.role === "admin") {
-					setIsAdmin(true);
-					console.log("is admin: ", res.userObj?.role);
-				} else {
-					setIsAdmin(false);
-					console.log("is admin: ", res.userObj?.role);
-				}
-				navigate("/");
-				return { success: true };
+			} finally {
+				setLoading(false);
 			}
-		} catch (error) {
-			// toast.error(error.response?.data?.message || "An error occured");
-			console.log(error);
-			return {
-				success: false,
-				errorMessage: `Catch block: ${error.message}`,
-			};
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+		},
+		[],
+	);
 
 	const logoutUser = async () => {
 		// Clear the casrt state in cartCOntext

@@ -24,9 +24,6 @@ const RecipeList = () => {
 					"http://localhost:5000/api/public-menu-items",
 					{
 						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
 					},
 				);
 
@@ -44,12 +41,12 @@ const RecipeList = () => {
 						image: item.image,
 					}));
 
-					console.log(normalizedItems);
+					// console.log(normalizedItems);
 
 					setMenuItems(normalizedItems);
 				} else if (response.status === 401) {
-					console.log("navigating to /login ");
-					window.location.replace("/login");
+					console.log("public-menu-items couldn't be fetched!");
+					// window.location.replace("/login");
 				} else {
 					throw new Error("Error in fetchMenuItems");
 				}

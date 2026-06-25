@@ -1,21 +1,28 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 
 const LoginPage = () => {
 	const backendUrl = "http://localhost:5000";
+	const { loading, loginUser } = useUserContext();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, seteErrorMessage] = useState(null);
-
 	const navigate = useNavigate();
-
-	const { loading, loginUser } = useUserContext();
+	// get the `state` object which containt the route where to navigate after login
+	// this is needed because we might need to navigate to `/cart` route if non-auth user already has a populated cart.
+	const location = useLocation();
+	const targetRoute = location.state?.from || "/";
 
 	async function handleLogin(ev) {
 		ev.preventDefault();
-		const response = await loginUser(email, password, navigate);
+		const response = await loginUser(
+			email,
+			password,
+			navigate,
+			targetRoute,
+		);
 
 		if (!response.success) {
 			console.log(response.errorMessage);
