@@ -7,7 +7,6 @@ import html2pdf from "html2pdf.js";
 import { useRef } from "react";
 
 const Success = () => {
-	const { paymentMethod } = useCart();
 	const { cartItems } = useCart();
 	const [loading, setLoading] = useState(true);
 	const [paymentDetail, setPaymentDetail] = useState(null);
