@@ -53,7 +53,6 @@ const initializer = () => {
 export const CartProvider = ({ children }) => {
 	const [cartItems, dispatch] = useReducer(cartReducer, [], initializer);
 
-	const [paymentMethod, setPaymentMethod] = useState("");
 	// console.log("from cartContext.jsx. Cart is: ", cartItems);
 
 	//  persist cart state in localstorage (during initial load AND on every subsequent cart update)
@@ -99,8 +98,6 @@ export const CartProvider = ({ children }) => {
 				updateQuantity,
 				cartTotal,
 				totalItemsCount,
-				paymentMethod,
-				setPaymentMethod,
 				clearCart,
 			}}
 		>

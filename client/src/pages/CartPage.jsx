@@ -1,22 +1,20 @@
 import { backend_base_url } from "../workMode";
 import React, { useEffect, useState } from "react";
 import { useCart } from "../CartContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ImageModal from "../components/ImageModal";
 import { MdDeleteForever } from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
+import { toBanglaNumber } from "../utils/toBanglaNumber";
 
 const CartPage = () => {
-	const {
-		cartItems,
-		removeFromCart,
-		updateQuantity,
-		cartTotal,
-		setPaymentMethod,
-	} = useCart();
-	const { user, logoutUser } = useUserContext();
+	const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+	const navigate = useNavigate();
+	const location = useLocation(); // get current route info
+	const { user, isAuthenticated, logoutUser } = useUserContext();
+	// console.log("isAuthenticated: ", isAuthenticated);
 	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
@@ -24,65 +22,62 @@ const CartPage = () => {
 	const [showPaymentOptionsModal, setShowPaymentOptionsModal] =
 		useState(false);
 
-	const navigate = useNavigate();
+	// const handleCheckoutClick = () => {
+	// 	setShowPaymentOptionsModal(true);
+	// };
 
-	const handleCheckoutClick = () => {
-		setShowPaymentOptionsModal(true);
-	};
+	// const pay = async (e) => {
+	// 	try {
+	// 		console.log("invoking pay():", {
+	// 			amount: cartTotal,
+	// 			orderId: 1,
+	// 			user,
+	// 		});
 
-	const toBanglaNumber = (number) => {
-		const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-		return number
-			.toString()
-			.split("")
-			.map((d) => banglaDigits[parseInt(d)])
-			.join("");
-	};
+	// 		const { data } = await axios.post(
+	// 			// `https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
+	// 			`${backend_base_url}/api/bkash/payment/create`,
+	// 			{
+	// 				amount: cartTotal,
+	// 				orderId: 1,
+	// 				user,
+	// 			},
+	// 			{ withCredentials: true },
+	// 		);
 
-	const pay = async (e) => {
-		try {
-			console.log("invoking pay():", {
-				amount: cartTotal,
-				orderId: 1,
-				user,
-			});
+	// 		// github e upload er por nicher code use korte hobe. uporer code local machine er jonno
+	// 		// const { data } = await axios.post(
+	// 		// 	`https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
+	// 		// 	{
+	// 		// 		amount: cartTotal,
+	// 		// 		orderId: 1,
+	// 		// 	},
+	// 		// 	{ withCredentials: true }
+	// 		// );
 
-			const { data } = await axios.post(
-				// `https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
-				`${backend_base_url}/api/bkash/payment/create`,
-				{
-					amount: cartTotal,
-					orderId: 1,
-					user,
-				},
-				{ withCredentials: true },
-			);
+	// 		// Artificial delay before redirecting to callback URL
+	// 		// setTimeout(() => {
+	// 		// 	setLoadingBkash(false);
+	// 		// 	window.location.href = data.bkashURL;
+	// 		// }, 4000);
 
-			// github e upload er por nicher code use korte hobe. uporer code local machine er jonno
-			// const { data } = await axios.post(
-			// 	`https://khabar-bari-server.onrender.com/api/bkash/payment/create`,
-			// 	{
-			// 		amount: cartTotal,
-			// 		orderId: 1,
-			// 	},
-			// 	{ withCredentials: true }
-			// );
+	// 		window.location.href = data.bkashURL;
+	// 	} catch (error) {
+	// 		console.log("error in pay(): ", error);
+	// 	}
+	// };
 
-			// Artificial delay before redirecting to callback URL
-			// setTimeout(() => {
-			// 	setLoadingBkash(false);
-			// 	window.location.href = data.bkashURL;
-			// }, 4000);
+	const handlePayment = async (e) => {
+		// 1. If not authenticated, redirect to login
+		// console.log("isAuthenticated: ", isAuthenticated);
 
-			window.location.href = data.bkashURL;
-		} catch (error) {
-			console.log("error in pay(): ", error);
+		if (!isAuthenticated) {
+			navigate("/login", { state: { from: location.pathname } });
+			return;
 		}
-	};
 
-	const handleBkashPayment = async (e) => {
+		// 2. If authenticated, proceed as usual
 		try {
-			setPaymentMethod("bkash");
 			setShowPaymentOptionsModal(false);
 			// setLoadingBkash(true); // Start loading
 
@@ -95,17 +90,14 @@ const CartPage = () => {
 			console.log("invoking pay(), data: ", data);
 
 			try {
-				const response = await fetch(
-					"http://localhost:5000/api/order",
-					{
-						method: "POST",
-						headers: {
-							"content-type": "application/json",
-							token: JSON.parse(localStorage.getItem("token")),
-						},
-						body: JSON.stringify(data),
+				const response = await fetch(`${backend_base_url}/api/order`, {
+					method: "POST",
+					headers: {
+						"content-type": "application/json",
+						token: JSON.parse(localStorage.getItem("token")),
 					},
-				);
+					body: JSON.stringify(data),
+				});
 
 				if (response.ok) {
 					const res = await response.json();
@@ -290,7 +282,9 @@ const CartPage = () => {
 							{/* PAY BUTTON */}
 							<button
 								onClick={(e) => {
-									setShowPaymentOptionsModal(true);
+									isAuthenticated
+										? setShowPaymentOptionsModal(true)
+										: handlePayment(e);
 								}}
 								className="max-md:hidden w-full max-w-80 py-2 px-3 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[2px_1px_2px_black] cursor-pointer self-center"
 							>
@@ -316,7 +310,9 @@ const CartPage = () => {
 						{/* MOBILE PAY BUTTON */}
 						<button
 							onClick={(e) => {
-								setShowPaymentOptionsModal(true);
+								isAuthenticated
+									? setShowPaymentOptionsModal(true)
+									: handlePayment(e);
 							}}
 							className="md:hidden max-w-80 py-2 px-3 rounded-lg bg-gradient-to-r from-primary to-secondary/95 drop-shadow-[2px_1px_2px_gray] hover:scale-105 duration-200"
 						>
@@ -357,7 +353,7 @@ const CartPage = () => {
 							<button
 								className="bg-green-600 text-white mt-3 rounded-md px-3 py-2 hover:scale-105 transition-all"
 								onClick={(e) => {
-									handleBkashPayment(e);
+									handlePayment(e);
 								}}
 							>
 								<span className="whitespace-nowrap">
@@ -373,15 +369,15 @@ const CartPage = () => {
 
 							<p>
 								<span className="font-semibold">এলাকা:</span>{" "}
-								{user.streetAddress}
+								{user?.streetAddress}
 							</p>
 							<p>
 								<span className="font-semibold">শহর:</span>{" "}
-								{user.city}
+								{user?.city}
 							</p>
 							<p>
 								<span className="font-semibold">মোবাইল:</span>{" "}
-								{user.phone}
+								{user?.phone}
 							</p>
 
 							<p className="pt-5">

@@ -12,7 +12,7 @@ import { CgMenuOreos } from "react-icons/cg";
 const Navbar = () => {
 	const { totalItemsCount } = useCart();
 	const navigate = useNavigate();
-	const { loading, user, logoutUser } = useUserContext();
+	const { loading, isAuthenticated, user, logoutUser } = useUserContext();
 	const [isMenuOpen, setIsMenuOpen] = useState(false); // for mobile
 
 	const handleLogout = () => {
@@ -49,11 +49,11 @@ const Navbar = () => {
 						<div className="flex items-center space-x-2 md:space-x-3 xl:space-x-5 ml-3 md:ml-3 lg:ml-6 mr-2 md:mr-3 lg:mr-4">
 							<Link
 								to={"/cart"}
-								className="text-black p-2 font-serif rounded-xl relative group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
+								className="relative text-black p-2 font-serif rounded-xl group shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-2xl font-semibold"
 							>
 								<FiShoppingCart className="text-base md:text-lg lg:text-lg" />
 								{totalItemsCount > 0 && (
-									<span className="absolute -top-2 -right-2 bg-amber-600 text-lg w-5 h5 rounded-full flex items-center justify-center">
+									<span className="absolute -top-2 -right-2 bg-amber-600 text-sm w-5 h5 rounded-full inline-flex items-center justify-center">
 										{toBanglaNumber(totalItemsCount)}
 									</span>
 								)}

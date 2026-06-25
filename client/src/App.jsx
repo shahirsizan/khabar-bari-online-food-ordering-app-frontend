@@ -41,27 +41,17 @@ const App = () => {
 		<div className=" ">
 			<Routes>
 				{/* Guest Only Routes */}
-				<Route
-					path="/login"
-					element={
-						<GuestRoute>
-							<LoginPage />
-						</GuestRoute>
-					}
-				/>
-				<Route
-					path="/register"
-					element={
-						<GuestRoute>
-							<RegisterPage />
-						</GuestRoute>
-					}
-				/>
+				<Route element={<GuestRoute />}>
+					<Route path="/login" element={<LoginPage />} />
+					<Route path="/register" element={<RegisterPage />} />
+				</Route>
 
-				{/* Protected Routes (Wrapped in Layout) */}
-				<Route element={<ProtectedLayout />}>
-					<Route path="/" element={<Layout />}>
-						<Route index element={<LandingPage />} />
+				<Route element={<Layout />}>
+					<Route path="/" element={<LandingPage />} />
+					<Route path="/cart" element={<CartPage />} />
+
+					{/* Protected Routes (Wrapped in Layout) */}
+					<Route element={<ProtectedLayout />}>
 						<Route path="/profile" element={<ProfileLayout />}>
 							<Route index element={<ProfilePage />} />
 							<Route
@@ -82,8 +72,6 @@ const App = () => {
 						/>
 						<Route path="/users/:id" element={<EditUserPage />} />
 						<Route path="/order/:id" element={<OrderPage />} />
-
-						<Route path="/cart" element={<CartPage />} />
 
 						<Route path="/success/*" element={<SuccessPage />} />
 						<Route path="/error" element={<ErrorPage />} />

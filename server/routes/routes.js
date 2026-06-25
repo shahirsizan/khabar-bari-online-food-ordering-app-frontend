@@ -36,7 +36,7 @@ router.get("/me", isAuth, (req, res) => {
 router.put("/profile", isAuth, updateProfile);
 router.post("/upload", isAuth, upload.single("file"), uploadImage); // 'file' must match the field used in React FormData.set("file", ...)
 router.post("/menu-items", isAuth, addMenuItem);
-router.get("/public-menu-items", isAuth, getAllPublicMenuItems);
+router.get("/public-menu-items", getAllPublicMenuItems);
 router.get("/menu-items", isAuth, getAllMenuItems);
 router.get("/menu-items/:id", isAuth, getMenuItem);
 router.put("/menu-items/:id", isAuth, updateMenuItem);
