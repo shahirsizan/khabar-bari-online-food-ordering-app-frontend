@@ -4,6 +4,7 @@ import axios from "axios";
 import html2pdf from "html2pdf.js";
 import { FaArrowLeft } from "react-icons/fa";
 import { backend_base_url } from "../workMode";
+import { apiFetch } from "../utils/api";
 
 const OrderPage = () => {
 	const { id } = useParams();
@@ -16,7 +17,7 @@ const OrderPage = () => {
 	useEffect(() => {
 		const fetchOrder = async () => {
 			try {
-				const response = await fetch(
+				const response = await apiFetch(
 					`${backend_base_url}/api/order/${id}`,
 					{
 						method: "GET",

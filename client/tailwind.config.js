@@ -9,6 +9,8 @@ export default {
 			},
 
 			fontFamily: {
+				// 'atma' becomes the utility class name: font-atma
+				atma: ["Atma", "Poppins"],
 				sans: ["Poppins", "sans-serif"],
 			},
 

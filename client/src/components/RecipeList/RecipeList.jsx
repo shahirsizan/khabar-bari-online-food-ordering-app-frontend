@@ -11,6 +11,7 @@ import moogdal from "../../assets/moogdal.png";
 
 import { useCart } from "../../CartContext";
 import { useLocation } from "react-router-dom";
+import { apiFetch } from "../../utils/api";
 
 const RecipeList = () => {
 	const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
@@ -20,7 +21,7 @@ const RecipeList = () => {
 	useEffect(() => {
 		const fetchMenuItems = async () => {
 			try {
-				const response = await fetch(
+				const response = await apiFetch(
 					"http://localhost:5000/api/public-menu-items",
 					{
 						method: "GET",
@@ -30,7 +31,7 @@ const RecipeList = () => {
 				if (response.ok) {
 					const data = await response.json();
 
-					console.log(data);
+					// console.log(data);
 
 					// Map the DB documents to match the UI's expected structure
 					const normalizedItems = data.map((item) => ({

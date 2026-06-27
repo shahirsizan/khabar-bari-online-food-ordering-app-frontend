@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
+import { apiFetch } from "../utils/api";
 
 const EditUserPage = () => {
 	const { id } = useParams();
@@ -22,7 +23,7 @@ const EditUserPage = () => {
 	useEffect(() => {
 		const fetchUser = async () => {
 			try {
-				const response = await fetch(
+				const response = await apiFetch(
 					`http://localhost:5000/api/users/${id}`,
 					{
 						method: "GET",
@@ -62,14 +63,17 @@ const EditUserPage = () => {
 		ev.preventDefault();
 
 		try {
-			const response = await fetch(`http://localhost:5000/api/profile`, {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-					token: JSON.parse(localStorage.getItem("token")),
+			const response = await apiFetch(
+				`http://localhost:5000/api/profile`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						token: JSON.parse(localStorage.getItem("token")),
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			});
+			);
 
 			// 2. If response is NOT ok, throw an error.
 			// This automatically triggers the "error" state in toast.promise

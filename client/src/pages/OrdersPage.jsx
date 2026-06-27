@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useUserContext } from "../UserContext"; // Import your context
 import { Link } from "react-router-dom";
 import { formatOrderTime } from "../utils/dateFormatter";
+import { apiFetch } from "../utils/api";
 
 const OrdersPage = () => {
 	const statuses = {
@@ -18,7 +19,7 @@ const OrdersPage = () => {
 	const handleStatusChange = async (orderId, changedStatus) => {
 		// enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
 		try {
-			const response = await fetch(
+			const response = await apiFetch(
 				`http://localhost:5000/api/order/${orderId}`,
 				{
 					method: "PUT",
@@ -47,12 +48,15 @@ const OrdersPage = () => {
 
 	const fetchOrders = async () => {
 		try {
-			const response = await fetch("http://localhost:5000/api/orders", {
-				method: "GET",
-				headers: {
-					token: JSON.parse(localStorage.getItem("token")),
+			const response = await apiFetch(
+				"http://localhost:5000/api/orders",
+				{
+					method: "GET",
+					headers: {
+						token: JSON.parse(localStorage.getItem("token")),
+					},
 				},
-			});
+			);
 
 			if (response.ok) {
 				const res = await response.json();

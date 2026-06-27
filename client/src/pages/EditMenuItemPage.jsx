@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom"; // Import these
 import { FaArrowLeft } from "react-icons/fa";
 import MenuItemForm from "../components/MenuItemForm";
 import DeleteModal from "../components/DeleteModal/DeleteModal";
+import { apiFetch } from "../utils/api";
 
 const EditMenuItemPage = () => {
 	const navigate = useNavigate();
@@ -16,7 +17,7 @@ const EditMenuItemPage = () => {
 	useEffect(() => {
 		const fetchItem = async () => {
 			try {
-				const response = await fetch(
+				const response = await apiFetch(
 					`http://localhost:5000/api/menu-items/${id}`,
 					{
 						method: "GET",
@@ -45,7 +46,7 @@ const EditMenuItemPage = () => {
 
 	const handleDelete = async () => {
 		try {
-			const response = await fetch(
+			const response = await apiFetch(
 				`http://localhost:5000/api/menu-items/${id}`,
 				{
 					method: "DELETE",
