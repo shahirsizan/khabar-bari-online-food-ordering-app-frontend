@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import router from "./routes/routes.js";
 import "dotenv/config";
+import slidingWindowLimiter from "./middleware/rateLimiter.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -41,6 +42,7 @@ const db = async () => {
 // });
 // caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
 
+app.use(slidingWindowLimiter(15000, 10));
 app.use("/api", router);
 app.use("/", (req, res) => {
 	res.send("cron hit");

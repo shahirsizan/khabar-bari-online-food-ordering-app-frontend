@@ -22,6 +22,7 @@ import NewMenuItemPage from "./pages/NewMenuItemPage.jsx";
 import EditMenuItemPage from "./pages/EditMenuItemPage.jsx";
 import EditUserPage from "./pages/EditUserPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
+import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal.jsx";
 
 const App = () => {
 	const navigate = useNavigate();
@@ -78,6 +79,11 @@ const App = () => {
 					</Route>
 				</Route>
 			</Routes>
+
+			{/* The modal needs to be placed where it can sit "on top" of your entire application.
+			The Event Signal: When apiFetch detects a 429, it broadcasts a message through the window object.
+			The Listener: Your GlobalRateLimitModal is "listening" to the window at all times. */}
+			<GlobalRateLimitModal />
 		</div>
 	);
 };
