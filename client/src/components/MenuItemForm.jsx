@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import EditableImage from "./EditableImage/EditableImage";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 export default function MenuItemForm({ whatToDo, menuItem }) {
 	const navigate = useNavigate();
@@ -15,8 +16,8 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 
 		const url =
 			whatToDo === "edit"
-				? `http://localhost:5000/api/menu-items/${menuItem._id}`
-				: "http://localhost:5000/api/menu-items";
+				? `${backend_base_url}/api/menu-items/${menuItem._id}`
+				: `${backend_base_url}/api/menu-items`;
 
 		const methodd = whatToDo === "edit" ? "PUT" : "POST";
 

@@ -4,7 +4,6 @@ import { FaGoogle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 
 const LoginPage = () => {
-	const backendUrl = "http://localhost:5000";
 	const { loading, loginUser } = useUserContext();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");

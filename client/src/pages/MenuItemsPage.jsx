@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import MenuItemForm from "../components/MenuItemForm";
 import { FaArrowRight } from "react-icons/fa";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 const MenuItemsPage = () => {
 	const navigate = useNavigate();
@@ -13,7 +14,7 @@ const MenuItemsPage = () => {
 		const fetchAllItems = async () => {
 			try {
 				const response = await apiFetch(
-					"http://localhost:5000/api/menu-items",
+					`${backend_base_url}/api/menu-items`,
 					{
 						method: "GET",
 						headers: {

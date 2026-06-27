@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 const RegisterPage = () => {
-	const backendUrl = "http://localhost:5000";
-
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -26,18 +25,21 @@ const RegisterPage = () => {
 		setUserCreated(false);
 
 		try {
-			const response = await apiFetch(`${backendUrl}/api/register`, {
-				method: "POST",
-				body: JSON.stringify({
-					name,
-					email,
-					password,
-					phone,
-					streetAddress,
-					city,
-				}),
-				headers: { "Content-Type": "application/json" },
-			});
+			const response = await apiFetch(
+				`${backend_base_url}/api/register`,
+				{
+					method: "POST",
+					body: JSON.stringify({
+						name,
+						email,
+						password,
+						phone,
+						streetAddress,
+						city,
+					}),
+					headers: { "Content-Type": "application/json" },
+				},
+			);
 
 			const res = await response.json();
 			console.log(res);

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 const EditUserPage = () => {
 	const { id } = useParams();
@@ -24,7 +25,7 @@ const EditUserPage = () => {
 		const fetchUser = async () => {
 			try {
 				const response = await apiFetch(
-					`http://localhost:5000/api/users/${id}`,
+					`${backend_base_url}/api/users/${id}`,
 					{
 						method: "GET",
 						headers: {
@@ -63,17 +64,14 @@ const EditUserPage = () => {
 		ev.preventDefault();
 
 		try {
-			const response = await apiFetch(
-				`http://localhost:5000/api/profile`,
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						token: JSON.parse(localStorage.getItem("token")),
-					},
-					body: JSON.stringify(data),
+			const response = await apiFetch(`${backend_base_url}/api/profile`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					token: JSON.parse(localStorage.getItem("token")),
 				},
-			);
+				body: JSON.stringify(data),
+			});
 
 			// 2. If response is NOT ok, throw an error.
 			// This automatically triggers the "error" state in toast.promise

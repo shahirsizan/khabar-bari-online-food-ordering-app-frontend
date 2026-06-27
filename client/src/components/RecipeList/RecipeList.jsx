@@ -12,6 +12,7 @@ import moogdal from "../../assets/moogdal.png";
 import { useCart } from "../../CartContext";
 import { useLocation } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
+import { backend_base_url } from "../../workMode";
 
 const RecipeList = () => {
 	const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
@@ -22,7 +23,7 @@ const RecipeList = () => {
 		const fetchMenuItems = async () => {
 			try {
 				const response = await apiFetch(
-					"http://localhost:5000/api/public-menu-items",
+					`${backend_base_url}/api/public-menu-items`,
 					{
 						method: "GET",
 					},

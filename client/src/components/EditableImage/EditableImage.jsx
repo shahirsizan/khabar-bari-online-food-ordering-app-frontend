@@ -1,5 +1,6 @@
 import React from "react";
 import { apiFetch } from "../../utils/api";
+import { backend_base_url } from "../../workMode";
 
 export default function EditableImage({ link, setLink }) {
 	async function handleFileChange(ev) {
@@ -7,7 +8,7 @@ export default function EditableImage({ link, setLink }) {
 			const data = new FormData();
 			data.set("file", ev.target.files[0]);
 
-			const uploadPromise = apiFetch("http://localhost:5000/api/upload", {
+			const uploadPromise = apiFetch(`${backend_base_url}/api/upload`, {
 				method: "POST",
 				body: data,
 				headers: {

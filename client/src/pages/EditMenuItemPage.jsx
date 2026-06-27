@@ -6,6 +6,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import MenuItemForm from "../components/MenuItemForm";
 import DeleteModal from "../components/DeleteModal/DeleteModal";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 const EditMenuItemPage = () => {
 	const navigate = useNavigate();
@@ -18,7 +19,7 @@ const EditMenuItemPage = () => {
 		const fetchItem = async () => {
 			try {
 				const response = await apiFetch(
-					`http://localhost:5000/api/menu-items/${id}`,
+					`${backend_base_url}/api/menu-items/${id}`,
 					{
 						method: "GET",
 						headers: {
@@ -47,7 +48,7 @@ const EditMenuItemPage = () => {
 	const handleDelete = async () => {
 		try {
 			const response = await apiFetch(
-				`http://localhost:5000/api/menu-items/${id}`,
+				`${backend_base_url}/api/menu-items/${id}`,
 				{
 					method: "DELETE",
 					headers: {

@@ -8,11 +8,11 @@ import {
 import { replace, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 import { apiFetch } from "./utils/api";
+import { backend_base_url } from "./workMode";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-	const backendUrl = "http://localhost:5000";
 	const { clearCart } = useCart();
 	const navigate = useNavigate();
 	const [isInitializing, setIsInitializing] = useState(true);
@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
 		}
 
 		try {
-			const response = await apiFetch(`${backendUrl}/api/me`, {
+			const response = await apiFetch(`${backend_base_url}/api/me`, {
 				method: "GET",
 				headers: {
 					token: JSON.parse(token),
@@ -128,7 +128,7 @@ export const UserProvider = ({ children }) => {
 			// 2. Execute apiFetch() with the required header
 			console.log("data: ", data);
 
-			const response = await apiFetch(`${backendUrl}/api/profile`, {
+			const response = await apiFetch(`${backend_base_url}/api/profile`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -175,11 +175,14 @@ export const UserProvider = ({ children }) => {
 			setLoading(true);
 
 			try {
-				const response = await apiFetch(`${backendUrl}/api/login`, {
-					method: "POST",
-					body: JSON.stringify({ email, password }),
-					headers: { "Content-Type": "application/json" },
-				});
+				const response = await apiFetch(
+					`${backend_base_url}/api/login`,
+					{
+						method: "POST",
+						body: JSON.stringify({ email, password }),
+						headers: { "Content-Type": "application/json" },
+					},
+				);
 
 				const res = await response.json();
 

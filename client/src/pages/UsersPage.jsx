@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { backend_base_url } from "../workMode";
 
 const UsersPage = () => {
 	const navigate = useNavigate();
@@ -10,7 +11,7 @@ const UsersPage = () => {
 
 	const fetchUsers = async () => {
 		try {
-			const response = await apiFetch("http://localhost:5000/api/users", {
+			const response = await apiFetch(`${backend_base_url}/api/users`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -39,7 +40,7 @@ const UsersPage = () => {
 	const deleteUser = async (id) => {
 		try {
 			const response = await apiFetch(
-				`http://localhost:5000/api/users/${id}`,
+				`${backend_base_url}/api/users/${id}`,
 				{
 					method: "DELETE",
 					headers: {
