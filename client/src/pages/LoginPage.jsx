@@ -35,7 +35,7 @@ const LoginPage = () => {
 		// setUserLoggedIn(false);
 
 		// try {
-		// 	const response = await fetch(`${backendUrl}/api/login`, {
+		// 	const response = await apiFetch(`${backendUrl}/api/login`, {
 		// 		method: "POST",
 		// 		body: JSON.stringify({ email, password }),
 		// 		headers: { "Content-Type": "application/json" },

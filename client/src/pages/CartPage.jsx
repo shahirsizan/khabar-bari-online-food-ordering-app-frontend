@@ -8,6 +8,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 import { toBanglaNumber } from "../utils/toBanglaNumber";
+import { apiFetch } from "../utils/api";
 
 const CartPage = () => {
 	const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -90,14 +91,17 @@ const CartPage = () => {
 			console.log("invoking pay(), data: ", data);
 
 			try {
-				const response = await fetch(`${backend_base_url}/api/order`, {
-					method: "POST",
-					headers: {
-						"content-type": "application/json",
-						token: JSON.parse(localStorage.getItem("token")),
+				const response = await apiFetch(
+					`${backend_base_url}/api/order`,
+					{
+						method: "POST",
+						headers: {
+							"content-type": "application/json",
+							token: JSON.parse(localStorage.getItem("token")),
+						},
+						body: JSON.stringify(data),
 					},
-					body: JSON.stringify(data),
-				});
+				);
 
 				if (response.ok) {
 					const res = await response.json();

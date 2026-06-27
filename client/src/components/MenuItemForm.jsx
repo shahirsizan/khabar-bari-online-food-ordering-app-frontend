@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import EditableImage from "./EditableImage/EditableImage";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/api";
 
 export default function MenuItemForm({ whatToDo, menuItem }) {
 	const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 		console.log("url & methodd: ", url, " ", methodd);
 
 		try {
-			const response = await fetch(url, {
+			const response = await apiFetch(url, {
 				method: methodd,
 				body: JSON.stringify(data),
 				headers: {

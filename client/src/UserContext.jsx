@@ -7,6 +7,7 @@ import {
 } from "react";
 import { replace, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
+import { apiFetch } from "./utils/api";
 
 const UserContext = createContext();
 
@@ -44,7 +45,7 @@ export const UserProvider = ({ children }) => {
 		}
 
 		try {
-			const response = await fetch(`${backendUrl}/api/me`, {
+			const response = await apiFetch(`${backendUrl}/api/me`, {
 				method: "GET",
 				headers: {
 					token: JSON.parse(token),
@@ -124,10 +125,10 @@ export const UserProvider = ({ children }) => {
 		const token = JSON.parse(localStorage.getItem("token"));
 
 		try {
-			// 2. Execute fetch with the required header
+			// 2. Execute apiFetch() with the required header
 			console.log("data: ", data);
 
-			const response = await fetch(`${backendUrl}/api/profile`, {
+			const response = await apiFetch(`${backendUrl}/api/profile`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -174,7 +175,7 @@ export const UserProvider = ({ children }) => {
 			setLoading(true);
 
 			try {
-				const response = await fetch(`${backendUrl}/api/login`, {
+				const response = await apiFetch(`${backendUrl}/api/login`, {
 					method: "POST",
 					body: JSON.stringify({ email, password }),
 					headers: { "Content-Type": "application/json" },
