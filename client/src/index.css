@@ -9,10 +9,6 @@
 	.duration-high {
 		@apply transition-all duration-300 ease-in-out;
 	}
-
-	.font-atma {
-		font-family: "Atma", cursive;
-	}
 }
 
 @keyframes spin {
