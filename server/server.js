@@ -7,14 +7,17 @@ import cors from "cors";
 import router from "./routes/routes.js";
 import "dotenv/config";
 import slidingWindowLimiter from "./middleware/rateLimiter.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { Message } from "./model/Message.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
+const httpServer = createServer(app);
 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-
 const allowedOrigins = [
 	"http://localhost:5173",
 	"https://khabar-bari-frontend.vercel.app",
@@ -28,6 +31,49 @@ app.use(
 	}),
 );
 
+// Initializing Socket.io with CORS
+const io = new Server(httpServer, {
+	cors: {
+		origin: `frontend_base_url`,
+		methods: ["GET", "POST"],
+	},
+});
+
+io.on("connection", (socket) => {
+	console.log("A user connected: ", socket.id);
+
+	// 1. when user joins a specific room
+	socket.on("join_room", (roomId) => {
+		socket.join(roomId);
+		console.log(`User ${socket.id} connected to room ${roomId}`);
+	});
+
+	// 2. handle messages
+	socket.on("send_message", async (data) => {
+		const { roomId, senderId, senderRole, text } = data;
+
+		try {
+			// fisrt save to database
+			const newMessage = await Message.create({
+				roomId,
+				senderId,
+				senderRole,
+				text,
+			});
+
+			// then broadcast back to everyone (including sender) in the room
+			io.to(roomId).emit("receive_message", newMessage);
+		} catch (error) {
+			console.error("Error saving message: ", error.message);
+		}
+	});
+
+	// 3. on disconnect
+	socket.on("disconnect", () => {
+		console.log("User disconnected:", socket.id);
+	});
+});
+
 const db = async () => {
 	try {
 		await mongoose.connect(process.env.db_url);
@@ -37,18 +83,13 @@ const db = async () => {
 	}
 };
 
-// app.use("/", (req, res) => {
-// 	res.send("hello from backend base url");
-// });
-// caution, uporer "/" uncomment korle browser theke call always upore captured hobe. Nicher "/api" te jabe na!
-
 app.use(slidingWindowLimiter(15000, 10));
 app.use("/api", router);
 app.use("/", (req, res) => {
 	res.send("cron hit");
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
 	db();
-	console.log(`Listening on port ${port} in ${mode} mode`);
+	console.log(`Listening port ${port} in ${mode} mode`);
 });
