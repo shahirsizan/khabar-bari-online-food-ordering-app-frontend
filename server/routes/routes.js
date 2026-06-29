@@ -1,11 +1,9 @@
 import { Router } from "express";
-
 import { middleware } from "../middleware/middleware.js";
 import { paymentController } from "../controller/paymentController.js";
 import { loginUser, registerUser } from "../controller/authController.js";
 import { updateProfile } from "../controller/profileController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
-
 import { upload } from "../middleware/upload.js";
 import { uploadImage } from "../controller/uploadController.js";
 import {
@@ -24,6 +22,7 @@ import {
 } from "../controller/userController.js";
 import { nanoid } from "nanoid";
 import "dotenv/config";
+import { Message } from "../model/Message.js";
 
 const router = Router();
 
@@ -49,6 +48,7 @@ router.get("/orders", isAuth, getOrders);
 router.get("/order/:id", isAuth, getOrder);
 router.put("/order/:id", isAuth, updateOrderStatus);
 
+// bkash routes
 router.post(
 	"/bkash/payment/create",
 	middleware.bkash_auth,
@@ -73,6 +73,7 @@ router.get(
 	paymentController.refund,
 );
 
+// sslcommerz routes
 import SSLCommerzPayment from "sslcommerz-lts";
 import { Order } from "../model/orderModel.js";
 import {
@@ -271,6 +272,18 @@ router.get("/payment/status/:tranId", async (req, res) => {
 			paid: order.paid,
 			orderDetail: order.paid ? order : null,
 		});
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+// chat routes
+router.get("/chat/:roomId", async (req, res) => {
+	try {
+		const messages = await Message.find({ roomId: req.params.roomId }).sort(
+			{ createdAt: -1 },
+		);
+		res.status(200).json(messages);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
