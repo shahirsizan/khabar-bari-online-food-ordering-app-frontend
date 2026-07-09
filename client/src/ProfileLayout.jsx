@@ -34,6 +34,7 @@ const ProfileLayout = () => {
 								Menu Items
 							</span>
 						</Link>
+
 						<Link to={"users"}>
 							<span
 								className={
@@ -43,6 +44,18 @@ const ProfileLayout = () => {
 								}
 							>
 								Users
+							</span>
+						</Link>
+
+						<Link to={"chats"}>
+							<span
+								className={
+									location.pathname === "/profile/chats"
+										? "text-red-600 font-bold"
+										: "text-gray-500 font-bold"
+								}
+							>
+								Chats
 							</span>
 						</Link>
 					</>
