@@ -23,6 +23,7 @@ import EditMenuItemPage from "./pages/EditMenuItemPage.jsx";
 import EditUserPage from "./pages/EditUserPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
 import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal.jsx";
+import { AdminChatPanel } from "./pages/AdminChatPanel.jsx";
 
 const App = () => {
 	const navigate = useNavigate();
@@ -31,9 +32,9 @@ const App = () => {
 	useEffect(() => {
 		AOS.init({
 			offset: 100,
-			duration: 500,
+			duration: 200,
 			easing: "ease-in-sine",
-			delay: 100,
+			// delay: 100,
 		});
 		AOS.refresh();
 	}, []);
@@ -61,6 +62,7 @@ const App = () => {
 							/>
 							<Route path="users" element={<UsersPage />} />
 							<Route path="orders" element={<OrdersPage />} />
+							<Route path="chats" element={<AdminChatPanel />} />
 						</Route>
 
 						<Route

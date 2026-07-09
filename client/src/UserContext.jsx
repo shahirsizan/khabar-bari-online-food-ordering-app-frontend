@@ -9,6 +9,7 @@ import { replace, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 import { apiFetch } from "./utils/api";
 import { backend_base_url } from "./workMode";
+import { initializeSocket } from "./utils/socket";
 
 const UserContext = createContext();
 
@@ -21,6 +22,7 @@ export const UserProvider = ({ children }) => {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [token, setToken] = useState(localStorage.getItem("token") || null);
 	const [loading, setLoading] = useState(false);
+	const [socket, setSocket] = useState(null);
 
 	// console.log("is authenticated? ", isAuthenticated);
 
@@ -55,6 +57,8 @@ export const UserProvider = ({ children }) => {
 			if (response.ok) {
 				const user = await response.json();
 				setUser(user);
+				console.log("user obj: ", user);
+
 				setIsAdmin(user.role === "admin");
 				setIsAuthenticated(true);
 			} else if (response.status === 401) {
@@ -83,27 +87,13 @@ export const UserProvider = ({ children }) => {
 	};
 
 	useEffect(() => {
-		// Optional: Load user data from localStorage if token exists
-		// if (localStorage.getItem("user") && localStorage.getItem("token")) {
-		// 	const savedUser = localStorage.getItem("user");
-		// 	const user = JSON.parse(savedUser);
-		// 	console.log("`user` : ", user);
-
-		// 	setUser(user);
-		// 	setIsAdmin(user.role === "admin" ? true : false);
-		// 	setIsAuthenticated(true);
-
-		// 	// console.log("savedUser: ", savedUser);
-		// } else {
-		// 	// Explicitly handle "not logged in" case
-		// 	setUser(null);
-		// 	setIsAdmin(false);
-		// 	setIsAuthenticated(false);
-		// }
-		// setIsInitializing(false);
-
 		verifyUser();
-	}, []);
+	}, [pathname]); // Fires routing validation on navigation change
+
+	useEffect(() => {
+		const socketInstance = initializeSocket();
+		setSocket(socketInstance);
+	}, [user]);
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
@@ -234,8 +224,10 @@ export const UserProvider = ({ children }) => {
 		localStorage.removeItem("cart");
 		localStorage.removeItem("user");
 		setUser(null);
+		setToken(null);
 		setIsAuthenticated(false);
-		navigate("/login");
+		setIsAdmin(false);
+		navigate("/login", { replace: true });
 
 		// toast.success("✅ User Logged Out");
 		// console.log("✅ User Logged Out");
@@ -255,6 +247,7 @@ export const UserProvider = ({ children }) => {
 				logoutUser,
 				verifyUser,
 				handleProfileInfoUpdate,
+				socket,
 			}}
 		>
 			{children}
