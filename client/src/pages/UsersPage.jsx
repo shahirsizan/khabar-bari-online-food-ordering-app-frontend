@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { useUserContext } from "../UserContext";
 
 const UsersPage = () => {
 	const navigate = useNavigate();
 	const [users, setUsers] = useState([]);
 	const [userToDelete, setUserToDelete] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const { user } = useUserContext();
 
 	const fetchUsers = async () => {
 		try {
@@ -67,6 +69,14 @@ const UsersPage = () => {
 		return (
 			<div className="h-screen flex items-center justify-center text-3xl font-bold">
 				Loading users...
+			</div>
+		);
+	}
+
+	if (user.role !== "admin") {
+		return (
+			<div className="h-screen flex items-center justify-center text-3xl font-bold">
+				You are not authorized to view this page.
 			</div>
 		);
 	}
