@@ -2,20 +2,18 @@ import { useState } from "react";
 import { ChatBox } from "./ChatBox";
 import { BiSupport } from "react-icons/bi";
 import { useEffect } from "react";
+import { useUserContext } from "../UserContext";
 
-export const SupportChatLauncher = ({ chatRoomId }) => {
+export const SupportChatLauncher = () => {
 	const [isOpen, setIsOpen] = useState(false);
-
-	if (!chatRoomId) {
-		return null;
-	}
+	const { user } = useUserContext();
 
 	return (
 		<div className="fixed bottom-14 right-3 w-full md:w-1/3 z-50 flex flex-col items-end font-sans">
 			{/* Chat Window Container */}
 			{isOpen && (
 				<div className="w-full mb-4">
-					<ChatBox chatRoomId={chatRoomId} />
+					<ChatBox />
 				</div>
 			)}
 

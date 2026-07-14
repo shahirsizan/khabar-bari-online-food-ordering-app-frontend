@@ -23,9 +23,7 @@ export const UserProvider = ({ children }) => {
 	const [token, setToken] = useState(localStorage.getItem("token") || null);
 	const [loading, setLoading] = useState(false);
 	const [socket, setSocket] = useState(null);
-
-	// console.log("is authenticated? ", isAuthenticated);
-
+	const [isAdminOnline, setIsAdminOnline] = useState(false); // Tracks admin's online status
 	const { pathname } = useLocation(); // Tracks the current URL path
 
 	const verifyUser = async () => {
@@ -86,14 +84,59 @@ export const UserProvider = ({ children }) => {
 		}
 	};
 
+	// Fires routing validation on navigation change.
+	// This ensures that if a user manually navigates to a protected route,
+	// the app checks their authentication status and redirects them if necessary.
 	useEffect(() => {
 		verifyUser();
-	}, [pathname]); // Fires routing validation on navigation change
+	}, [pathname]);
 
+	// create socket instance on mount
 	useEffect(() => {
 		const socketInstance = initializeSocket();
 		setSocket(socketInstance);
 	}, [user]);
+
+	// join-room emit for non-admin users will occur from below
+	// but for admin, it will occur from chatBox.jsx when the admin selects a specific room from the sidebar.
+	useEffect(() => {
+		if (!socket || !user) {
+			return;
+		}
+
+		if (user.role !== "admin") {
+			socket.emit("join_room", { roomId: user._id });
+		}
+	}, [user, socket]);
+
+	useEffect(() => {
+		if (!socket || !user) {
+			return;
+		}
+
+		// Declare presence to the server upon app mount
+		socket.emit("register_presence", { user });
+	}, [user, socket]);
+
+	// for non-admin users to check whether admin is online on mount.
+	useEffect(() => {
+		if (!socket || !user || user.role === "admin") {
+			return;
+		}
+
+		socket.emit("check_admin_status");
+
+		// 1. Define a named handler to isolate the reference
+		const handleAdminStatus = ({ status }) => {
+			setIsAdminOnline(status === "online");
+		};
+
+		socket.on("admin_status", handleAdminStatus);
+
+		return () => {
+			socket.off("admin_status", handleAdminStatus);
+		};
+	}, [user, socket]);
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
@@ -248,6 +291,7 @@ export const UserProvider = ({ children }) => {
 				verifyUser,
 				handleProfileInfoUpdate,
 				socket,
+				isAdminOnline,
 			}}
 		>
 			{children}

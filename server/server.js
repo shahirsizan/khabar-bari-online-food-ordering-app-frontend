@@ -1,5 +1,4 @@
 import { mode, frontend_base_url } from "./workMode.js";
-
 import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
@@ -39,23 +38,66 @@ const io = new Server(httpServer, {
 	},
 });
 
+// Map to track online users: Key = userId, Value = { socketId, role}
+const onlineUsers = new Map();
 io.on("connection", (socket) => {
-	// console.log("A user connected: ", socket.id);
+	// Triggered as soon as any user lands on the app
+	socket.on("register_presence", ({ user }) => {
+		onlineUsers.set(user._id, { socketId: socket.id, role: user.role });
 
-	// 1. when user joins a specific room
-	socket.on("join_room", (roomId) => {
-		socket.join(roomId);
-		console.log(`User ${socket.id} connected to room ${roomId}`);
+		if (user.role === "admin") {
+			// notify all non-admin users that admin is online
+			socket.broadcast.emit("admin_status", { status: "online" });
+		} else {
+			// notify admin that this user is online
+			socket.broadcast.emit("user_status_change", {
+				userId: user._id,
+				status: "online",
+			});
+		}
 	});
 
-	// 2. handle messages
+	// Triggered when a user joins a room.
+	socket.on("join_room", ({ roomId }) => {
+		socket.join(roomId);
+	});
+
+	// Triggered to sync the non-admin users support buttons online indicator on mount.
+	socket.on("check_admin_status", () => {
+		let isAdminActive = false;
+		for (let [id, connectedUser] of onlineUsers.entries()) {
+			if (connectedUser.role === "admin") {
+				isAdminActive = true;
+				break;
+			}
+		}
+		socket.emit("admin_status", {
+			status: isAdminActive ? "online" : "offline",
+		});
+	});
+
+	// Triggered to sync the Admin Sidebar on mount.
+	socket.on("get_online_users", () => {
+		const onlineIds = [];
+		// Key = userId, Value = { socketId, role}
+		for (let [id, connectedUser] of onlineUsers.entries()) {
+			// populate the map with non-admin entries.
+			if (connectedUser.role !== "admin") {
+				onlineIds.push(id);
+			}
+		}
+		socket.emit("initial_online_list", onlineIds);
+	});
+
+	// Handle messages
 	socket.on("send_message", async (data) => {
-		const { roomId, senderId, senderRole, text } = data;
+		const { roomId, roomName, senderId, senderRole, text } = data;
 
 		try {
 			// fisrt save to database
 			const newMessage = await Message.create({
 				roomId,
+				roomName,
 				senderId,
 				senderRole,
 				text,
@@ -68,9 +110,35 @@ io.on("connection", (socket) => {
 		}
 	});
 
-	// 3. on disconnect
+	// On disconnect
 	socket.on("disconnect", () => {
-		console.log("User disconnected:", socket.id);
+		let disconnectedUserId = null;
+		let disconnectedUserRole = null;
+
+		// Find which user belonged to this socket instance
+		for (let [id, connectedUser] of onlineUsers.entries()) {
+			if (connectedUser.socketId === socket.id) {
+				disconnectedUserId = id;
+				disconnectedUserRole = connectedUser.role;
+				onlineUsers.delete(id); // Remove from live tracker
+				break;
+			}
+		}
+
+		if (!disconnectedUserId) {
+			return;
+		}
+
+		if (disconnectedUserRole === "admin") {
+			// Tell all users the admin got offline.
+			socket.broadcast.emit("admin_status", { status: "offline" });
+		} else {
+			// Broadcast globally so the Admin panel catches the offline status
+			socket.broadcast.emit("user_status_change", {
+				userId: disconnectedUserId,
+				status: "offline",
+			});
+		}
 	});
 });
 

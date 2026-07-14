@@ -2,40 +2,55 @@ import { useState, useEffect, useRef } from "react";
 import { backend_base_url } from "../workMode";
 import { apiFetch } from "../utils/api";
 import { useUserContext } from "../UserContext";
+import { formatTime } from "../utils/formatTime";
 
-export const ChatBox = ({ chatRoomId }) => {
+export const ChatBox = ({
+	chatRoomIdFromAdminPanel,
+	chatRoomNameFromAdminPanel,
+}) => {
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState("");
 	const messagesEndRef = useRef(null);
-	const { isAdmin, user, socket } = useUserContext();
-
+	const { isAdmin, user, socket, isAdminOnline } = useUserContext();
+	const [chatRoomId, setChatRoomId] = useState(null);
+	const [chatRoomName, setChatRoomName] = useState(null);
 	const currentSenderId = user?._id;
 	const currentSenderRole = isAdmin ? "admin" : "user";
 
-	const formatTime = (isoString) => {
-		return new Date(isoString).toLocaleTimeString([], {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
+	// if non-admin, set roomId and roomName directly from users object.
+	// if admin, set roomId and roomName from props coming from parent AdminChatPanel.jsx
+	useEffect(() => {
+		if (user.role !== "admin") {
+			setChatRoomId(user._id);
+			setChatRoomName(user.name);
+			// console.log("chatRoomId: ", user._id);
+		} else {
+			setChatRoomId(chatRoomIdFromAdminPanel);
+			setChatRoomName(chatRoomNameFromAdminPanel);
+			// console.log("chatRoomId: ", chatRoomIdFromAdminPanel);
+		}
+	}, [chatRoomIdFromAdminPanel]);
 
-	// 1. setup socket and chat history on mount
+	// setup socket and chat history on mount
 	useEffect(() => {
 		if (!chatRoomId) {
 			return;
 		}
 
-		socket.emit("join_room", chatRoomId);
+		// A non-admin user triggers `join_room` instantly upon landing on the app through userContext.
+		// But an admin has to select a specific room from sidebar to trigger `join_room`
+		if (user.role === "admin") {
+			socket.emit("join_room", { roomId: chatRoomId });
+		}
 
-		// add event listen for new messages
-		// latest message is already stored in databse through socket
-		// just append it into current list
+		// All messages are already stored in database and fetched upon mount.
+		// Just append `newMessage` to current list sent from the `receive_message` event
 		socket.on("receive_message", (newMessage) => {
 			setMessages((prev) => {
 				// Prevent duplicate messages if backend echoes back to sender several times
-				if (prev.some((msg) => msg._id === newMessage._id)) {
-					return prev;
-				}
+				// if (prev.some((msg) => msg._id === newMessage._id)) {
+				// 	return prev;
+				// }
 				return [...prev, newMessage];
 			});
 		});
@@ -57,13 +72,23 @@ export const ChatBox = ({ chatRoomId }) => {
 
 		loadChatHistory();
 
-		// remove event listener on unmount
+		/***
+		 * A useEffect cleanup function runs when the component unmounts OR
+		 * before the effect re-runs due to dependency changes.
+		 * It does not execute just because the code inside the effect finishes running.
+		 */
 		return () => {
+			// remove message listener
 			socket.off("receive_message");
-		};
-	}, [chatRoomId]);
 
-	// auto-scroll to bottom
+			// leave this room when admin switches chat in sidebar
+			if (user.role === "admin") {
+				socket.emit("leave_room", { roomId: chatRoomId });
+			}
+		};
+	}, [chatRoomId, chatRoomIdFromAdminPanel]);
+
+	// auto-scroll to bottom upon mount or when messages update
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
@@ -79,6 +104,7 @@ export const ChatBox = ({ chatRoomId }) => {
 
 		const messageData = {
 			roomId: chatRoomId,
+			roomName: chatRoomName,
 			senderId: currentSenderId,
 			senderRole: currentSenderRole,
 			text: inputMessage,
@@ -92,8 +118,14 @@ export const ChatBox = ({ chatRoomId }) => {
 		<div className="flex flex-col h-[500px] w-full border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-[#e5ddd5]">
 			{/* Chat Header */}
 			<div className="bg-[#075e54] text-white p-4 font-bold flex items-center justify-between">
-				<span>{isAdmin ? "Customer Support" : "Chat With Admin"}</span>
-				<span className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+				<span>
+					{isAdmin ? `Chat With ${chatRoomName}` : "Chat With Admin"}
+				</span>
+				{isAdminOnline ? (
+					<span className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+				) : (
+					<span className="h-2 w-2 rounded-full bg-red-700 animate-pulse"></span>
+				)}
 			</div>
 
 			{/* Show messages area */}
@@ -126,7 +158,7 @@ export const ChatBox = ({ chatRoomId }) => {
 				<div ref={messagesEndRef} />
 			</div>
 
-			{/* Message Input Box */}
+			{/* Message Input Form */}
 			<form
 				onSubmit={(e) => {
 					handleSendMessage(e);
