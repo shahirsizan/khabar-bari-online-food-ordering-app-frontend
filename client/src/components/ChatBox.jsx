@@ -122,7 +122,7 @@ export const ChatBox = ({
 					{isAdmin ? `Chat With ${chatRoomName}` : "Chat With Admin"}
 				</span>
 				{isAdminOnline ? (
-					<span className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+					<span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
 				) : (
 					<span className="h-2 w-2 rounded-full bg-red-700 animate-pulse"></span>
 				)}
