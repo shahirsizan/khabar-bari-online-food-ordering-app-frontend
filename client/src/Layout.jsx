@@ -21,9 +21,8 @@ const Layout = () => {
 				<Outlet />
 			</div>
 
-			{isAuthenticated && !isAdmin && (
-				<SupportChatLauncher chatRoomId={user._id} />
-			)}
+			{/* chat button for non-admin auth'd users */}
+			{isAuthenticated && !isAdmin && <SupportChatLauncher />}
 			<Footer />
 		</div>
 	);

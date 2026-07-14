@@ -7,6 +7,7 @@ const messageSchema = new mongoose.Schema(
 		 * 2. as admin is fixed, so `User ID` should be the `roomId`.
 		 */
 		roomId: { type: String, required: true, index: true },
+		roomName: { type: String, required: true },
 		senderId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

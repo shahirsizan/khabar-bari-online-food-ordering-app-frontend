@@ -315,6 +315,7 @@ router.get("/chat/rooms", async (req, res) => {
 			{
 				$group: {
 					_id: "$roomId", // The group key becomes the roomId
+					roomName: { $first: "$roomName" }, // Capture the room name from the first message in the group
 					latestMessage: { $first: "$text" },
 					lastUpdatedAt: { $first: "$createdAt" },
 					lastSenderRole: { $first: "$senderRole" },
