@@ -16,6 +16,7 @@ const notificationSchema = new mongoose.Schema(
 			required: true,
 		},
 		/***
+		 * Below `metadata` is optional. No metadata for chat notification
 		 * purpose:
 		 *      If the admin marks an order as "Completed", a socket notification hits the frontend.
 		 *      Thanks to metadata, our React app doesn't just display a popup message; it can instantly
