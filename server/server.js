@@ -9,6 +9,7 @@ import slidingWindowLimiter from "./middleware/rateLimiter.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { Message } from "./model/Message.js";
+import { initIO } from "./utils/io.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -30,13 +31,8 @@ app.use(
 	}),
 );
 
-// Initializing Socket.io with CORS
-const io = new Server(httpServer, {
-	cors: {
-		origin: `${frontend_base_url}`,
-		methods: ["GET", "POST"],
-	},
-});
+// Initializing Socket.io once here
+const io = initIO(httpServer, frontend_base_url);
 
 // Map to track online users: Key = userId, Value = { socketId, role}
 const onlineUsers = new Map();
