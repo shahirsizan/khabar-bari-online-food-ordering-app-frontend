@@ -2,6 +2,11 @@ import mongoose, { model, Schema } from "mongoose";
 
 const OrderSchema = new Schema(
 	{
+		userId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+		},
 		userName: { type: String, required: true },
 		userEmail: { type: String, required: true },
 		phone: { type: String, required: true },
