@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema(
 		}, // The user or admin
 		type: {
 			type: String,
-			enum: ["order", "chat", "system"],
+			enum: ["order", "chat"],
 			required: true,
 		},
 	},
