@@ -15,6 +15,22 @@ const notificationSchema = new mongoose.Schema(
 			enum: ["order", "chat"],
 			required: true,
 		},
+		/***
+		 * purpose:
+		 *      If the admin marks an order as "Completed", a socket notification hits the frontend.
+		 *      Thanks to metadata, our React app doesn't just display a popup message; it can instantly
+		 *      read `metadata.orderId` and `metadata.status`, find that specific order in the current
+		 *      React state, and flip its badge status dynamically without waiting for the user to manually refresh the page.
+		 */
+		metadata: {
+			orderId: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Order",
+			},
+			status: {
+				type: String,
+			},
+		},
 	},
 	{ timestamps: true },
 );
