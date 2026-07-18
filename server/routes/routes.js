@@ -380,4 +380,8 @@ router.get("/chat/:roomId", async (req, res) => {
 	}
 });
 
+// Notification routes
+router.get("/notifications", isAuth, getNotifications);
+router.put("/notifications/:id", isAuth, markNotificationAsRead);
+
 export default router;
