@@ -23,6 +23,8 @@ import {
 import { nanoid } from "nanoid";
 import "dotenv/config";
 import { Message } from "../model/Message.js";
+import { User } from "../model/userModel.js";
+import { Notification } from "../model/NotificationModel.js";
 
 const router = Router();
 
@@ -95,7 +97,10 @@ router.post("/order", isAuth, async (req, res) => {
 				cartItems,
 			};
 	 */
-	const tran_id = nanoid(30);
+
+	// nanoid() -> default size is 21.
+	// const tran_id = nanoid(30);
+	const tran_id = nanoid();
 	const data = {
 		total_amount: req.body.amount,
 		currency: "BDT",
@@ -133,6 +138,7 @@ router.post("/order", isAuth, async (req, res) => {
 
 			const finalOrder = {
 				totalAmount: req.body.amount,
+				userId: req.body.user._id,
 				userName: req.body.user.name,
 				userEmail: req.body.user.email,
 				phone: req.body.user.phone,
@@ -144,6 +150,36 @@ router.post("/order", isAuth, async (req, res) => {
 			};
 
 			const result = await Order.insertOne(finalOrder);
+			/***
+			 * the insertOne() method ⬆️ resolves to an object with the following properties:
+			 * result :
+			 * {
+					acknowledged: true,
+					insertedId: new ObjectId('65a12345f1234567890abcde')
+				}
+			 */
+
+			// Create a notification for Admin
+			// Fetch admin record from User collection
+			const adminUser = await User.findOne({ role: "admin" });
+			const adminId = adminUser ? adminUser._id : null;
+
+			if (adminId) {
+				const adminNotification = await Notification.create({
+					recipientId: adminId,
+					message: `New order placed by ${req.body.user.name}`,
+					type: "order",
+					link: `/order/${result.insertedId}`,
+					metadata: {
+						orderId: result.insertedId,
+						status: "Pending",
+					},
+				});
+
+				// Realtime notofication dispatched into admin room
+				const io = getIO();
+				io.to("admin_room").emit("order_placed", adminNotification);
+			}
 
 			res.status(200).json({ redirectUrl: GatewayPageURL });
 			return;

@@ -1,4 +1,6 @@
+import { Notification } from "../model/NotificationModel.js";
 import { Order } from "../model/orderModel.js";
+import { getIO } from "../utils/io.js";
 
 export const getOrders = async (req, res) => {
 	try {
@@ -61,6 +63,43 @@ export const updateOrderStatus = async (req, res) => {
 			{ status: status },
 			{ new: true },
 		);
+
+		if (!updatedOrder) {
+			return res.status(404).json({ message: "Order not found" });
+		}
+
+		// make a notification object.
+		const notification = new Notification({
+			recipientId: updatedOrder.userId, // Who placed the order
+			type: "order",
+			message: `Your order #${id} is now ${status}.`,
+			link: `/order/${id}`, // Link to the order details page
+			metadata: {
+				orderId: updatedOrder._id,
+				status: updatedOrder.status,
+			},
+		});
+		// Persist the notification in Database
+		const savedNotification = await notification.save();
+
+		/***
+		 * ℹ️ TODO- porerdin ja ja korte hobe:
+		 * Order status change howar por user er kache notification jabe,
+		 * user notification e click korle direct order details page e land korbe valo kotha. Easy.
+		 *
+		 * Order details page er top e status indicatior thakbe.
+		 * Ei feature ta OrderDetails page e giye add korte hobe.
+		 * EKhane just reminder diye rakhlam.
+		 */
+
+		// Get the socket instance and emit notification to users individual room
+		const io = getIO();
+		if (io && updatedOrder.userId) {
+			io.to(updatedOrder.userId.toString()).emit(
+				"order_status_updated",
+				savedNotification,
+			);
+		}
 
 		res.status(200).json(updatedOrder);
 	} catch (error) {
