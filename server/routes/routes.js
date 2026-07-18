@@ -83,6 +83,10 @@ import {
 	getOrders,
 	updateOrderStatus,
 } from "../controller/orderController.js";
+import {
+	getNotifications,
+	markNotificationAsRead,
+} from "../controller/notificationController.js";
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
 const is_live = false;
