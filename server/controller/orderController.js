@@ -82,19 +82,9 @@ export const updateOrderStatus = async (req, res) => {
 		// Persist the notification in Database
 		const savedNotification = await notification.save();
 
-		/***
-		 * ℹ️ TODO- porerdin ja ja korte hobe:
-		 * Order status change howar por user er kache notification jabe,
-		 * user notification e click korle direct order details page e land korbe valo kotha. Easy.
-		 *
-		 * Order details page er top e status indicatior thakbe.
-		 * Ei feature ta OrderDetails page e giye add korte hobe.
-		 * EKhane just reminder diye rakhlam.
-		 */
-
-		// Get the socket instance and emit notification to users individual room
+		// Get socket instance and emit notification to corresponding users room
 		const io = getIO();
-		if (io && updatedOrder.userId) {
+		if (io) {
 			io.to(updatedOrder.userId.toString()).emit(
 				"order_status_updated",
 				savedNotification,

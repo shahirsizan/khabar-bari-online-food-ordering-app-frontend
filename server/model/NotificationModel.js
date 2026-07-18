@@ -4,7 +4,7 @@ const notificationSchema = new mongoose.Schema(
 	{
 		message: { type: String, required: true },
 		isRead: { type: Boolean, default: false },
-		link: { type: String, required: true }, // URL to redirect after click
+		link: { type: String }, // URL to redirect after click
 		recipientId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
