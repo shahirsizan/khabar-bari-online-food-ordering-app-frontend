@@ -9,7 +9,8 @@ import slidingWindowLimiter from "./middleware/rateLimiter.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { Message } from "./model/Message.js";
-import { initIO } from "./utils/io.js";
+import { getIO, initIO } from "./utils/io.js";
+import { Notification } from "./model/NotificationModel.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -90,7 +91,7 @@ io.on("connection", (socket) => {
 		const { roomId, roomName, senderId, senderRole, text } = data;
 
 		try {
-			// fisrt save to database
+			// 1️⃣ save in database
 			const newMessage = await Message.create({
 				roomId,
 				roomName,
@@ -99,8 +100,38 @@ io.on("connection", (socket) => {
 				text,
 			});
 
-			// then broadcast back to everyone (including sender) in the room
+			// 2️⃣ broadcast back to everyone (including sender) in the room
 			io.to(roomId).emit("receive_message", newMessage);
+
+			// 3️⃣ generate a notification, persist in DB and then send to receiving end.
+			if (senderRole === "user") {
+				// User sent -> Notify Admin
+				const adminUser = await User.findOne({ role: "admin" });
+
+				if (adminUser) {
+					const adminNotification = await Notification.create({
+						recipientId: adminUser._id,
+						message: `You received a message from ${roomName}!`,
+						isRead: false,
+						link: `/profile/chats`,
+						type: "chat",
+					});
+
+					io.to("admin_room").emit(
+						"new_chat_notification",
+						adminNotification,
+					);
+				}
+			} else if (senderRole === "admin") {
+				// Admin sent -> Notify User
+				const userNotification = await Notification.create({
+					recipientId: roomId,
+					message: `You received a message from Admin!`,
+					isRead: false,
+					type: "chat",
+				});
+				io.to(roomId).emit("new_chat_notification", userNotification);
+			}
 		} catch (error) {
 			console.error("Error saving message: ", error.message);
 		}
