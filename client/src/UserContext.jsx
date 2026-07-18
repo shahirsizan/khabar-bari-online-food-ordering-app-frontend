@@ -104,19 +104,23 @@ export const UserProvider = ({ children }) => {
 			return;
 		}
 
-		if (user.role !== "admin") {
+		// Declare presence to server upon app mount
+		socket.emit("register_presence", { user });
+
+		if (user.role === "admin") {
+			// Admin joins the global admin_room for realtime order alerts
+			socket.emit("join_room", { roomId: "admin_room" });
+		} else {
+			// Non-admin users join their individual room based on their unique database ID
 			socket.emit("join_room", { roomId: user._id });
 		}
 	}, [user, socket]);
 
-	useEffect(() => {
-		if (!socket || !user) {
-			return;
-		}
-
-		// Declare presence to the server upon app mount
-		socket.emit("register_presence", { user });
-	}, [user, socket]);
+	// useEffect(() => {
+	// 	if (!socket || !user) {
+	// 		return;
+	// 	}
+	// }, [user, socket]);
 
 	// for non-admin users to check whether admin is online on mount.
 	useEffect(() => {
