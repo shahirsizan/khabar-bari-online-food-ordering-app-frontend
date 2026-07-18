@@ -25,6 +25,8 @@ export const UserProvider = ({ children }) => {
 	const [socket, setSocket] = useState(null);
 	const [isAdminOnline, setIsAdminOnline] = useState(false); // Tracks admin's online status
 	const { pathname } = useLocation(); // Tracks the current URL path
+	const [notifications, setNotifications] = useState([]);
+	const [unreadCount, setUnreadCount] = useState(0);
 
 	const verifyUser = async () => {
 		const publicRoutes = ["/", "/cart"];
@@ -84,11 +86,11 @@ export const UserProvider = ({ children }) => {
 		}
 	};
 
-	// Fires routing validation on navigation change.
-	// This ensures that if a user manually navigates to a protected route,
-	// the app checks their authentication status and redirects them if necessary.
 	useEffect(() => {
 		verifyUser();
+		// Fires routing validation on navigation change.
+		// This ensures that if a user manually navigates to a protected route,
+		// the app checks their authentication status and redirects them if necessary.
 	}, [pathname]);
 
 	// create socket instance on mount
@@ -116,13 +118,7 @@ export const UserProvider = ({ children }) => {
 		}
 	}, [user, socket]);
 
-	// useEffect(() => {
-	// 	if (!socket || !user) {
-	// 		return;
-	// 	}
-	// }, [user, socket]);
-
-	// for non-admin users to check whether admin is online on mount.
+	// for non-admin users to check whether admin is online (on mount).
 	useEffect(() => {
 		if (!socket || !user || user.role === "admin") {
 			return;
@@ -141,6 +137,58 @@ export const UserProvider = ({ children }) => {
 			socket.off("admin_status", handleAdminStatus);
 		};
 	}, [user, socket]);
+
+	// fetch historical notifications from DB (on mount).
+	const fetchNotifications = async () => {
+		if (!user) {
+			return;
+		}
+
+		try {
+			const response = await apiFetch(
+				`${backend_base_url}/api/notifications`,
+				{
+					headers: {
+						token: JSON.parse(localStorage.getItem("token")),
+					},
+				},
+			);
+			if (response.ok) {
+				const res = await response.json();
+				setNotifications(res);
+				setUnreadCount(res.filter((noti) => !noti.isRead).length);
+			}
+		} catch (error) {
+			console.error("error -> fetchNotifications: ", error.message);
+		}
+	};
+
+	// ⬆️ call above method (on mount).
+	useEffect(() => {
+		if (isAuthenticated) {
+			fetchNotifications();
+		}
+	}, [isAuthenticated]);
+
+	// Listen for `chat` &  `order update` notifications (on mount).
+	useEffect(() => {
+		if (!socket || !user) {
+			return;
+		}
+
+		const handleNewNotification = (notification) => {
+			setNotifications((prev) => [notification, ...prev]);
+			setUnreadCount((prev) => prev + 1);
+		};
+
+		socket.on("new_chat_notification", handleNewNotification);
+		socket.on("order_status_updated", handleNewNotification);
+
+		return () => {
+			socket.off("new_chat_notification", handleNewNotification);
+			socket.off("order_status_updated", handleNewNotification);
+		};
+	}, [socket, user]);
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
@@ -296,6 +344,10 @@ export const UserProvider = ({ children }) => {
 				handleProfileInfoUpdate,
 				socket,
 				isAdminOnline,
+				notifications,
+				setNotifications,
+				unreadCount,
+				setUnreadCount,
 			}}
 		>
 			{children}
