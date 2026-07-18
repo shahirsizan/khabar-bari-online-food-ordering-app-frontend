@@ -117,10 +117,9 @@ io.on("connection", (socket) => {
 						type: "chat",
 					});
 
-					io.to("admin_room").emit(
-						"new_chat_notification",
-						adminNotification,
-					);
+					socket
+						.to("admin_room")
+						.emit("new_chat_notification", adminNotification);
 				}
 			} else if (senderRole === "admin") {
 				// Admin sent -> Notify User
@@ -130,7 +129,9 @@ io.on("connection", (socket) => {
 					isRead: false,
 					type: "chat",
 				});
-				io.to(roomId).emit("new_chat_notification", userNotification);
+				socket
+					.to(roomId)
+					.emit("new_chat_notification", userNotification);
 			}
 		} catch (error) {
 			console.error("Error saving message: ", error.message);
