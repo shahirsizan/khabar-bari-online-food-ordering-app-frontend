@@ -22,6 +22,7 @@ import {
 } from "../controller/userController.js";
 import { nanoid } from "nanoid";
 import "dotenv/config";
+import mongoose from "mongoose";
 import { Message } from "../model/Message.js";
 import { User } from "../model/userModel.js";
 import { Notification } from "../model/NotificationModel.js";
@@ -87,6 +88,7 @@ import {
 	getNotifications,
 	markNotificationAsRead,
 } from "../controller/notificationController.js";
+import { getIO } from "../utils/io.js";
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
 const is_live = false;
@@ -154,6 +156,8 @@ router.post("/order", isAuth, async (req, res) => {
 			};
 
 			const result = await Order.insertOne(finalOrder);
+			console.log(`router.post("/order",...) -> result: `, result);
+
 			/***
 			 * the insertOne() method ⬆️ resolves to an object with the following properties:
 			 * result :
@@ -162,28 +166,6 @@ router.post("/order", isAuth, async (req, res) => {
 					insertedId: new ObjectId('65a12345f1234567890abcde')
 				}
 			 */
-
-			// Create a notification for Admin
-			// Fetch admin record from User collection
-			const adminUser = await User.findOne({ role: "admin" });
-			const adminId = adminUser ? adminUser._id : null;
-
-			if (adminId) {
-				const adminNotification = await Notification.create({
-					recipientId: adminId,
-					message: `New order placed by ${req.body.user.name}`,
-					type: "order",
-					link: `/order/${result.insertedId}`,
-					metadata: {
-						orderId: result.insertedId,
-						status: "Pending",
-					},
-				});
-
-				// Realtime notofication dispatched into admin room
-				const io = getIO();
-				io.to("admin_room").emit("order_placed", adminNotification);
-			}
 
 			res.status(200).json({ redirectUrl: GatewayPageURL });
 			return;
@@ -252,7 +234,10 @@ router.post("/payment/ipn", async (req, res) => {
 					campaign_code: ''
 					}
 			 */
-			console.log("response: ", response);
+			console.log(
+				`router.post("/payment/ipn",...) -> response: `,
+				response,
+			);
 
 			const { status, tran_id, val_id, amount } = response;
 
@@ -261,11 +246,40 @@ router.post("/payment/ipn", async (req, res) => {
 					{ tran_id: tran_id },
 					{ $set: { paid: true } },
 				);
-			}
-			//⚠️ In case of `failed`/`cancelled` transactions, no `tran_id` or `val_id` will be there in the `response`
-			// object returned from the `sslcz.validate()` call above.
-			// So have to get the `tran_id` from the req.body instead.
-			else {
+
+				// Now notify the admin for a new order.
+				// Fetch admin record from User collection
+				const adminUser = await User.findOne({ role: "admin" });
+				const adminId = adminUser ? adminUser._id : null;
+				const orderObj = await Order.findOne({ tran_id: tran_id });
+				let customerName = "";
+				if (orderObj) {
+					customerName = orderObj.userName;
+				}
+
+				if (adminId) {
+					const adminNotification = await Notification.create({
+						recipientId: new mongoose.Types.ObjectId(adminId),
+						message: `New order placed by ${customerName}`,
+						type: "order",
+						link: `/order/${orderObj._id.toString()}`,
+						metadata: {
+							orderId: orderObj._id,
+							status: "Pending",
+						},
+					});
+
+					// Realtime notofication dispatched into admin room
+					const io = getIO();
+					io.to("admin_room").emit(
+						"new_order_placed",
+						adminNotification,
+					);
+				}
+			} else {
+				//⚠️ In case of `failed`/`cancelled` transactions, no `tran_id` or `val_id` will be there in the `response`
+				// object returned from the `sslcz.validate()` call above.
+				// So have to get the `tran_id` from the req.body instead.
 				await Order.deleteOne({ tran_id: req.body.tran_id });
 			}
 		}
