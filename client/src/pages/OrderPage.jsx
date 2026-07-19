@@ -111,6 +111,15 @@ const OrderPage = () => {
 				<div className="space-y-4 text-gray-700">
 					<div className="border-b pb-2">
 						<p className="text-xs md:text-sm text-gray-600">
+							অর্ডার আইডি
+						</p>
+						<p className="font-semibold max-md:text-xs">
+							{order._id}
+						</p>
+					</div>
+
+					<div className="border-b pb-2">
+						<p className="text-xs md:text-sm text-gray-600">
 							ট্রানজ্যাকশন আইডি
 						</p>
 						<p className="font-semibold max-md:text-xs">
