@@ -189,8 +189,16 @@ export const UserProvider = ({ children }) => {
 		return () => {
 			socket.off("new_chat_notification", handleNewNotification);
 			socket.off("order_status_updated", handleNewNotification);
+			socket.off("new_order_placed", handleNewNotification);
 		};
 	}, [socket, user]);
+
+	/***
+	 * next day te chat notification niye kaj korte hobe.
+	 * order notification apatoto basic level e kaj kortese.
+	 * 		`new_order_placed` & `order_status_updated` event duitar jonno proper notification trigger hocche.
+	 * But chat er ta kaj kortese na.
+	 */
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
