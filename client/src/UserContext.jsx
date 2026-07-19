@@ -177,12 +177,14 @@ export const UserProvider = ({ children }) => {
 		}
 
 		const handleNewNotification = (notification) => {
+			console.log("New notification received:", notification); // Debug log
 			setNotifications((prev) => [notification, ...prev]);
 			setUnreadCount((prev) => prev + 1);
 		};
 
 		socket.on("new_chat_notification", handleNewNotification);
 		socket.on("order_status_updated", handleNewNotification);
+		socket.on("new_order_placed", handleNewNotification);
 
 		return () => {
 			socket.off("new_chat_notification", handleNewNotification);
