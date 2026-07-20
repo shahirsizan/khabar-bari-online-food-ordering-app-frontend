@@ -20,22 +20,37 @@ import {
 	getUser,
 	updateUser,
 } from "../controller/userController.js";
+import {
+	getOrder,
+	getOrders,
+	updateOrderStatus,
+} from "../controller/orderController.js";
+import {
+	getNotifications,
+	markNotificationAsRead,
+} from "../controller/notificationController.js";
+import { getChatRooms, getRoomMessages } from "../controller/chatController.js";
 import { nanoid } from "nanoid";
 import "dotenv/config";
 import mongoose from "mongoose";
+import { getIO } from "../utils/io.js";
 import { Message } from "../model/Message.js";
 import { User } from "../model/userModel.js";
+import { Order } from "../model/orderModel.js";
 import { Notification } from "../model/NotificationModel.js";
+import SSLCommerzPayment from "sslcommerz-lts";
 
 const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
+router.put("/profile", isAuth, updateProfile);
 router.get("/me", isAuth, (req, res) => {
 	res.json(req.user);
 });
-router.put("/profile", isAuth, updateProfile);
+
+// Menu Item routes
 router.post("/upload", isAuth, upload.single("file"), uploadImage); // 'file' must match the field used in React FormData.set("file", ...)
 router.post("/menu-items", isAuth, addMenuItem);
 router.get("/public-menu-items", getAllPublicMenuItems);
@@ -43,13 +58,25 @@ router.get("/menu-items", isAuth, getAllMenuItems);
 router.get("/menu-items/:id", isAuth, getMenuItem);
 router.put("/menu-items/:id", isAuth, updateMenuItem);
 router.delete("/menu-items/:id", isAuth, deleteMenuItem);
+
+// User routes
 router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
 router.put("/users/:id", isAuth, updateUser);
 router.delete("/users/:id", isAuth, deleteUser);
+
+// Order routes
 router.get("/orders", isAuth, getOrders);
 router.get("/order/:id", isAuth, getOrder);
 router.put("/order/:id", isAuth, updateOrderStatus);
+
+// chat routes
+router.get("/chat/rooms", isAuth, getChatRooms);
+router.get("/chat/:roomId", isAuth, getRoomMessages);
+
+// Notification routes
+router.get("/notifications", isAuth, getNotifications);
+router.put("/notifications/:id", isAuth, markNotificationAsRead);
 
 // bkash routes
 router.post(
@@ -77,18 +104,6 @@ router.get(
 );
 
 // sslcommerz routes
-import SSLCommerzPayment from "sslcommerz-lts";
-import { Order } from "../model/orderModel.js";
-import {
-	getOrder,
-	getOrders,
-	updateOrderStatus,
-} from "../controller/orderController.js";
-import {
-	getNotifications,
-	markNotificationAsRead,
-} from "../controller/notificationController.js";
-import { getIO } from "../utils/io.js";
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
 const is_live = false;
@@ -330,76 +345,5 @@ router.get("/payment/status/:tranId", async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 });
-
-// chat routes
-router.get("/chat/rooms", async (req, res) => {
-	try {
-		/***
-		 * This aggregation pipeline is responsible to show the chat heads of the sidebar.
-		 * Stage 1: 
-		 * 		{ $sort: { createdAt: -1 } }
-				Sorts every message document by their creation time. It puts the newest messages at the beginning of the stream.
-			 
-		   Stage 2: 
-				$group: {
-					_id: "$roomId",
-					latestMessage: { $first: "$text" },
-					lastUpdatedAt: { $first: "$createdAt" },
-					lastSenderRole: { $first: "$senderRole" }
-				}
-			
-				_id: "$roomId": Collapses the sorted stream into buckets based on the chat room.
-				$first Accumulator: Extracts data from the absolute first document it encounters in each bucket.
-				The Logic: Because Stage 1 sorted everything newest-first, the "first" document in each room bucket is guaranteed to be 
-				that room's latest message.
-				Output: This stage reduces your massive list of messages down to a single document per unique room.
-			
-			Stage 3: 
-				$sort (Final Presentation Sorting)
-			
-				Re-sorts the newly created room summary documents.
-				Why it matters: It ensures the chat rooms with the absolute freshest activity appear first.
-				Real-world use: This mimics the inbox behavior of apps like WhatsApp or Slack, where active chats jump to the top of your screen.
-		 */
-		const recentChats = await Message.aggregate([
-			// 1. Sort all messages by newest first
-			{ $sort: { createdAt: -1 } },
-
-			// 2. Group by roomId, keeping only the first (newest) message data
-			{
-				$group: {
-					_id: "$roomId", // The group key becomes the roomId
-					roomName: { $first: "$roomName" }, // Capture the room name from the first message in the group
-					latestMessage: { $first: "$text" },
-					lastUpdatedAt: { $first: "$createdAt" },
-					lastSenderRole: { $first: "$senderRole" },
-				},
-			},
-
-			// 3. Sort the resulting groups by whoever messaged most recently
-			{ $sort: { lastUpdatedAt: -1 } },
-		]);
-
-		res.status(200).json(recentChats);
-	} catch (error) {
-		console.error("Error fetching chat rooms: ", error.message);
-		res.status(500).json({ error: error.message });
-	}
-});
-
-router.get("/chat/:roomId", async (req, res) => {
-	try {
-		const messages = await Message.find({ roomId: req.params.roomId }).sort(
-			{ createdAt: 1 },
-		);
-		res.status(200).json(messages);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
-});
-
-// Notification routes
-router.get("/notifications", isAuth, getNotifications);
-router.put("/notifications/:id", isAuth, markNotificationAsRead);
 
 export default router;
