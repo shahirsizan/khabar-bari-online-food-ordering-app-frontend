@@ -1,10 +1,18 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import DarkMode from "./Navbar/DarkMode";
+import NotificationDropdown from "./NotificationDropdown";
 import { FiShoppingCart } from "react-icons/fi";
 import { toBanglaNumber } from "../utils/toBanglaNumber";
 
-const MobileMenu = ({ isOpen, onClose, user, totalItemsCount, logout }) => {
+const MobileMenu = ({
+	isOpen,
+	onClose,
+	user,
+	isAuthenticated,
+	totalItemsCount,
+	logout,
+}) => {
 	// Prevent scrolling when menu is open
 	useEffect(() => {
 		if (isOpen) {
@@ -70,6 +78,8 @@ const MobileMenu = ({ isOpen, onClose, user, totalItemsCount, logout }) => {
 									{user.name}
 								</Link>
 							</button>
+
+							{isAuthenticated && <NotificationDropdown />}
 
 							<button
 								onClick={() => {

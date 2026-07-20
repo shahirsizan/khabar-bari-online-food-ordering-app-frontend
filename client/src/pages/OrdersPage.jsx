@@ -98,13 +98,13 @@ const OrdersPage = () => {
 					<div
 						key={order._id}
 						// className="bg-gray-100 text-xs mb-2 p-4 rounded-sm flex flex-col md:flex-row items-center gap-6"
-						className="bg-gray-100 text-xs mb-2 p-4 rounded-sm max-md:flex max-md:flex-col max-md:items-center grid grid-cols-[50px_6fr_4fr] items-center gap-5"
+						className="text-xs mb-2 p-4 max-md:flex max-md:flex-col max-md:items-center grid grid-cols-[50px_6fr_4fr] items-center gap-5 bg-white shadow-sm shadow-gray-100 rounded-md"
 					>
 						{/* paid indicator */}
 						<div
 							className={
 								(order.paid ? "bg-green-500" : "bg-red-400") +
-								" p-1 rounded-md text-white w-10 text-center "
+								" p-1 rounded-md text-white text-center whitespace-nowrap w-16 font-atma"
 							}
 						>
 							{order.paid ? "Paid" : "Not paid"}
@@ -113,8 +113,13 @@ const OrdersPage = () => {
 						{/* order detail texts */}
 						<div className="grow flex flex-col md:flex-row items-center gap-6">
 							<div className="grow">
+								{/* Order ID and Time Row */}
+								<div className="flex gap-2 items-center mb-1 text-[10px] text-gray-500 font-mono tracking-wider">
+									<span>Order ID: {order._id}</span>
+								</div>
+
 								<div className="flex gap-2 items-center mb-1">
-									<div className="grow font-bold">
+									<div className="grow font-semibold text-sm text-gray-800">
 										{order.userEmail}
 									</div>
 

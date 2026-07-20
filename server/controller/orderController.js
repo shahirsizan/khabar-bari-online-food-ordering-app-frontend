@@ -1,4 +1,7 @@
+import mongoose, { Mongoose } from "mongoose";
+import { Notification } from "../model/NotificationModel.js";
 import { Order } from "../model/orderModel.js";
+import { getIO } from "../utils/io.js";
 
 export const getOrders = async (req, res) => {
 	try {
@@ -57,10 +60,40 @@ export const updateOrderStatus = async (req, res) => {
 		const { status } = req.body; // e.g., "completed"
 
 		const updatedOrder = await Order.findByIdAndUpdate(
-			{ _id: id },
+			{ _id: new mongoose.Types.ObjectId(id) },
 			{ status: status },
 			{ new: true },
 		);
+
+		console.log("updatedOrder: ", updatedOrder);
+
+		if (!updatedOrder) {
+			return res.status(404).json({ message: "Order not found" });
+		}
+
+		// make a notification object.
+		const notification = new Notification({
+			recipientId: new mongoose.Types.ObjectId(updatedOrder.userId), // Who placed the order
+			type: "order",
+			message: `Your order #${id} is now ${status}.`,
+			link: `/order/${id}`, // Link to the order details page
+			metadata: {
+				orderId: updatedOrder._id,
+				status: updatedOrder.status,
+			},
+		});
+
+		// Persist the notification in Database
+		const savedNotification = await notification.save();
+
+		// Get socket instance and emit notification to corresponding users room
+		const io = getIO();
+		if (io) {
+			io.to(updatedOrder.userId.toString()).emit(
+				"order_status_updated",
+				savedNotification,
+			);
+		}
 
 		res.status(200).json(updatedOrder);
 	} catch (error) {

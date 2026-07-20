@@ -6,6 +6,7 @@ import { useUserContext } from "../../UserContext";
 import { toBanglaNumber } from "../../utils/toBanglaNumber";
 import { useState } from "react";
 import MobileMenu from "../MobileMenu";
+import NotificationDropdown from "../NotificationDropdown";
 import { FiShoppingCart } from "react-icons/fi";
 import { CgMenuOreos } from "react-icons/cg";
 
@@ -70,6 +71,10 @@ const Navbar = () => {
 										{user.name}
 									</button>
 
+									{isAuthenticated && (
+										<NotificationDropdown />
+									)}
+
 									<button
 										onClick={handleLogout}
 										className="font-atma inline-block p-2 rounded-xl shadow-md shadow-amber-900/20 bg-gradient-to-r from-primary to-secondary  text-xl font-semibold"
@@ -114,6 +119,7 @@ const Navbar = () => {
 						totalItemsCount={totalItemsCount}
 						onClose={() => setIsMenuOpen(false)}
 						user={user}
+						isAuthenticated={isAuthenticated}
 						logout={handleLogout}
 					/>
 				)}
