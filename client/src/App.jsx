@@ -24,6 +24,8 @@ import EditUserPage from "./pages/EditUserPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
 import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal.jsx";
 import { AdminChatPanel } from "./pages/AdminChatPanel.jsx";
+import { ResetPasswordAfterLink } from "./pages/ResetPasswordAfterLink.jsx";
+import ChangePassword from "./pages/ChangePassword.jsx";
 
 const App = () => {
 	const navigate = useNavigate();
@@ -46,6 +48,10 @@ const App = () => {
 				<Route element={<GuestRoute />}>
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/register" element={<RegisterPage />} />
+					<Route
+						path="/reset-password-after-link"
+						element={<ResetPasswordAfterLink />}
+					/>
 				</Route>
 
 				<Route element={<Layout />}>
@@ -65,6 +71,10 @@ const App = () => {
 							<Route path="chats" element={<AdminChatPanel />} />
 						</Route>
 
+						<Route
+							path="/profile/change-password"
+							element={<ChangePassword />}
+						/>
 						<Route
 							path="/menu-items/new"
 							element={<NewMenuItemPage />}

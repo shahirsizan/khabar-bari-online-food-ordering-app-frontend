@@ -1,16 +1,21 @@
 import { Router } from "express";
 import { middleware } from "../middleware/middleware.js";
 import { paymentController } from "../controller/paymentController.js";
-import { loginUser, registerUser } from "../controller/authController.js";
+import {
+	forgotPassword,
+	loginUser,
+	registerUser,
+	resetPasswordWithToken,
+	updatePasswordWhenLoggedIn,
+} from "../controller/authController.js";
 import { updateProfile } from "../controller/profileController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/upload.js";
-import { uploadImage } from "../controller/uploadController.js";
+import { getPresignedSignature } from "../controller/uploadController.js";
 import {
 	addMenuItem,
 	deleteMenuItem,
 	getAllMenuItems,
-	getAllPublicMenuItems,
 	getMenuItem,
 	updateMenuItem,
 } from "../controller/menuItemsController.js";
@@ -44,6 +49,13 @@ const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/forgot-password", forgotPassword);
+router.put("/reset-password-with-token", resetPasswordWithToken);
+router.put(
+	"/update-password-when-logged-in",
+	isAuth,
+	updatePasswordWhenLoggedIn,
+);
 
 router.put("/profile", isAuth, updateProfile);
 router.get("/me", isAuth, (req, res) => {
@@ -51,10 +63,9 @@ router.get("/me", isAuth, (req, res) => {
 });
 
 // Menu Item routes
-router.post("/upload", isAuth, upload.single("file"), uploadImage); // 'file' must match the field used in React FormData.set("file", ...)
+router.get("/get-presigned-signature", isAuth, getPresignedSignature); // Direct Cloudinary image upload
 router.post("/menu-items", isAuth, addMenuItem);
-router.get("/public-menu-items", getAllPublicMenuItems);
-router.get("/menu-items", isAuth, getAllMenuItems);
+router.get("/menu-items", getAllMenuItems);
 router.get("/menu-items/:id", isAuth, getMenuItem);
 router.put("/menu-items/:id", isAuth, updateMenuItem);
 router.delete("/menu-items/:id", isAuth, deleteMenuItem);

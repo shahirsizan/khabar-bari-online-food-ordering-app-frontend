@@ -29,9 +29,17 @@ export const UserProvider = ({ children }) => {
 	const [unreadCount, setUnreadCount] = useState(0);
 
 	const verifyUser = async () => {
-		const publicRoutes = ["/", "/cart"];
+		const publicRoutes = [
+			"/",
+			"/cart",
+			"/register",
+			"/login",
+			"/forgot-password",
+		];
 
-		const isPublicRoute = publicRoutes.includes(pathname);
+		const isPublicRoute =
+			publicRoutes.includes(pathname) ||
+			pathname.startsWith("/reset-password-after-link");
 
 		const token = localStorage.getItem("token");
 		const user = localStorage.getItem("user");
@@ -41,7 +49,7 @@ export const UserProvider = ({ children }) => {
 			// `isAuthenticated` remains false, so user gets redirected to login page,
 			// or stays in the public route
 			if (!isPublicRoute) {
-				navigate("login");
+				navigate("/login");
 			}
 			return;
 		}
@@ -57,7 +65,7 @@ export const UserProvider = ({ children }) => {
 			if (response.ok) {
 				const user = await response.json();
 				setUser(user);
-				console.log("user obj: ", user);
+				// console.log("user obj: ", user);
 
 				setIsAdmin(user.role === "admin");
 				setIsAuthenticated(true);
