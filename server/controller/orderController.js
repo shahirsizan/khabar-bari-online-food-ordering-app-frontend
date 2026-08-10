@@ -6,21 +6,61 @@ import { getIO } from "../utils/io.js";
 export const getOrders = async (req, res) => {
 	try {
 		const { email, role } = req.user;
+		// Get query params: page, limit, search (for email/orderID), status.
+		const { page = 1, limit = 10, search, status } = req.query;
 
-		let orders;
-		if (role === "admin") {
-			// admin gets everything
-			orders = await Order.find();
-		} else {
-			// non-admin users get only their orders
-			orders = await Order.find({ userEmail: email });
+		// Build query object.
+		let queryObj = {};
+		/***
+		 * ℹ⚠️ caution:
+		 * While developing `queryObj`, make sure the properties of it
+		 * are similar to the actual field names of orderModel.
+		 */
+		if (role !== "admin") {
+			// non-admin user gets only the orders containing their email.
+			queryObj.userEmail = email;
+		} else if (search) {
+			// Admins can search by email or order ID
+			let searchConditions = [];
+
+			// If `search` looks like a valid Mongoose ObjectId
+			// we will check for order id.
+			if (mongoose.Types.ObjectId.isValid(search)) {
+				searchConditions.push({
+					_id: new mongoose.Types.ObjectId(search),
+				});
+			}
+
+			searchConditions.push({
+				userEmail: { $regex: search, $options: "i" },
+			});
+
+			queryObj.$or = searchConditions;
 		}
+
+		if (status && status !== "All") {
+			queryObj.status = status;
+		}
+		// ex: To fetch page 4, skip (4-1)*limit amount of records.
+		const skip = (parseInt(page) - 1) * parseInt(limit);
+
+		const orders = await Order.find(queryObj)
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(parseInt(limit));
+
+		const total = await Order.countDocuments(queryObj);
 
 		// console.log(orders);
 
-		return res.status(200).json(orders.reverse());
+		return res.status(200).json({
+			currentPage: parseInt(page),
+			totalPages: Math.ceil(total / limit),
+			currentPageOrders: orders,
+			totalOrders: total,
+		});
 	} catch (error) {
-		console.error("Order Fetch Error:", error.message);
+		console.error("getOrders -> Error: ", error.message);
 		res.status(500).json({ message: error.message });
 	}
 };

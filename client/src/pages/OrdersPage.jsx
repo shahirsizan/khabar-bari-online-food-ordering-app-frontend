@@ -4,9 +4,12 @@ import { Link } from "react-router-dom";
 import { formatOrderTime } from "../utils/dateFormatter";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { GrFormPrevious } from "react-icons/gr";
+import { GrFormNext } from "react-icons/gr";
 
 const OrdersPage = () => {
 	const statuses = {
+		All: "All",
 		Pending: "Pending",
 		Preparing: "Preparing",
 		Dispatched: "Dispatched",
@@ -16,6 +19,13 @@ const OrdersPage = () => {
 	const [orders, setOrders] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const { user, isAdmin } = useUserContext();
+
+	// Pagination, Search, and Filter State
+	const [page, setPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+	const [filterStatus, setFilterStatus] = useState("All");
 
 	const handleStatusChange = async (orderId, changedStatus) => {
 		// enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
@@ -44,39 +54,60 @@ const OrdersPage = () => {
 				);
 			}
 		} catch (error) {
-			console.error("Failed to update status", error);
+			console.error("handleStatusChange -> error: ", error);
 		}
 	};
 
-	// fetch orders on mount
+	// debouncing search input.
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedSearchTerm(searchTerm);
+			setPage(1); // Reset to page 1 on search change
+		}, 1000);
+
+		/***
+		 * In React, a useEffect cleanup function runs at two specific times:
+		 * 1. Right before the component unmounts (disappears from the screen).
+		 * Right before running the effect again on a subsequent render (if a dependency changes).
+		 */
+		return () => clearTimeout(timer);
+	}, [searchTerm]);
+
+	// fetch orders on mount OR when `page, search, status` change
 	useEffect(() => {
 		const fetchOrders = async () => {
+			const url = `${backend_base_url}/api/orders?page=${page}&limit=${10}&search=${debouncedSearchTerm}&status=${filterStatus}`;
 			try {
-				const response = await apiFetch(
-					`${backend_base_url}/api/orders`,
-					{
-						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
+				const response = await apiFetch(url, {
+					method: "GET",
+					headers: {
+						token: JSON.parse(localStorage.getItem("token")),
 					},
-				);
+				});
 
 				if (response.ok) {
 					const res = await response.json();
-					// console.log(res);
-
-					setOrders(res);
+					/*** 
+					 * Backend code:
+					 * return res.status(200).json({
+							currentPage: parseInt(page),
+							totalPages: Math.ceil(total / limit),
+							currentPageOrders: orders,
+							totalOrders: total,
+						});
+					 */
+					setOrders(res.currentPageOrders);
+					setTotalPages(res.totalPages);
 				}
 			} catch (error) {
-				console.error(error.message);
+				console.error("fetchOrders -> error: ", error.message);
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
 		fetchOrders();
-	}, []);
+	}, [page, debouncedSearchTerm, filterStatus]);
 
 	if (isLoading) {
 		return (
@@ -91,14 +122,57 @@ const OrdersPage = () => {
 
 	return (
 		<section className="ORDERSPAGE relative mt-8 max-w-5xl mx-auto">
-			{/* <SupportChatLauncher /> */}
+			{/* SEARCH, FILTER, PAGINATION */}
+			<div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white p-4 shadow-sm rounded-md font-atma">
+				{/* Search Bar. Admin can search with email or orderId, users can filter with Order ID only. */}
+				<div className="w-full sm:w-1/2">
+					<input
+						type="text"
+						placeholder={
+							isAdmin
+								? "Search by email or Order ID..."
+								: "Search by Order ID..."
+						}
+						value={searchTerm}
+						onChange={(e) => {
+							setSearchTerm(e.target.value);
+							setPage(1); // Reset to page 1 on search change
+						}}
+						className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-600"
+					/>
+				</div>
 
-			{orders?.length > 0 &&
+				{/* Status Filter Dropdown */}
+				<div className="w-full sm:w-auto flex items-center gap-2">
+					<span className="text-sm font-semibold text-gray-600">
+						Status:
+					</span>
+
+					<select
+						value={filterStatus}
+						onChange={(e) => {
+							setFilterStatus(e.target.value);
+							setPage(1); // Reset to page 1 on filter change
+						}}
+						multiple={false}
+						className="px-3 text-xs font-atma rounded-md border border-gray-300 bg-white cursor-pointer focus:outline-none"
+					>
+						{Object.keys(statuses).map((key) => (
+							<option key={key} value={statuses[key]}>
+								{key}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+
+			{/* ORDERS LISTING */}
+			{orders?.length > 0 ? (
 				orders.map((order) => (
 					<div
 						key={order._id}
 						// className="bg-gray-100 text-xs mb-2 p-4 rounded-sm flex flex-col md:flex-row items-center gap-6"
-						className="text-xs mb-2 p-4 max-md:flex max-md:flex-col max-md:items-center grid grid-cols-[50px_6fr_4fr] items-center gap-5 bg-white shadow-sm shadow-gray-100 rounded-md"
+						className="ORDERSLIST text-xs mb-2 p-4 max-md:flex max-md:flex-col max-md:items-center grid grid-cols-[50px_6fr_4fr] items-center gap-5 bg-white shadow-sm shadow-gray-100 rounded-md"
 					>
 						{/* paid indicator */}
 						<div
@@ -159,7 +233,7 @@ const OrdersPage = () => {
 								{order.status}
 							</button>
 
-							{/* order status change button for admin */}
+							{/* FOR ADMIN: order status change button */}
 							{isAdmin && (
 								<div className="w-full">
 									<select
@@ -170,24 +244,73 @@ const OrdersPage = () => {
 												ev.target.value,
 											);
 										}}
+										multiple={false}
 										className="px-2 mb-0 font-atma font-semibold rounded-md bg-gradient-to-r from-primary to-secondary cursor-pointer"
 									>
-										{Object.keys(statuses).map((status) => {
-											return (
-												<option
-													key={status}
-													value={statuses[status]}
-												>
-													{statuses[status]}
-												</option>
-											);
-										})}
+										{Object.keys(statuses)
+											.filter((s) => s !== "All")
+											.map((statusKey) => {
+												return (
+													<option
+														key={statusKey}
+														value={
+															statuses[statusKey]
+														}
+													>
+														{statuses[statusKey]}
+													</option>
+												);
+											})}
 									</select>
 								</div>
 							)}
 						</div>
 					</div>
-				))}
+				))
+			) : (
+				// NO ORDER FOUND
+				<div className="py-6 flex items-center justify-center bg-gray-50 gap-2">
+					<p className="text-md md:text-xl font-semibold text-gray-600">
+						No Orders Found!
+					</p>
+				</div>
+			)}
+
+			{/* PAGINATION CONTROL */}
+			{totalPages > 0 && (
+				<div className="w-full mt-6 flex justify-center">
+					<div className="max-w-2xl flex justify-between items-center gap-10 px-4 py-3 bg-white rounded-md shadow-sm">
+						{/* prev button */}
+						<button
+							onClick={() =>
+								setPage((prev) => Math.max(prev - 1, 1))
+							}
+							disabled={page === 1}
+							className="w-auto px-3 py-1  font-semibold bg-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-400 transition cursor-pointer disabled:cursor-not-allowed"
+						>
+							<GrFormPrevious className="text-xs sm:text-lg" />
+						</button>
+
+						{/* Page # of # */}
+						<span className="text-xs sm:text-md font-semibold text-gray-700 font-atma">
+							Page {page} of {totalPages || 1}
+						</span>
+
+						{/* next button */}
+						<button
+							onClick={() =>
+								setPage((prev) =>
+									Math.min(prev + 1, totalPages),
+								)
+							}
+							disabled={page === totalPages}
+							className="w-auto px-3 py-1 text-xs font-semibold bg-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-400 transition cursor-pointer disabled:cursor-not-allowed"
+						>
+							<GrFormNext className="text-xs sm:text-lg" />
+						</button>
+					</div>
+				</div>
+			)}
 		</section>
 	);
 };
