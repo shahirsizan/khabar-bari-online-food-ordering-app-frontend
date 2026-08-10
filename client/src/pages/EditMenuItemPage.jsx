@@ -73,17 +73,17 @@ const EditMenuItemPage = () => {
 					Loading...
 				</div>
 			) : (
-				<section className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+				<section className="mt-10 mb-10 px-[5vw] md:px-[8vw] lg:px-[10vw]">
 					<div className="max-w-2xl mx-auto mt-8">
 						{/* 2️⃣ ei link click korle back to `/menu-items` route */}
 						<button
-							className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md"
+							className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md font-atma"
 							onClick={() => {
 								navigate("/profile/menu-items");
 							}}
 						>
 							<FaArrowLeft />
-							<span>Show all menu items</span>
+							<span>Show All Items</span>
 						</button>
 					</div>
 
@@ -95,9 +95,9 @@ const EditMenuItemPage = () => {
 						<button
 							type="button"
 							onClick={() => setShowConfirm(true)}
-							className="text-red-500 font-bold"
+							className="text-red-500 font-semibold font-atma shadow-md mt-6"
 						>
-							Delete this menu item
+							Delete This Item
 						</button>
 					</div>
 

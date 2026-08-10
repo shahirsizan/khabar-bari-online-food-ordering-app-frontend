@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useUserContext } from "../UserContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 const ProfilePage = () => {
 	const { user, handleProfileInfoUpdate } = useUserContext();
+	const navigate = useNavigate();
 	const location = useLocation();
 
 	const [userName, setUserName] = useState(user?.name || "");
@@ -32,11 +33,11 @@ const ProfilePage = () => {
 	}
 
 	return (
-		<section className="mt-20 ">
-			{/* Original code er TABS gula `ProfileLayout` e niye gesi */}
+		<section className="mt-10 mb-10 font-atma">
+			{/* TABS bar -> in `ProfileLayout` */}
 
 			<div className="max-w-2xl mx-auto mt-8">
-				<div className="md:flex gap-4">
+				<div className="gap-4">
 					<form
 						className="flex flex-col grow"
 						onSubmit={(e) =>
@@ -50,7 +51,7 @@ const ProfilePage = () => {
 							})
 						}
 					>
-						<label>Full Name</label>
+						<label>নাম</label>
 						<input
 							type="text"
 							placeholder="First and last name"
@@ -58,7 +59,7 @@ const ProfilePage = () => {
 							onChange={(e) => setUserName(e.target.value)}
 						/>
 
-						<label>Email</label>
+						<label>ইমেইল</label>
 						<input
 							type="email"
 							disabled
@@ -66,7 +67,7 @@ const ProfilePage = () => {
 							placeholder={"email"}
 						/>
 
-						<label>Phone</label>
+						<label>ফোন</label>
 						<input
 							// disabled={disabled}
 							type="tel"
@@ -77,7 +78,7 @@ const ProfilePage = () => {
 							}
 						/>
 
-						<label>Street address</label>
+						<label>ঠিকানা</label>
 						<input
 							// disabled={disabled}
 							type="text"
@@ -91,7 +92,7 @@ const ProfilePage = () => {
 							}
 						/>
 
-						<label>City</label>
+						<label>শহর</label>
 						<input
 							// disabled={disabled}
 							type="text"
@@ -102,23 +103,47 @@ const ProfilePage = () => {
 							}
 						/>
 
-						<label>Role</label>
-						<select
-							value={role}
-							onChange={(ev) => setRole(ev.target.value)}
-							className="border p-2 rounded"
-						>
-							<option value="user">User</option>
-							<option value="admin">Admin</option>
-						</select>
+						{user?.role === "admin" ? (
+							<>
+								<label>রোল</label>
+								<select
+									value={role}
+									onChange={(ev) => setRole(ev.target.value)}
+									className="border p-2 rounded"
+								>
+									<option value="user">ইউজার</option>
+									<option value="admin">এডমিন</option>
+								</select>
+							</>
+						) : (
+							<>
+								<label>রোল</label>
+								<input
+									// disabled={disabled}
+									type="text"
+									placeholder="Role"
+									value={role === "admin" ? "এডমিন" : "ইউজার"}
+									disabled
+								/>
+							</>
+						)}
 
 						<button
-							className=" bg-primary flex w-full justify-center text-gray-700 font-semibold border border-gray-300 rounded-xl px-3 py-2"
+							className="mt-5 bg-primary flex w-full justify-center !text-gray-700 font-semibold border border-gray-300 rounded-xl px-3 py-2"
 							type="submit"
 						>
-							Save
+							সেভ করুন
 						</button>
 					</form>
+
+					<button
+						className="mt-5 bg-primary flex w-full justify-center !text-gray-700 font-semibold border border-gray-300 rounded-xl px-3 py-2"
+						onClick={() => {
+							navigate("/profile/change-password");
+						}}
+					>
+						পাসওয়ার্ড পরিবর্তন করুন
+					</button>
 				</div>
 			</div>
 		</section>

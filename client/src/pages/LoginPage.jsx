@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
+import PasswordResetModal from "../components/PasswordResetModal";
 
 const LoginPage = () => {
 	const { loading, loginUser } = useUserContext();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, seteErrorMessage] = useState(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const navigate = useNavigate();
 	// get the `state` object which containt the route where to navigate after login
 	// this is needed because we might need to navigate to `/cart` route if non-auth user already has a populated cart.
@@ -118,6 +120,24 @@ const LoginPage = () => {
 								>
 									রেজিস্টার করুন
 								</Link>
+							</div>
+
+							<div className="text-center my-4 text-gray-500 border-t pt-4">
+								<button
+									type="button"
+									onClick={() => setIsModalOpen(true)}
+									className="text-blue-600 hover:underline text-sm"
+								>
+									পাসওয়ার্ড ভুলে গেছেন? রিসেট করুন
+								</button>
+
+								{/* The Modal Trigger */}
+								{isModalOpen && (
+									<PasswordResetModal
+										isOpen={isModalOpen}
+										onClose={() => setIsModalOpen(false)}
+									/>
+								)}
 							</div>
 						</form>
 					</section>

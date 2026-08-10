@@ -23,7 +23,7 @@ const RecipeList = () => {
 		const fetchMenuItems = async () => {
 			try {
 				const response = await apiFetch(
-					`${backend_base_url}/api/public-menu-items`,
+					`${backend_base_url}/api/menu-items`,
 					{
 						method: "GET",
 					},

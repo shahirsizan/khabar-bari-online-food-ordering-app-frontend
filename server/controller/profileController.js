@@ -2,7 +2,12 @@ import { User } from "../model/userModel.js";
 
 export const updateProfile = async (req, res) => {
 	try {
-		// console.log(req.body);
+		if (
+			req.user.role !== "admin" &&
+			req.user._id.toString() !== req.body.originalObject._id.toString()
+		) {
+			return res.status(403).json({ message: "Access denied" });
+		}
 
 		const { originalObject, userName, phone, streetAddress, city, role } =
 			req.body;
@@ -17,13 +22,13 @@ export const updateProfile = async (req, res) => {
 		 * making queries up to 4x faster.
 		 */
 		const userDoc = await User.findOneAndUpdate(
-			{ email: email },
+			{ email: req.user.role === "admin" ? email : req.user.email },
 			{
 				name: userName,
 				phone: phone,
 				streetAddress: streetAddress,
 				city: city,
-				role: role,
+				role: req.user.role === "admin" ? role : req.user.role,
 			},
 			{ new: true }, // Returns the modified document
 		).lean();

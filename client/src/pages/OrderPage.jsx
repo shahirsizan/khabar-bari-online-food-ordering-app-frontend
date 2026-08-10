@@ -14,6 +14,34 @@ const OrderPage = () => {
 	const navigate = useNavigate();
 	const receiptRef = useRef();
 
+	// config object for dynamic visual features based on order status
+	const statusConfig = {
+		pending: {
+			text: "অপেক্ষমান (Pending)",
+			bg: "bg-yellow-100",
+			textClass: "text-yellow-800",
+			dot: "bg-yellow-500",
+		},
+		preparing: {
+			text: "প্রক্রিয়াধীন (Preparing)",
+			bg: "bg-blue-100",
+			textClass: "text-blue-800",
+			dot: "bg-blue-500",
+		},
+		dispatched: {
+			text: "পাঠানো হয়েছে (Dispatched)",
+			bg: "bg-indigo-100",
+			textClass: "text-indigo-800",
+			dot: "bg-indigo-500",
+		},
+		delivered: {
+			text: "ডেলিভারি সম্পন্ন (Delivered)",
+			bg: "bg-green-100",
+			textClass: "text-green-800",
+			dot: "bg-green-500",
+		},
+	};
+
 	useEffect(() => {
 		const fetchOrder = async () => {
 			try {
@@ -82,11 +110,13 @@ const OrderPage = () => {
 		);
 	}
 
+	const currentStatus = statusConfig[order?.status?.toLowerCase()];
+
 	return (
-		<div className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+		<div className="mt-10 mb-10 px-[5vw] md:px-[8vw] lg:px-[16vw]">
 			<div className="max-w-2xl mx-auto mb-8">
 				<button
-					className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md"
+					className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md gap-2"
 					onClick={() => {
 						navigate("/profile/orders");
 					}}
@@ -106,6 +136,24 @@ const OrderPage = () => {
 					<h1 className="text-xl md:text-3xl font-bold text-gray-800">
 						অর্ডারের বিস্তারিত
 					</h1>
+				</div>
+
+				<div
+					className={`mb-6 flex items-center justify-between p-4 rounded-xl ${currentStatus.bg}`}
+				>
+					<span className="text-sm font-semibold text-gray-600">
+						অর্ডারের অবস্থা:
+					</span>
+					<div className="flex items-center gap-2">
+						<span
+							className={`h-2.5 w-2.5 rounded-full animate-pulse ${currentStatus.dot}`}
+						></span>
+						<span
+							className={`text-sm md:text-base font-bold ${currentStatus.textClass}`}
+						>
+							{currentStatus.text}
+						</span>
+					</div>
 				</div>
 
 				<div className="space-y-4 text-gray-700">

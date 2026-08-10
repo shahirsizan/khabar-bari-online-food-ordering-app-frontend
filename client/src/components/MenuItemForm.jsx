@@ -10,9 +10,19 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 	const [name, setName] = useState(menuItem?.name || "");
 	const [description, setDescription] = useState(menuItem?.description || "");
 	const [basePrice, setBasePrice] = useState(menuItem?.basePrice || "");
+	const [isLoading, setIsLoading] = useState(false);
 
+	// Upon pressing the `Save` button.
 	async function handleFormSubmit(ev, data) {
 		ev.preventDefault();
+
+		if (!image || !name || !description || !basePrice) {
+			return alert(
+				"Please fill in all fields before submitting the form.",
+			);
+		}
+
+		setIsLoading(true);
 
 		const url =
 			whatToDo === "edit"
@@ -20,8 +30,6 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 				: `${backend_base_url}/api/menu-items`;
 
 		const methodd = whatToDo === "edit" ? "PUT" : "POST";
-
-		console.log("url & methodd: ", url, " ", methodd);
 
 		try {
 			const response = await apiFetch(url, {
@@ -40,6 +48,8 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 			}
 		} catch (error) {
 			console.error(error.message);
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -53,7 +63,7 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 					basePrice,
 				})
 			}
-			className="mt-8 max-w-2xl mx-auto"
+			className="mt-8 max-w-2xl mx-auto font-atma"
 		>
 			<div
 				className="md:grid items-start gap-4"
@@ -64,7 +74,7 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 				</div>
 
 				<div className="grow">
-					<label>Item name</label>
+					<label>Item Name</label>
 					<input
 						type="text"
 						value={name}
@@ -78,14 +88,20 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 						onChange={(ev) => setDescription(ev.target.value)}
 					/>
 
-					<label>Base price</label>
+					<label>Price</label>
 					<input
 						type="text"
 						value={basePrice}
 						onChange={(ev) => setBasePrice(ev.target.value)}
 					/>
 
-					<button type="submit">Save</button>
+					<button
+						type="submit"
+						className={`shadow-md mt-4 
+							${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+					>
+						Save
+					</button>
 				</div>
 			</div>
 		</form>

@@ -74,7 +74,7 @@ export const AdminChatPanel = () => {
 
 	if (user.role !== "admin") {
 		return (
-			<div className="h-screen flex items-center justify-center text-3xl font-bold">
+			<div className="h-[300px] flex items-center justify-center text-2xl font-bold">
 				You are not authorized to view this page.
 			</div>
 		);
