@@ -29,36 +29,29 @@ export const ChatBox = ({
 			setChatRoomName(chatRoomNameFromAdminPanel);
 			// console.log("chatRoomId: ", chatRoomIdFromAdminPanel);
 		}
-	}, [chatRoomIdFromAdminPanel]);
+	}, [chatRoomIdFromAdminPanel, user]);
 
 	// setup socket and chat history on mount
 	useEffect(() => {
-		if (!chatRoomId) {
+		if (!socket || !chatRoomId) {
 			return;
 		}
 
-		// A non-admin user triggers `join_room` instantly upon landing on the app through userContext.
-		// But an admin has to select a specific room from sidebar to trigger `join_room`
+		// A `non-admin` user triggers `join_room` instantly through userContext while entering the app.
+		// But an `admin` has to select a specific room from sidebar to trigger `join_room`
 		if (user.role === "admin") {
 			socket.emit("join_room", { roomId: chatRoomId });
 		}
-
-		// All messages are already stored in database and fetched upon mount.
-		// Just append `newMessage` to current list sent from the `receive_message` event
-		socket.on("receive_message", (newMessage) => {
-			setMessages((prev) => {
-				// Prevent duplicate messages if backend echoes back to sender several times
-				// if (prev.some((msg) => msg._id === newMessage._id)) {
-				// 	return prev;
-				// }
-				return [...prev, newMessage];
-			});
-		});
 
 		const loadChatHistory = async () => {
 			try {
 				const response = await apiFetch(
 					`${backend_base_url}/api/chat/${chatRoomId}`,
+					{
+						headers: {
+							token: JSON.parse(localStorage.getItem("token")),
+						},
+					},
 				);
 
 				if (response.ok) {
@@ -71,6 +64,18 @@ export const ChatBox = ({
 		};
 
 		loadChatHistory();
+
+		// All messages are already stored in database and fetched upon mount.
+		// Just append `newMessage` to current list sent from the `receive_message` event
+		socket.on("receive_message", (newMessage) => {
+			setMessages((prev) => {
+				// Prevent duplicate messages if backend echoes back to sender several times
+				// if (prev.some((msg) => msg._id === newMessage._id)) {
+				// 	return prev;
+				// }
+				return [...prev, newMessage];
+			});
+		});
 
 		/***
 		 * A useEffect cleanup function runs when the component unmounts OR
@@ -86,7 +91,7 @@ export const ChatBox = ({
 				socket.emit("leave_room", { roomId: chatRoomId });
 			}
 		};
-	}, [chatRoomId, chatRoomIdFromAdminPanel]);
+	}, [chatRoomId, chatRoomIdFromAdminPanel, socket]);
 
 	// auto-scroll to bottom upon mount or when messages update
 	useEffect(() => {

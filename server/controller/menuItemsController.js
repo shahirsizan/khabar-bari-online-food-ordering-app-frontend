@@ -1,24 +1,6 @@
 import { MenuItem } from "../model/MenuItem.js";
 
 export const getAllMenuItems = async (req, res) => {
-	if (req.user.role !== "admin") {
-		return res.status(403).json({ message: "You are not admin" });
-	}
-
-	try {
-		const allMenuItems = await MenuItem.find().lean();
-		// console.log(allMenuItems);
-
-		res.status(200).json(allMenuItems);
-	} catch (error) {
-		console.error("Error fetching menu items:", error.message);
-		res.status(500).json({
-			message: error.message,
-		});
-	}
-};
-
-export const getAllPublicMenuItems = async (req, res) => {
 	try {
 		const allMenuItems = await MenuItem.find().lean();
 		// console.log(allMenuItems);

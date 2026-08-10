@@ -4,9 +4,11 @@ import MenuItemForm from "../components/MenuItemForm";
 import { FaArrowRight } from "react-icons/fa";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { useUserContext } from "../UserContext";
 
 const MenuItemsPage = () => {
 	const navigate = useNavigate();
+	const { user } = useUserContext();
 	const [menuItems, setMenuItems] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -40,6 +42,14 @@ const MenuItemsPage = () => {
 		fetchAllItems();
 	}, []);
 
+	if (user.role !== "admin") {
+		return (
+			<div className="h-[300px] flex items-center justify-center text-2xl font-bold">
+				You are not authorized to view this page.
+			</div>
+		);
+	}
+
 	return (
 		<>
 			{isLoading ? (
@@ -47,20 +57,22 @@ const MenuItemsPage = () => {
 					Loading...
 				</div>
 			) : (
-				<section className="mt-8 max-w-2xl mx-auto">
+				<section className="mt-10 mb-10 max-w-2xl mx-auto font-atma">
+					{/* CREATE NEW ITEM BUTTON*/}
 					<button
 						className="mt-8 flex items-center justify-center border shadow-md px-3 py-2 rounded-md"
 						onClick={() => {
 							navigate("/menu-items/new");
 						}}
 					>
-						<span>Crete new menu item</span>
+						<span>Create New Item</span>
 						<FaArrowRight />
 					</button>
 
+					{/* EXISTING ITEMS GRID */}
 					<div>
-						<h2 className="text-sm text-gray-500 mt-8">
-							Edit menu item:
+						<h2 className="text-md text-gray-500 mt-8 mb-4">
+							Select Item to Edit:
 						</h2>
 
 						<div className="grid grid-cols-3 gap-2">
@@ -80,11 +92,11 @@ const MenuItemsPage = () => {
 												/>
 											</div>
 
-											<div className="text-center">
+											<div className="text-center text-xs md:text-xl">
 												{item.name}
 											</div>
 
-											<div className="text-center">
+											<div className="text-center text-xs md:text-xl">
 												{item.basePrice} BDT
 											</div>
 										</div>

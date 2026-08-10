@@ -82,8 +82,8 @@ const UsersPage = () => {
 	}
 
 	return (
-		<section className="max-w-2xl mx-auto mt-8">
-			<h1 className="text-2xl font-bold mb-4">Manage Users</h1>
+		<section className="USERSPAGE max-w-4xl mx-auto mt-8 font-atma">
+			<h1 className="text-xl font-bold mb-4">Manage Users</h1>
 
 			<div className="mt-8">
 				{users?.length > 0 &&
@@ -92,7 +92,7 @@ const UsersPage = () => {
 							key={user._id}
 							className="bg-gray-100 rounded-lg mb-2 p-4 flex items-center gap-4"
 						>
-							<div className="grid grid-cols-3 md:grid-cols-3 gap-1 md:gap-4 grow text-sm md:text-lg">
+							<div className="grid grid-cols-3 md:grid-cols-3 gap-1 md:gap-4 grow text-xs md:text-sm">
 								<div className="text-gray-900 font-semibold">
 									{user.name || (
 										<span className="italic">No name</span>
@@ -110,7 +110,7 @@ const UsersPage = () => {
 
 							<div>
 								<button
-									className="bg-blue-500 text-white px-2 py-1 rounded text-xs md:text-lg"
+									className="bg-blue-500 text-white px-2 py-1 rounded text-xs md:text-sm"
 									onClick={() => {
 										navigate(`/users/${user._id}`);
 									}}
@@ -121,7 +121,7 @@ const UsersPage = () => {
 
 							<div>
 								<button
-									className="bg-blue-500 text-white px-2 py-1 rounded text-xs md:text-lg"
+									className="bg-blue-500 text-white px-2 py-1 rounded text-xs md:text-sm"
 									onClick={() => {
 										setUserToDelete(user._id);
 									}}
