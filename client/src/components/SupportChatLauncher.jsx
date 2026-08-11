@@ -9,25 +9,32 @@ export const SupportChatLauncher = () => {
 	const { user } = useUserContext();
 
 	return (
-		<div className="fixed bottom-14 right-3 w-full md:w-1/3 z-50 flex flex-col items-end font-sans">
-			{/* Chat Window Container */}
+		<div className="fixed md:bottom-14 md:right-3 bottom-5 w-full md:w-1/3 z-50 flex flex-col items-end">
+			{/* Chatbox Container */}
 			{isOpen && (
 				<div className="w-full mb-4">
-					<ChatBox />
+					<ChatBox isOpen={isOpen} setIsOpen={setIsOpen} />
 				</div>
 			)}
 
-			{/* Chat open/close Button */}
+			{/* open/close Button */}
 			<button
-				onClick={() => setIsOpen(!isOpen)}
-				className={`w-full flex items-center gap-2 px-3 py-2 text-xs md:text-md rounded-full text-white font-semibold shadow-xl ${
+				onClick={(e) => {
+					e.stopPropagation();
+					setIsOpen((prev) => {
+						return isOpen ? false : true;
+					});
+				}}
+				className={`w-full flex items-center gap-2 px-2 py-3 rounded-full text-white shadow-xl font-atma ${
 					isOpen
 						? "bg-red-500 hover:bg-red-600"
-						: "bg-[#075e54] hover:bg-[#128c7e] hover:shadow-2xl"
+						: "bg-[#075e54] hover:bg-[#128c7e] hover:shadow-xl"
 				}`}
 			>
-				<BiSupport className="w-5 h-5" />
-				<span>{isOpen ? "Close" : "Support"}</span>
+				<BiSupport className="w-6 h-6" />
+				<span className="text-[12px] md:text-md">
+					{isOpen ? "বন্ধ করুন" : "যোগাযোগ করুন"}
+				</span>
 			</button>
 		</div>
 	);

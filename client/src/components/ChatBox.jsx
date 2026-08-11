@@ -7,15 +7,43 @@ import { formatTime } from "../utils/formatTime";
 export const ChatBox = ({
 	chatRoomIdFromAdminPanel,
 	chatRoomNameFromAdminPanel,
+	isOpen,
+	setIsOpen,
 }) => {
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState("");
 	const messagesEndRef = useRef(null);
+	const chatContainerRef = useRef(null);
 	const { isAdmin, user, socket, isAdminOnline } = useUserContext();
 	const [chatRoomId, setChatRoomId] = useState(null);
 	const [chatRoomName, setChatRoomName] = useState(null);
 	const currentSenderId = user?._id;
 	const currentSenderRole = isAdmin ? "admin" : "user";
+
+	useEffect(() => {
+		const handleClickOutside = (e) => {
+			// If:
+			// 1. `click` was outside the chatbox
+			// 2. `setIsOpen` prop was provided from parent
+			// 3. `chatContainerRef` exists,
+			// => call setIsOpen(false)
+
+			if (
+				chatContainerRef.current &&
+				!chatContainerRef.current.contains(e.target) &&
+				isOpen &&
+				setIsOpen
+			) {
+				setIsOpen(false);
+			}
+		};
+
+		document.addEventListener("click", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("click", handleClickOutside);
+		};
+	}, []);
 
 	// if non-admin, set roomId and roomName directly from users object.
 	// if admin, set roomId and roomName from props coming from parent AdminChatPanel.jsx
@@ -120,12 +148,13 @@ export const ChatBox = ({
 	};
 
 	return (
-		<div className="flex flex-col h-[500px] w-full border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-[#e5ddd5]">
+		<div
+			ref={chatContainerRef}
+			className="flex flex-col h-[500px] w-full border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-[#e5ddd5] font-atma"
+		>
 			{/* Chat Header */}
-			<div className="bg-[#075e54] text-white p-4 font-bold flex items-center justify-between">
-				<span>
-					{isAdmin ? `Chat With ${chatRoomName}` : "Chat With Admin"}
-				</span>
+			<div className="bg-[#075e54] text-white text-xs md:text-sm p-2 font-semibold flex items-center justify-between">
+				<span>{isAdmin ? `${chatRoomName}` : "এডমিন"}</span>
 				{isAdminOnline ? (
 					<span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
 				) : (
@@ -134,7 +163,7 @@ export const ChatBox = ({
 			</div>
 
 			{/* Show messages area */}
-			<div className="flex-1 overflow-y-auto p-4 space-y-3">
+			<div className="flex-1 overflow-y-auto p-2 space-y-3 text-xs md:text-sm">
 				{messages?.map((msg) => {
 					const isMe = msg.senderId === currentSenderId;
 
@@ -144,7 +173,7 @@ export const ChatBox = ({
 							className={`flex ${isMe ? "justify-end" : "justify-start"}`}
 						>
 							<div
-								className={`max-w-[75%] px-3 py-2 rounded-lg shadow relative text-sm text-gray-900 ${
+								className={`max-w-[75%] px-3 py-2 rounded-lg shadow relative text-gray-900 ${
 									isMe
 										? "bg-[#dcf8c6] rounded-tr-none"
 										: "bg-white rounded-tl-none"
@@ -152,7 +181,7 @@ export const ChatBox = ({
 							>
 								<p className="pr-12 break-words">{msg.text}</p>
 
-								<span className="absolute bottom-1 right-2 text-[10px] text-gray-500 whitespace-nowrap">
+								<span className="absolute bottom-1 right-1 text-[8px] md:text-[10px] text-gray-500 whitespace-nowrap">
 									{formatTime(msg.createdAt)}
 								</span>
 							</div>
