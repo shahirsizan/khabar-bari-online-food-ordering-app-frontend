@@ -10,6 +10,7 @@ const Success2 = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isFailed, setIsFailed] = useState(true);
 	const [orderDetail, setOrderDetail] = useState(null);
+	const { clearCart } = useCart();
 	const [searchParams] = useSearchParams();
 	const tranId = searchParams.get("tranId");
 
@@ -40,10 +41,13 @@ const Success2 = () => {
 					setIsFailed(false);
 					setOrderDetail(response.data.orderDetail);
 					clearInterval(intervalId); // Stop checking
+					localStorage.removeItem("cart"); // Clear cart items from browsers localstorage.
+					clearCart(); // Clear cart items from context as well.
 					return;
 				}
 
-				// This is `success` page. So `paid` is supposed to be `true`. If not, there might be some network problem.
+				// This is `success` page. So `paid` is supposed to be `true`.
+				// If not, there might be some network problem.
 				// we let the interval run again until timeout
 			} catch (err) {
 				setIsLoading(false);
