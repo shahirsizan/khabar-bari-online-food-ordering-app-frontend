@@ -286,7 +286,7 @@ router.post("/payment/ipn", async (req, res) => {
 				if (adminId) {
 					const adminNotification = await Notification.create({
 						recipientId: new mongoose.Types.ObjectId(adminId),
-						message: `New order placed by ${customerName}`,
+						message: `New order by ${customerName}`,
 						type: "order",
 						link: `/order/${orderObj._id.toString()}`,
 						metadata: {
