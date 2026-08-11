@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
+import Logo from "../assets/food-logo.png";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 import { FaArrowLeft } from "react-icons/fa";
 import { backend_base_url } from "../workMode";
 import { apiFetch } from "../utils/api";
+import OrderReceipt from "../components/OrderReceipt";
 
 const OrderPage = () => {
 	const { id } = useParams();
-	const [order, setOrder] = useState(null);
+	const [orderDetail, setOrderDetail] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isUnauthorizedIdGiven, setIsUnauthorizedIdGiven] = useState(false);
 	const navigate = useNavigate();
@@ -60,7 +62,7 @@ const OrderPage = () => {
 				console.log("res: ", res);
 
 				if (response.ok) {
-					setOrder(res);
+					setOrderDetail(res);
 				} else {
 					if (res.status === 403) {
 						setIsUnauthorizedIdGiven(true);
@@ -86,7 +88,25 @@ const OrderPage = () => {
 	};
 
 	const handleDownload = () => {
-		html2pdf().from(receiptRef.current).save(`Order-${id}.pdf`);
+		const element = receiptRef.current;
+		const options = {
+			margin: 0.5,
+			filename: `order-${id}.pdf`,
+			image: {
+				type: "jpg",
+				quality: 0.8,
+			},
+			html2canvas: {
+				scale: 2, // Boosts resolution quality
+				useCORS: true, // Fixes the missing image bug
+			},
+			jsPDF: {
+				unit: "in",
+				format: "letter",
+				orientation: "portrait",
+			},
+		};
+		html2pdf().set(options).from(element).save();
 	};
 
 	if (isLoading) {
@@ -110,7 +130,7 @@ const OrderPage = () => {
 		);
 	}
 
-	const currentStatus = statusConfig[order?.status?.toLowerCase()];
+	const currentStatus = statusConfig[orderDetail?.status?.toLowerCase()];
 
 	return (
 		<div className="mt-10 mb-10 px-[5vw] md:px-[8vw] lg:px-[16vw]">
@@ -126,118 +146,7 @@ const OrderPage = () => {
 				</button>
 			</div>
 
-			<div
-				ref={receiptRef}
-				className="bg-white shadow-2xl rounded-2xl p-8 w-full border-t-8 border-green-500 font-atma"
-			>
-				<div className="text-center mb-6">
-					<div className="text-2xl md:text-3xl mb-4">✅</div>
-
-					<h1 className="text-xl md:text-3xl font-bold text-gray-800">
-						অর্ডারের বিস্তারিত
-					</h1>
-				</div>
-
-				<div
-					className={`mb-6 flex items-center justify-between p-4 rounded-xl ${currentStatus.bg}`}
-				>
-					<span className="text-sm font-semibold text-gray-600">
-						অর্ডারের অবস্থা:
-					</span>
-					<div className="flex items-center gap-2">
-						<span
-							className={`h-2.5 w-2.5 rounded-full animate-pulse ${currentStatus.dot}`}
-						></span>
-						<span
-							className={`text-sm md:text-base font-bold ${currentStatus.textClass}`}
-						>
-							{currentStatus.text}
-						</span>
-					</div>
-				</div>
-
-				<div className="space-y-4 text-gray-700">
-					<div className="border-b pb-2">
-						<p className="text-xs md:text-sm text-gray-600">
-							অর্ডার আইডি
-						</p>
-						<p className="font-semibold max-md:text-xs">
-							{order._id}
-						</p>
-					</div>
-
-					<div className="border-b pb-2">
-						<p className="text-xs md:text-sm text-gray-600">
-							ট্রানজ্যাকশন আইডি
-						</p>
-						<p className="font-semibold max-md:text-xs">
-							{order.tran_id}
-						</p>
-					</div>
-
-					<div className="flex justify-between">
-						<div>
-							<p className="text-sm text-gray-600">নাম</p>
-
-							<p className="font-semibold">{order.userName}</p>
-						</div>
-
-						<div className="text-right">
-							<p className="text-sm text-gray-600">
-								টাকার পরিমাণ
-							</p>
-
-							<p className="font-semibold text-green-600 text-lg">
-								{toBanglaNumber(order.totalAmount)} ৳
-							</p>
-						</div>
-					</div>
-
-					<div>
-						<p className="text-sm text-gray-600">ডেলিভারি এড্রেস</p>
-
-						<p className="font-semibold">
-							{order.streetAddress}, {order.city}
-						</p>
-					</div>
-
-					<div>
-						<p className="text-sm text-gray-600">যোগাযোগ</p>
-
-						<p className="font-semibold">{order.phone}</p>
-					</div>
-
-					<div className="mt-6">
-						<h3 className="text-sm text-gray-600 mb-2">
-							খাবারের তালিকা
-						</h3>
-
-						<ul className="bg-gray-200 rounded-lg p-4 space-y-2">
-							{order?.cartProducts?.map((item, index) => (
-								<li
-									key={index}
-									className="flex justify-between border-b last:border-0 pb-1 font-semibold max-md:text-xs"
-								>
-									<span>
-										{item.name}
-										<span className="text-xs">
-											{" "}
-											x {toBanglaNumber(item.quantity)}
-										</span>
-									</span>
-
-									<span>
-										{toBanglaNumber(
-											item.price * item.quantity,
-										)}{" "}
-										৳
-									</span>
-								</li>
-							))}
-						</ul>
-					</div>
-				</div>
-			</div>
+			<OrderReceipt orderDetail={orderDetail} receiptRef={receiptRef} />
 
 			<button
 				onClick={() => {

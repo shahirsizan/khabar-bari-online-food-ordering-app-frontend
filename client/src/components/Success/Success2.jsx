@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { useCart } from "../../CartContext";
 import html2pdf from "html2pdf.js";
 import { useParams, useSearchParams } from "react-router-dom";
+import OrderReceipt from "../OrderReceipt";
 
 const Success2 = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -116,116 +117,15 @@ const Success2 = () => {
 		);
 	} else if (!isLoading && !isFailed) {
 		return (
-			<div className="h-screen bg-gray-100 flex flex-col gap-2 items-center justify-center font-atma">
+			<div className="mt-10 mb-10 bg-gray-100 flex flex-col gap-2 items-center justify-center font-atma">
 				{/* The Printable Receipt Area */}
-				<div
-					ref={receiptRef}
-					className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md border-t-8 border-green-500"
-				>
-					<div className="text-center mb-6">
-						<div className="text-2xl md:text-3xl mb-4">✅</div>
+				<OrderReceipt
+					orderDetail={orderDetail}
+					receiptRef={receiptRef}
+				/>
 
-						<h1 className="text-xl md:text-3xl font-bold text-gray-800">
-							পেমেন্ট সফল হয়েছে
-						</h1>
-					</div>
-
-					{orderDetail && (
-						<div className="space-y-4 text-gray-700 ">
-							<div className="border-b pb-2">
-								<p className="text-[12px] md:text-sm text-gray-600">
-									অর্ডার আইডি
-								</p>
-
-								<p className="font-semibold font-atma">
-									{orderDetail._id}
-								</p>
-							</div>
-
-							<div className="border-b pb-2">
-								<p className="text-[12px] md:text-sm text-gray-600">
-									ট্রানজ্যাকশন আইডি
-								</p>
-
-								<p className="font-semibold font-atma">
-									{orderDetail.tran_id}
-								</p>
-							</div>
-
-							<div className="flex justify-between">
-								<div>
-									<p className="text-sm text-gray-600">নাম</p>
-
-									<p className="font-semibold">
-										{orderDetail.userName}
-									</p>
-								</div>
-
-								<div className="text-right">
-									<p className="text-sm text-gray-600">
-										টাকার পরিমাণ
-									</p>
-
-									<p className="font-semibold text-green-600 text-lg">
-										{toBanglaNumber(
-											orderDetail.totalAmount,
-										)}{" "}
-										৳
-									</p>
-								</div>
-							</div>
-
-							<div>
-								<p className="text-sm text-gray-600">
-									ডেলিভারি এড্রেস
-								</p>
-
-								<p className="font-semibold">
-									{orderDetail.streetAddress},{" "}
-									{orderDetail.city}
-								</p>
-							</div>
-
-							<div className="mt-6">
-								<h3 className="text-sm text-gray-600 mb-2">
-									অর্ডারকৃত খাবারের তালিকা
-								</h3>
-
-								<ul className="bg-gray-200 rounded-lg p-4 space-y-2">
-									{orderDetail?.cartProducts?.map(
-										(item, index) => (
-											<li
-												key={index}
-												className="flex justify-between border-b last:border-0 pb-1 font-semibold"
-											>
-												<span>
-													{item.name}{" "}
-													<span className="max-md:text-xs">
-														x{" "}
-														{toBanglaNumber(
-															item.quantity,
-														)}
-													</span>
-												</span>
-
-												<span className="">
-													{toBanglaNumber(
-														item.price *
-															item.quantity,
-													)}
-													৳
-												</span>
-											</li>
-										),
-									)}
-								</ul>
-							</div>
-						</div>
-					)}
-				</div>
-
-				{/* Action Buttons (Outside the receiptRef so they don't print) */}
-				<div className="mt-8 flex gap-4">
+				{/* Download & Back button */}
+				<div className="mt-10 flex gap-4">
 					<button
 						onClick={() => {
 							handleDownload();
