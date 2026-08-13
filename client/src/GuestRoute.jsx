@@ -1,8 +1,14 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useUserContext } from "./UserContext";
 
 const GuestRoute = ({ children }) => {
 	const { isInitializing, isAuthenticated } = useUserContext();
+	/***
+	 * Check React Router's `location` state. If a dynamic redirect state exists,
+	 * send the user there instead of "/"
+	 */
+	const location = useLocation();
+	const fallbackRedirect = location.state?.from || "/";
 
 	// If authenticated, redirect to home
 	return isInitializing ? (
@@ -12,7 +18,7 @@ const GuestRoute = ({ children }) => {
 	) : !isAuthenticated ? (
 		<Outlet />
 	) : (
-		<Navigate to="/" replace />
+		<Navigate to={fallbackRedirect} replace />
 	);
 };
 

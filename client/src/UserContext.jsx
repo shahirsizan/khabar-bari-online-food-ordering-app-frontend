@@ -10,6 +10,7 @@ import { useCart } from "./CartContext";
 import { apiFetch } from "./utils/api";
 import { backend_base_url } from "./workMode";
 import { initializeSocket } from "./utils/socket";
+import { toast } from "react-toastify";
 
 const UserContext = createContext();
 
@@ -28,73 +29,82 @@ export const UserProvider = ({ children }) => {
 	const [notifications, setNotifications] = useState([]);
 	const [unreadCount, setUnreadCount] = useState(0);
 
-	const verifyUser = async () => {
-		const publicRoutes = [
-			"/",
-			"/cart",
-			"/register",
-			"/login",
-			"/forgot-password",
-		];
+	// Verify user auth state everytime URL path changes
+	useEffect(() => {
+		const verifyUser = async () => {
+			const publicRoutes = [
+				"/",
+				"/cart",
+				"/register",
+				"/login",
+				"/forgot-password",
+			];
 
-		const isPublicRoute =
-			publicRoutes.includes(pathname) ||
-			pathname.startsWith("/reset-password-after-link");
+			const userCurrentlyOnPublicRoute =
+				publicRoutes.includes(pathname) ||
+				pathname.startsWith("/reset-password-after-link");
 
-		const token = localStorage.getItem("token");
-		const user = localStorage.getItem("user");
+			const token = localStorage.getItem("token");
+			const user = localStorage.getItem("user");
 
-		if (!token || !user) {
-			setIsInitializing(false);
-			// `isAuthenticated` remains false, so user gets redirected to login page,
-			// or stays in the public route
-			if (!isPublicRoute) {
-				navigate("/login");
+			if (!token || !user) {
+				setIsInitializing(false);
+				if (!userCurrentlyOnPublicRoute) {
+					// no `token`, no `user obj`, also currently on private route, so redirect to "/login.
+					// Else let them stay on the public routes"
+					navigate("/login");
+				}
+				return;
 			}
-			return;
-		}
 
-		try {
-			const response = await apiFetch(`${backend_base_url}/api/me`, {
-				method: "GET",
-				headers: {
-					token: JSON.parse(token),
-				},
-			});
+			// User has auth(unverified) tokens and on protected routes.
+			// So verify them.
+			try {
+				const response = await apiFetch(`${backend_base_url}/api/me`, {
+					method: "GET",
+					headers: {
+						token: JSON.parse(token),
+					},
+				});
 
-			if (response.ok) {
-				const user = await response.json();
-				setUser(user);
-				// console.log("user obj: ", user);
+				if (response.ok) {
+					// Authenticated user
+					const user = await response.json();
+					setUser(user);
+					setIsAdmin(user.role === "admin");
+					setIsAuthenticated(true);
+				} else {
+					// Unauthenticated user
+					localStorage.clear();
+					setUser(null);
+					setIsAdmin(false);
+					setIsAuthenticated(false);
 
-				setIsAdmin(user.role === "admin");
-				setIsAuthenticated(true);
-			} else if (response.status === 401) {
-				// console.log("navigating to /login ");
+					// redirect to `login` if they are in protected route
+					if (!userCurrentlyOnPublicRoute) {
+						/***
+						 * Use window.location.replace() for security redirects, such as knocking a user
+						 * out to a login screen when their session expires or after they click "Log Out."
+						 * This ensures they cannot navigate back into protected, private routes.
+						 */
+						toast.warn(
+							"Authentication check failed. Please log in again.",
+						);
+						window.location.replace("/login");
+					}
+				}
+			} catch (error) {
 				localStorage.clear();
 				setUser(null);
 				setIsAuthenticated(false);
 				setIsAdmin(false);
-
-				// redirect to login on token failure if they are in a protected page
-				if (!isPublicRoute) {
-					// navigate("/login"); // Used navigate instead of window.location.replace for smoother routing
-					window.location.replace("/login");
-				}
+				navigate("/login");
+				toast.warn("Authentication check failed. Please log in again.");
+			} finally {
+				setIsInitializing(false);
 			}
-			// throw new Error("Token expired");
-		} catch (error) {
-			localStorage.clear();
-			setUser(null);
-			setIsAuthenticated(false);
-			setIsAdmin(false);
-			navigate("/login");
-		} finally {
-			setIsInitializing(false);
-		}
-	};
+		};
 
-	useEffect(() => {
 		verifyUser();
 		// Fires routing validation on navigation change.
 		// This ensures that if a user manually navigates to a protected route,
@@ -185,7 +195,7 @@ export const UserProvider = ({ children }) => {
 		}
 
 		const handleNewNotification = (notification) => {
-			console.log("New notification received:", notification); // Debug log
+			// console.log("New notification received:", notification); // Debug log
 			setNotifications((prev) => [notification, ...prev]);
 			setUnreadCount((prev) => prev + 1);
 		};
@@ -200,13 +210,6 @@ export const UserProvider = ({ children }) => {
 			socket.off("new_order_placed", handleNewNotification);
 		};
 	}, [socket, user]);
-
-	/***
-	 * next day te chat notification niye kaj korte hobe.
-	 * order notification apatoto basic level e kaj kortese.
-	 * 		`new_order_placed` & `order_status_updated` event duitar jonno proper notification trigger hocche.
-	 * But chat er ta kaj kortese na.
-	 */
 
 	const handleProfileInfoUpdate = async (ev, data) => {
 		/***
@@ -290,13 +293,12 @@ export const UserProvider = ({ children }) => {
 				const res = await response.json();
 
 				if (!response.ok) {
-					// console.log(res.message);
 					return {
 						success: false,
-						errorMessage: res.message || "Login failed",
+						message: res.message || "Login failed",
 					};
 				} else {
-					console.log("targetRoute: ", targetRoute);
+					// console.log("targetRoute: ", targetRoute);
 
 					// if user has a populated cart, redirect them to cart page after login
 					localStorage.setItem("token", JSON.stringify(res.token));
@@ -305,18 +307,15 @@ export const UserProvider = ({ children }) => {
 					setIsAuthenticated(true);
 					if (res.userObj?.role === "admin") {
 						setIsAdmin(true);
-						// console.log("is admin: ", res.userObj?.role);
 					} else {
 						setIsAdmin(false);
-						// console.log("is admin: ", res.userObj?.role);
 					}
-					navigate(`${targetRoute ? targetRoute : "/"}`, {
+					navigate(targetRoute || "/", {
 						replace: true,
 					});
-					return { success: true };
+					return { success: true, message: res.message };
 				}
 			} catch (error) {
-				// toast.error(error.response?.data?.message || "An error occured");
 				console.error(error.message);
 				return {
 					success: false,
@@ -341,9 +340,7 @@ export const UserProvider = ({ children }) => {
 		setIsAuthenticated(false);
 		setIsAdmin(false);
 		navigate("/login", { replace: true });
-
-		// toast.success("✅ User Logged Out");
-		// console.log("✅ User Logged Out");
+		toast.success("✅ Logged Out");
 	};
 
 	return (
@@ -358,7 +355,6 @@ export const UserProvider = ({ children }) => {
 				isAuthenticated,
 				loginUser,
 				logoutUser,
-				verifyUser,
 				handleProfileInfoUpdate,
 				socket,
 				isAdminOnline,

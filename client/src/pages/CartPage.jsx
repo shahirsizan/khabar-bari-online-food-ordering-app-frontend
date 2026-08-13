@@ -9,13 +9,13 @@ import { FaInfoCircle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 import { toBanglaNumber } from "../utils/toBanglaNumber";
 import { apiFetch } from "../utils/api";
+import { toast } from "react-toastify";
 
 const CartPage = () => {
 	const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
 	const navigate = useNavigate();
 	const location = useLocation(); // get current route info
 	const { user, isAuthenticated, logoutUser } = useUserContext();
-	// console.log("isAuthenticated: ", isAuthenticated);
 	const [paymentDone, setPaymentDone] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [showImageModal, setShowImageModal] = useState(false);
@@ -69,15 +69,21 @@ const CartPage = () => {
 	// };
 
 	const handlePayment = async (e) => {
-		// 1. If not authenticated, redirect to login
-		// console.log("isAuthenticated: ", isAuthenticated);
-
+		// If not authenticated, redirect to "/login"
 		if (!isAuthenticated) {
+			/***
+			 * Once unauthenticated user logs in through /login page, the `login` component can grab `state.from` and
+			 * redirect them back to the `from` route, instead of dumping them onto a generic home page.
+			 */
+			toast.warn("Please login");
 			navigate("/login", { state: { from: location.pathname } });
+
+			// halt any further code execution in the current component,
+			// preventing the private content or API calls from loading.
 			return;
 		}
 
-		// 2. If authenticated, proceed as usual
+		// If authenticated, proceed.
 		try {
 			setShowPaymentOptionsModal(false);
 			// setLoadingBkash(true); // Start loading
