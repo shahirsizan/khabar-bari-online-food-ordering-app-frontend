@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { toast } from "react-toastify";
 
 export default function PasswordResetModal({ isModalOpen, onClose }) {
 	const [email, setEmail] = useState("");
@@ -46,6 +47,7 @@ export default function PasswordResetModal({ isModalOpen, onClose }) {
 				text: "লিংক পাঠানো হয়েছে! আপনার ইমেইল চেক করুন।",
 			});
 			setEmail("");
+			toast.success("আপনার ইমেইলে লিংক পাঠানো হয়েছে! ইমেইল চেক করুন");
 		} catch (error) {
 			setMessage({
 				type: "error",

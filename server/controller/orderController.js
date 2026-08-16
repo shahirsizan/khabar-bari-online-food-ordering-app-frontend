@@ -105,13 +105,11 @@ export const updateOrderStatus = async (req, res) => {
 			{ new: true },
 		);
 
-		console.log("updatedOrder: ", updatedOrder);
-
 		if (!updatedOrder) {
 			return res.status(404).json({ message: "Order not found" });
 		}
 
-		// make a notification object.
+		// make notification object.
 		const notification = new Notification({
 			recipientId: new mongoose.Types.ObjectId(updatedOrder.userId), // Who placed the order
 			type: "order",
@@ -135,8 +133,15 @@ export const updateOrderStatus = async (req, res) => {
 			);
 		}
 
-		res.status(200).json(updatedOrder);
+		res.status(200).json({
+			message: "স্ট্যাটাস আপডেট প্রক্রিয়া সফল হয়েছে!",
+			updatedOrder: updatedOrder,
+		});
 	} catch (error) {
-		res.status(500).json({ message: error.message });
+		console.log("updateOrderStatus() error: ", error.message);
+
+		res.status(500).json({
+			message: "স্ট্যাটাস আপডেট প্রক্রিয়া ব্যর্থ হয়েছে!",
+		});
 	}
 };

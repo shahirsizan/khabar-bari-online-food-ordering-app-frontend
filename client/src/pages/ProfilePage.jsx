@@ -40,7 +40,8 @@ const ProfilePage = () => {
 				<div className="gap-4">
 					<form
 						className="flex flex-col grow"
-						onSubmit={(e) =>
+						onSubmit={(e) => {
+							e.stopPropagation();
 							handleProfileInfoUpdate(e, {
 								originalObject: user,
 								userName,
@@ -48,8 +49,8 @@ const ProfilePage = () => {
 								streetAddress,
 								city,
 								role,
-							})
-						}
+							});
+						}}
 					>
 						<label>নাম</label>
 						<input

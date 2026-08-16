@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 import PasswordResetModal from "../components/PasswordResetModal";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
 	const { loading, loginUser } = useUserContext();
@@ -15,9 +16,11 @@ const LoginPage = () => {
 	// this is needed because we might need to navigate to `/cart` route if non-auth user already has a populated cart.
 	const location = useLocation();
 	const targetRoute = location.state?.from || "/";
+	// console.log("targetRoute: ", targetRoute);
 
 	async function handleLogin(ev) {
 		ev.preventDefault();
+
 		const response = await loginUser(
 			email,
 			password,
@@ -26,39 +29,12 @@ const LoginPage = () => {
 		);
 
 		if (!response.success) {
-			console.log(response.errorMessage);
-
-			seteErrorMessage(response.errorMessage);
+			// console.log(response.errorMessage);
+			toast.error(response.message);
+			// seteErrorMessage(response.errorMessage);
+		} else {
+			toast.success(response.message);
 		}
-
-		// setLogginInUser(true);
-		// setError(false);
-		// setUserLoggedIn(false);
-
-		// try {
-		// 	const response = await apiFetch(`${backendUrl}/api/login`, {
-		// 		method: "POST",
-		// 		body: JSON.stringify({ email, password }),
-		// 		headers: { "Content-Type": "application/json" },
-		// 	});
-
-		// 	const res = await response.json();
-		// 	console.log(res);
-
-		// 	if (!response.ok) {
-		// 		setError(true);
-		// 		setErrorMessage(res.message);
-		// 	} else {
-		// 		console.log("Login Response: ", res);
-		// 		setUserLoggedIn(true);
-		// 		navigate("/");
-		// 	}
-		// } catch (error) {
-		// 	setError(true);
-		// 	setErrorMessage(res.message);
-		// } finally {
-		// 	setLogginInUser(false);
-		// }
 	}
 
 	return (

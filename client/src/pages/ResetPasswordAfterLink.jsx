@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { backend_base_url } from "../workMode";
 import { apiFetch } from "../utils/api";
+import { toast } from "react-toastify";
 
 export const ResetPasswordAfterLink = () => {
 	const [URLSearchParams] = useSearchParams();
@@ -19,7 +20,7 @@ export const ResetPasswordAfterLink = () => {
 		setError("");
 
 		try {
-			console.log("req obj: ", { password, resetToken });
+			// console.log("req obj: ", { password, resetToken });
 
 			const response = await apiFetch(
 				`${backend_base_url}/api/reset-password-with-token`,
@@ -39,7 +40,7 @@ export const ResetPasswordAfterLink = () => {
 
 			setMessage(data.message);
 			setShowLoginButton(true);
-			// setTimeout(() => navigate("/login"), 3000);
+			toast.success("আপনার পাসওয়ার্ড রিসেট সফল হয়েছে। লগইন করুন।");
 		} catch (err) {
 			setError(err.message);
 		} finally {

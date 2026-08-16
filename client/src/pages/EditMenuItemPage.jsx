@@ -7,6 +7,7 @@ import MenuItemForm from "../components/MenuItemForm";
 import DeleteModal from "../components/DeleteModal/DeleteModal";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { toast } from "react-toastify";
 
 const EditMenuItemPage = () => {
 	const navigate = useNavigate();
@@ -15,6 +16,9 @@ const EditMenuItemPage = () => {
 	const [menuItem, setMenuItem] = useState(null);
 	const [showConfirm, setShowConfirm] = useState(false);
 
+	/***
+	 * Fetch all items on mount
+	 */
 	useEffect(() => {
 		const fetchItem = async () => {
 			try {
@@ -46,6 +50,8 @@ const EditMenuItemPage = () => {
 	}, []);
 
 	const handleDelete = async () => {
+		let res;
+
 		try {
 			const response = await apiFetch(
 				`${backend_base_url}/api/menu-items/${id}`,
@@ -57,12 +63,14 @@ const EditMenuItemPage = () => {
 				},
 			);
 
+			res = await response.json();
+
 			if (response.ok) {
-				console.log("Item deleted successfully");
-				navigate("/profile/menu-items");
+				toast.success(res.message);
+				navigate("/profile/menu-items", { replace: true });
 			}
 		} catch (error) {
-			console.error("Failed to delete: ", error.message);
+			toast.error(res.message);
 		}
 	};
 
@@ -83,7 +91,7 @@ const EditMenuItemPage = () => {
 							}}
 						>
 							<FaArrowLeft />
-							<span>Show All Items</span>
+							<span>সকল মেনু আইটেম</span>
 						</button>
 					</div>
 

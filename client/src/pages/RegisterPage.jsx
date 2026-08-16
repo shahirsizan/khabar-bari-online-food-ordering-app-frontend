@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
 	const [name, setName] = useState("");
@@ -42,14 +43,16 @@ const RegisterPage = () => {
 			);
 
 			const res = await response.json();
-			console.log(res);
+			// console.log(res);
 
 			if (!response.ok) {
 				setError(true);
 				setErrorMessage(res.message);
+				toast.error(res.message);
 			} else {
-				console.log("Registration Response: ", res);
+				// console.log("Registration Response: ", res);
 				setUserCreated(true);
+				toast.success(res.message);
 			}
 		} catch (error) {
 			setError(true);

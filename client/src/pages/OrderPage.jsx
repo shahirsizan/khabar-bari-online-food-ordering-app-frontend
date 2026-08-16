@@ -78,15 +78,6 @@ const OrderPage = () => {
 		fetchOrder();
 	}, [id]);
 
-	const toBanglaNumber = (num) => {
-		const b = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-		return num
-			.toString()
-			.split("")
-			.map((d) => b[d])
-			.join("");
-	};
-
 	const handleDownload = () => {
 		const element = receiptRef.current;
 		const options = {
@@ -129,8 +120,6 @@ const OrderPage = () => {
 			</div>
 		);
 	}
-
-	const currentStatus = statusConfig[orderDetail?.status?.toLowerCase()];
 
 	return (
 		<div className="mt-10 mb-10 px-[5vw] md:px-[8vw] lg:px-[16vw]">

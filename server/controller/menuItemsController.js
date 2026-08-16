@@ -50,9 +50,16 @@ export async function addMenuItem(req, res) {
 			basePrice: basePrice,
 		};
 		const menuItemDoc = await MenuItem.create(dataToInsert);
-		return res.status(200).json(menuItemDoc);
+		return res.status(200).json({
+			message: "আইটেম সংযোজন প্রক্রিয়া সফল হয়েছে।",
+			menuItemDoc: menuItemDoc,
+		});
 	} catch (error) {
-		return res.status(500).json({ message: error.message });
+		console.log("addMenuItem() error: ", error.message);
+
+		return res
+			.status(500)
+			.json({ message: "আইটেম সংযোজন প্রক্রিয়া ব্যর্থ হয়েছে!" });
 	}
 }
 
@@ -73,11 +80,14 @@ export const updateMenuItem = async (req, res) => {
 			return res.status(404).json({ message: "Menu item not found" });
 		}
 
-		res.status(200).json(updatedItem);
+		res.status(200).json({
+			message: "আইটেম এডিট প্রক্রিয়া সফল হয়েছে।",
+			updatedItem,
+		});
 	} catch (error) {
-		console.error("Error in updateMenuItem: ", error.message);
+		console.error("updateMenuItem() error: ", error.message);
 		res.status(500).json({
-			message: "Server error, could not update item",
+			message: "আইটেম এডিট প্রক্রিয়া ব্যর্থ হয়েছে!",
 		});
 	}
 };
@@ -97,11 +107,13 @@ export const deleteMenuItem = async (req, res) => {
 			return res.status(404).json({ message: "Menu item not found" });
 		}
 
-		res.status(200).json({ message: "Menu item deleted successfully" });
+		res.status(200).json({
+			message: "আইটেম ডেলেট প্রক্রিয়া সফল হয়েছে।",
+		});
 	} catch (error) {
-		console.error("Error in deleteMenuItem: ", error.message);
+		console.error("deleteMenuItem() error: ", error.message);
 		res.status(500).json({
-			message: error.message,
+			message: "আইটেম ডেলেট প্রক্রিয়া ব্যর্থ হয়েছে!",
 		});
 	}
 };

@@ -6,6 +6,7 @@ import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
 import { GrFormPrevious } from "react-icons/gr";
 import { GrFormNext } from "react-icons/gr";
+import { toast } from "react-toastify";
 
 const OrdersPage = () => {
 	const statuses = {
@@ -29,7 +30,7 @@ const OrdersPage = () => {
 
 	const handleStatusChange = async (orderId, changedStatus) => {
 		// enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
-
+		let res;
 		try {
 			const response = await apiFetch(
 				`${backend_base_url}/api/order/${orderId}`,
@@ -52,9 +53,11 @@ const OrdersPage = () => {
 							: order,
 					),
 				);
+				res = await response.json();
+				toast.success(res.message);
 			}
 		} catch (error) {
-			console.error("handleStatusChange -> error: ", error);
+			toast.error(res.message);
 		}
 	};
 

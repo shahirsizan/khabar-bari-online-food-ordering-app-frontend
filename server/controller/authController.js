@@ -12,7 +12,7 @@ export const registerUser = async (req, res) => {
 
 		if (user) {
 			res.status(400).json({
-				message: "⚠️ User already exists!",
+				message: "Email already exists!",
 			});
 			return;
 		}
@@ -32,11 +32,11 @@ export const registerUser = async (req, res) => {
 		delete userObj.password;
 
 		res.status(201).json({
-			message: "✅ User Registered",
+			message: "User Registered successfully",
 			userObj,
 		});
 
-		// {"message":"✅ User Registered",
+		// {"message":"User Registered successfully",
 		// "user":{
 		// 		"email":"abc@gmail.com",
 		// 		"password":"$2b$10$cNeShLoaKjGAzMS9iAMn6eAnKPgBDXKEXONOwjfiPCdXuKAs2KBMe",
@@ -59,7 +59,7 @@ export const loginUser = async (req, res) => {
 
 	if (!user) {
 		res.status(404).json({
-			message: "❌ User doesn't exist",
+			message: "User with the email doesn't exist",
 		});
 		return;
 	}
@@ -68,7 +68,7 @@ export const loginUser = async (req, res) => {
 
 	if (!passwordMatches) {
 		res.status(400).json({
-			message: "❌ Invalid Password",
+			message: "Invalid password",
 		});
 		return;
 	}
@@ -81,7 +81,7 @@ export const loginUser = async (req, res) => {
 	delete userObj.password;
 
 	res.status(200).json({
-		message: "✅ Logged in successfully",
+		message: "Logged in successfully",
 		userObj,
 		token,
 	});
@@ -113,7 +113,7 @@ export const forgotPassword = async (req, res) => {
 		// 3. Create URL(Will redirect to frontend) with resetToken embedded
 		const resetUrl = `${frontend_base_url}/reset-password-after-link?resetToken=${hashedResetToken}`;
 
-		console.log("resetUrl: ", resetUrl);
+		// console.log("resetUrl: ", resetUrl);
 
 		const message = `You received this email because you have requested a password reset.\n\nPlease click the link below within 10 minutes to reset your password:\n\n${resetUrl}`;
 

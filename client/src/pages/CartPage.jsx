@@ -94,7 +94,7 @@ const CartPage = () => {
 				user,
 				cartItems,
 			};
-			console.log("invoking pay(), data: ", data);
+			// console.log("invoking pay(), data: ", data);
 
 			try {
 				const response = await apiFetch(
@@ -113,15 +113,19 @@ const CartPage = () => {
 					const res = await response.json();
 					// console.log("res: ", res);
 					window.location.replace(res.redirectUrl);
-				} else if (response.status === 401) {
-					logoutUser();
+				} else {
+					toast.error("Checkout process error. Please try again.");
+					// dorkar nai. Emni kono info na dekhaleo hobe. User again chekckout korbe
+					// logoutUser();
 				}
 			} catch (error) {
 				console.error(error.message);
+				toast.error("Checkout process error. Please try again.");
 			}
 			// pay(e);
 		} catch (err) {
 			console.error("Payment failed:", err);
+			toast.error("Checkout process error. Please try again.");
 		}
 	};
 

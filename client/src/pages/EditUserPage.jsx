@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useUserContext } from "../UserContext";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { toast } from "react-toastify";
 
 const EditUserPage = () => {
 	const { id } = useParams();
@@ -21,6 +22,9 @@ const EditUserPage = () => {
 	const [city, setCity] = useState(otherUser?.city || "");
 	const [role, setRole] = useState(otherUser?.role || "");
 
+	/***
+	 * Fetch user on mount
+	 */
 	useEffect(() => {
 		const fetchUser = async () => {
 			try {
@@ -80,9 +84,9 @@ const EditUserPage = () => {
 			// }
 
 			// 3. Validate the response
+			let res;
 			if (response.ok) {
-				const res = await response.json();
-				// console.log("handleProfileInfoUpdate -> updated user: ", res);
+				res = await response.json();
 
 				if (res.user.email === user.email) {
 					setUser((prevUser) => ({
@@ -98,15 +102,10 @@ const EditUserPage = () => {
 					}));
 				}
 
-				// 5. Success feedback
-				alert("Profile updated successfully!");
+				toast.success(res.message);
 			} else {
 				const errorData = await response.json();
-				console.error(
-					"handleProfileInfoUpdate() -> Failed to update: ",
-					errorData.message,
-				);
-				alert("Profile update failed!");
+				toast.error(res.message);
 			}
 		} catch (error) {
 			console.error("Failed to update user: ", error.message);
@@ -137,7 +136,7 @@ const EditUserPage = () => {
 	}
 
 	return (
-		<section className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+		<section className="mt-8 px-[5vw] md:px-[8vw] lg:px-[10vw] font-atma">
 			<div className="max-w-2xl mx-auto mt-8">
 				<button
 					className="flex items-center justify-center border shadow-md px-3 py-2 rounded-md"

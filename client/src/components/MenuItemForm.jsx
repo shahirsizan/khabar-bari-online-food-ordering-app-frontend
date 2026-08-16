@@ -3,6 +3,7 @@ import EditableImage from "./EditableImage/EditableImage";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 import { backend_base_url } from "../workMode";
+import { toast } from "react-toastify";
 
 export default function MenuItemForm({ whatToDo, menuItem }) {
 	const navigate = useNavigate();
@@ -13,13 +14,11 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Upon pressing the `Save` button.
-	async function handleFormSubmit(ev, data) {
+	const handleFormSubmit = async (ev, data) => {
 		ev.preventDefault();
 
 		if (!image || !name || !description || !basePrice) {
-			return alert(
-				"Please fill in all fields before submitting the form.",
-			);
+			return toast.warn("দয়া করে সকল ফিল্ড পূরণ করুন।");
 		}
 
 		setIsLoading(true);
@@ -43,7 +42,7 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 
 			if (response.ok) {
 				const res = await response.json();
-				// console.log("Item saved to database successfully: ", res);
+				toast.success(res.message);
 				navigate("/profile/menu-items");
 			}
 		} catch (error) {
@@ -51,7 +50,7 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	};
 
 	return (
 		<form

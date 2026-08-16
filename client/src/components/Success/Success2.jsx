@@ -6,6 +6,7 @@ import { useCart } from "../../CartContext";
 import html2pdf from "html2pdf.js";
 import { useParams, useSearchParams } from "react-router-dom";
 import OrderReceipt from "../OrderReceipt";
+import { toast } from "react-toastify";
 
 const Success2 = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -23,11 +24,12 @@ const Success2 = () => {
 		const TIMEOUT_LIMIT = 20000; // 10 seconds
 
 		const verifyPayment = async () => {
-			// If timedout, we show the failure message
+			// If timedout, we show failure message
 			if (Date.now() - startTime > TIMEOUT_LIMIT) {
 				setIsLoading(false);
 				setIsFailed(true);
 				clearInterval(intervalId);
+				toast.error("Network Error!");
 				return;
 			}
 
@@ -41,9 +43,10 @@ const Success2 = () => {
 					setIsLoading(false);
 					setIsFailed(false);
 					setOrderDetail(response.data.orderDetail);
-					clearInterval(intervalId); // Stop checking
-					localStorage.removeItem("cart"); // Clear cart items from browsers localstorage.
-					clearCart(); // Clear cart items from context as well.
+					clearInterval(intervalId);
+					localStorage.removeItem("cart");
+					clearCart();
+					toast.success("Order placed successfully!");
 					return;
 				}
 
@@ -53,8 +56,9 @@ const Success2 = () => {
 			} catch (err) {
 				setIsLoading(false);
 				setIsFailed(true);
-				clearInterval(intervalId); // Stop checking
+				clearInterval(intervalId);
 				console.error("Verification failed: ", err.message);
+				toast.error("Network Error!");
 			}
 		};
 
@@ -95,7 +99,7 @@ const Success2 = () => {
 		return (
 			<div className="h-screen flex items-center justify-center bg-gray-50 gap-2">
 				<div className="animate-spin rounded-full h-8 w-8 border-b-4 border-green-600 mb-4"></div>
-				<p className="text-md md:text-xl font-semibold text-gray-600">
+				<p className="text-xs md:text-lg font-semibold text-gray-600">
 					Verifying your payment...
 				</p>
 			</div>
@@ -104,14 +108,14 @@ const Success2 = () => {
 		return (
 			<div className="h-screen flex flex-col items-center justify-center bg-gray-50 gap-2">
 				<p className="text-sm md:text-lg text-gray-600 mb-4">
-					Network Error!
+					নেটওয়ার্ক এরর!
 				</p>
 
 				<button
 					onClick={() => window.location.reload()}
 					className="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 max-w-[200px] lg:max-w-[300px]"
 				>
-					Try Again
+					পেমেন্ট স্ট্যাটাস চেক করুন
 				</button>
 			</div>
 		);
