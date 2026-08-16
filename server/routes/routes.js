@@ -8,7 +8,6 @@ import {
 	resetPasswordWithToken,
 	updatePasswordWhenLoggedIn,
 } from "../controller/authController.js";
-import { updateProfile } from "../controller/profileController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/upload.js";
 import { getPresignedSignature } from "../controller/uploadController.js";
@@ -23,7 +22,7 @@ import {
 	deleteUser,
 	getAllUsers,
 	getUser,
-	updateUser,
+	updateProfile,
 } from "../controller/userController.js";
 import {
 	getOrder,
@@ -34,7 +33,11 @@ import {
 	getNotifications,
 	markNotificationAsRead,
 } from "../controller/notificationController.js";
-import { getChatRooms, getRoomMessages } from "../controller/chatController.js";
+import {
+	getChatRooms,
+	getRoomMessages,
+	getRoomName,
+} from "../controller/chatController.js";
 import { nanoid } from "nanoid";
 import "dotenv/config";
 import mongoose from "mongoose";
@@ -44,9 +47,18 @@ import { User } from "../model/userModel.js";
 import { Order } from "../model/orderModel.js";
 import { Notification } from "../model/NotificationModel.js";
 import SSLCommerzPayment from "sslcommerz-lts";
+import { frontend_base_url } from "../workMode.js";
+import {
+	sslCommerzFail,
+	sslCommerzPaymentStatusPolling,
+	sslCommerzSuccess,
+	sslPaymentInitialize,
+	sslPaymentIPN,
+} from "../controller/sslcommerzController.js";
 
 const router = Router();
 
+// Auth related routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
@@ -57,7 +69,6 @@ router.put(
 	updatePasswordWhenLoggedIn,
 );
 
-router.put("/profile", isAuth, updateProfile);
 router.get("/me", isAuth, (req, res) => {
 	res.json(req.user);
 });
@@ -73,7 +84,7 @@ router.delete("/menu-items/:id", isAuth, deleteMenuItem);
 // User routes
 router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
-router.put("/users/:id", isAuth, updateUser);
+router.put("/profile", isAuth, updateProfile);
 router.delete("/users/:id", isAuth, deleteUser);
 
 // Order routes
@@ -84,12 +95,59 @@ router.put("/order/:id", isAuth, updateOrderStatus);
 // chat routes
 router.get("/chat/rooms", isAuth, getChatRooms);
 router.get("/chat/:roomId", isAuth, getRoomMessages);
+router.get("/chatName/:roomId", isAuth, getRoomName);
 
 // Notification routes
 router.get("/notifications", isAuth, getNotifications);
 router.put("/notifications/:id", isAuth, markNotificationAsRead);
 
-// bkash routes
+// sslcommerz routes
+const store_id = process.env.STORE_ID;
+const store_passwd = process.env.STORE_PASS;
+const is_live = false;
+
+/***
+ * Triggered when user clicks "pay now" button.
+	Gets redirected to sslcommerz gateway UI.
+ */
+router.post("/order", isAuth, sslPaymentInitialize);
+
+/***
+ * Sslcommerz calls this webhook endpoint.
+ * Updating our database order status to `paid = true` is the main goal.
+ * Why we need this?
+ * Because malicious users can trigger success API call by themselves.
+ * But they won't have our `store_id` and `store_passwd`. Only we have this.
+ * Thus we let sslcommerz validate us by using our credentials in the background.
+ */
+router.post("/payment/ipn", sslPaymentIPN);
+
+/***
+ * Below URLs are set during router.post("/order",...) api call
+ * 		success_url: `${process.env.IPN_URL}/api/payment/success/${tran_id}`,
+		fail_url: `${process.env.IPN_URL}/api/payment/fail/${tran_id}`,
+		cancel_url: `${process.env.IPN_URL}/api/payment/cancel/${tran_id}`,
+		ipn_url: `${process.env.IPN_URL}/api/payment/ipn`,
+ */
+
+/***
+ * Success Redirect Endpoint
+ */
+router.post("/payment/success/:tranId", sslCommerzSuccess);
+
+/***
+ * Failure Redirect Endpoint
+ */
+router.post("/payment/fail/:tranId", sslCommerzFail);
+
+/***
+ * Payment status polling endpoint
+ */
+router.get("/payment/status/:tranId", sslCommerzPaymentStatusPolling);
+
+/***
+ * BKASH ROUTES
+ */
 router.post(
 	"/bkash/payment/create",
 	middleware.bkash_auth,
@@ -113,248 +171,5 @@ router.get(
 	middleware.bkash_auth,
 	paymentController.refund,
 );
-
-// sslcommerz routes
-const store_id = process.env.STORE_ID;
-const store_passwd = process.env.STORE_PASS;
-const is_live = false;
-
-router.post("/order", isAuth, async (req, res) => {
-	/***
-	 * req.body is:
-	 * 		{
-				amount: cartTotal,
-				orderId: 1,
-				user,
-				cartItems,
-			};
-	 */
-
-	// nanoid() -> default size is 21.
-	// const tran_id = nanoid(30);
-	const tran_id = nanoid();
-	const data = {
-		total_amount: req.body.amount,
-		currency: "BDT",
-		tran_id: tran_id,
-		product_name: "Consumer Product",
-		product_category: "Consumer Product",
-		product_profile: "general",
-		cus_name: req.body.user.name,
-		cus_email: req.body.user.email,
-		cus_phone: req.body.user.phone,
-		cus_add1: req.body.user.streetAddress,
-		cus_city: req.body.user.city,
-		cus_postcode: "1000",
-		cus_country: "Bangladesh",
-		shipping_method: "NO",
-		success_url: `${process.env.IPN_URL}/api/payment/success/${tran_id}`,
-		fail_url: `${process.env.IPN_URL}/api/payment/fail/${tran_id}`,
-		cancel_url: `${process.env.IPN_URL}/api/payment/cancel/${tran_id}`,
-		ipn_url: `${process.env.IPN_URL}/api/payment/ipn`,
-		multi_card_name: "bkash",
-	};
-	//
-	/***
-	 * run `ngrok http 5000` in terminal to generate neu ngrom url
-	 * change the `IPN_URL` env shit everytime the machine restarts. Because ngrok changes the url everytime.
-	 */
-
-	try {
-		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-		const apiResponse = await sslcz.init(data);
-		// console.log("apiResponse: ", apiResponse);
-
-		if (apiResponse) {
-			let GatewayPageURL = apiResponse.GatewayPageURL;
-
-			const finalOrder = {
-				totalAmount: req.body.amount,
-				userId: req.body.user._id,
-				userName: req.body.user.name,
-				userEmail: req.body.user.email,
-				phone: req.body.user.phone,
-				streetAddress: req.body.user.streetAddress,
-				city: req.body.user.city,
-				cartProducts: req.body.cartItems,
-				tran_id: tran_id,
-				paid: false,
-			};
-
-			const result = await Order.insertOne(finalOrder);
-			console.log(`router.post("/order",...) -> result: `, result);
-
-			/***
-			 * the insertOne() method ⬆️ resolves to an object with the following properties:
-			 * result :
-			 * {
-					acknowledged: true,
-					insertedId: new ObjectId('65a12345f1234567890abcde')
-				}
-			 */
-
-			res.status(200).json({ redirectUrl: GatewayPageURL });
-			return;
-		}
-	} catch (error) {
-		console.log("Error: ", error.message);
-	}
-});
-
-router.post("/payment/ipn", async (req, res) => {
-	try {
-		console.log("/payment/ipn called");
-		console.log("req.body: ", req.body);
-
-		const { val_id } = req.body;
-		const data = {
-			val_id,
-			store_id: store_id,
-			store_passwd: store_passwd,
-		};
-		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-		const response = await sslcz.validate(data);
-		if (response) {
-			/***
-			 * response:  {
-					status: 'VALID',
-					tran_date: '2026-06-14 15:18:29',
-					tran_id: 'wZr9Dxy4oiaIvq2fZ7oKxIbcUkxlFA',
-					val_id: '260614151839MOgiSqKwPnQ4kR2',
-					amount: '300.00',
-					store_amount: '292.5',
-					currency: 'BDT',
-					bank_tran_id: '260614151839soRgpuAh1WSYBkr',
-					card_type: 'BKASH-BKash',
-					card_no: '',
-					card_issuer: 'BKash Mobile Banking',
-					card_brand: 'MOBILEBANKING',
-					card_category: 'MOBILE',
-					card_sub_brand: '',
-					card_issuer_country: 'Bangladesh',
-					card_issuer_country_code: 'BD',
-					currency_type: 'BDT',
-					currency_amount: '300.00',
-					currency_rate: '1.0000',
-					base_fair: '0.00',
-					value_a: '',
-					value_b: '',
-					value_c: '',
-					value_d: '',
-					emi_instalment: '0',
-					emi_amount: '0.00',
-					emi_description: '',
-					emi_issuer: 'BKash Mobile Banking',
-					account_details: '',
-					risk_title: 'Safe',
-					risk_level: '0',
-					discount_percentage: '0',
-					discount_amount: '0.00',
-					discount_remarks: '',
-					APIConnect: 'DONE',
-					validated_on: '2026-06-14 15:18:39',
-					gw_version: '',
-					offer_avail: 1,
-					card_ref_id: 'dc1da4f52669828139e81ef5eb0f48a5a99ea054a131e00a562887d455417dd915',
-					isTokeizeSuccess: 0,
-					campaign_code: ''
-					}
-			 */
-			console.log(
-				`router.post("/payment/ipn",...) -> response: `,
-				response,
-			);
-
-			const { status, tran_id, val_id, amount } = response;
-
-			if (status === "VALID" || status === "VALIDATED") {
-				await Order.updateOne(
-					{ tran_id: tran_id },
-					{ $set: { paid: true } },
-				);
-
-				// Now notify the admin for a new order.
-				// Fetch admin record from User collection
-				const adminUser = await User.findOne({ role: "admin" });
-				const adminId = adminUser ? adminUser._id : null;
-				const orderObj = await Order.findOne({ tran_id: tran_id });
-				let customerName = "";
-				if (orderObj) {
-					customerName = orderObj.userName;
-				}
-
-				if (adminId) {
-					const adminNotification = await Notification.create({
-						recipientId: new mongoose.Types.ObjectId(adminId),
-						message: `New order by ${customerName}`,
-						type: "order",
-						link: `/order/${orderObj._id.toString()}`,
-						metadata: {
-							orderId: orderObj._id,
-							status: "Pending",
-						},
-					});
-
-					// Realtime notofication dispatched into admin room
-					const io = getIO();
-					io.to("admin_room").emit(
-						"new_order_placed",
-						adminNotification,
-					);
-				}
-			} else {
-				//⚠️ In case of `failed`/`cancelled` transactions, no `tran_id` or `val_id` will be there in the `response`
-				// object returned from the `sslcz.validate()` call above.
-				// So have to get the `tran_id` from the req.body instead.
-				await Order.deleteOne({ tran_id: req.body.tran_id });
-			}
-		}
-	} catch (error) {
-		console.error(error.message);
-	}
-});
-
-router.post("/payment/success/:tranId", async (req, res) => {
-	try {
-		console.log("/payment/success/:tranId called");
-		return res.redirect(
-			`http://localhost:5173/success?tranId=${req.params.tranId}`,
-		);
-	} catch (error) {
-		console.error(error.message);
-		res.status(500).json({ message: "Server error" });
-	}
-});
-
-router.post("/payment/fail/:tranId", async (req, res) => {
-	try {
-		console.log("/payment/fail/:tranId called");
-		return res.redirect(
-			`http://localhost:5173/error?tranId=${req.params.tranId}&message=failed`,
-		);
-	} catch (error) {
-		console.error(error.message);
-		res.status(500).json({ message: "Server error" });
-	}
-});
-
-router.get("/payment/status/:tranId", async (req, res) => {
-	try {
-		const { tranId } = req.params;
-
-		const order = await Order.findOne({ tran_id: tranId });
-
-		if (!order) {
-			return res.status(404).json({ message: "Order not found!" });
-		}
-
-		res.status(200).json({
-			paid: order.paid,
-			orderDetail: order.paid ? order : null,
-		});
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
-});
 
 export default router;
