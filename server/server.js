@@ -1,6 +1,6 @@
 import { mode, frontend_base_url } from "./workMode.js";
 import express from "express";
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import router from "./routes/routes.js";
@@ -11,6 +11,8 @@ import { Server } from "socket.io";
 import { Message } from "./model/Message.js";
 import { getIO, initIO } from "./utils/io.js";
 import { Notification } from "./model/NotificationModel.js";
+import { User } from "./model/userModel.js";
+import { db } from "./utils/db.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -35,6 +37,9 @@ app.use(
 // Initializing Socket.io once here
 const io = initIO(httpServer, frontend_base_url);
 
+/***
+ * SocketIO controllers
+ */
 // Map to track online users: Key = userId, Value = { socketId, role}
 const onlineUsers = new Map();
 io.on("connection", (socket) => {
@@ -89,46 +94,98 @@ io.on("connection", (socket) => {
 	// Handle messages
 	socket.on("send_message", async (data) => {
 		const { roomId, roomName, senderId, senderRole, text } = data;
+		/***
+		 * console.log(typeof roomId);		string   
+			console.log(typeof roomName);		string
+			console.log(typeof senderId);		string
+			console.log(typeof senderRole);		string
+			console.log(typeof text);		string
+		 */
 
 		try {
-			// 1️⃣ save in database
+			/***
+			 * 1️⃣ save message in database
+			 */
 			const newMessage = await Message.create({
-				roomId,
-				roomName,
-				senderId,
-				senderRole,
-				text,
+				roomId: roomId,
+				roomName: roomName,
+				senderId: new mongoose.Types.ObjectId(senderId),
+				senderRole: senderRole,
+				text: text,
 			});
 
-			// 2️⃣ broadcast back to everyone (including sender) in the room
+			//
+			/***
+			 * console.log("newMessage: ", newMessage);
+			 * newMessage:  {
+					roomId: '6a77417f8cb5f9007e9e40ea',
+					roomName: 'Shahir Adil Sizan',
+					senderId: new ObjectId('6a1aa54fddae3a9044191424'),
+					senderRole: 'admin',
+					text: '23432',
+					_id: new ObjectId('6a82ea9cb54d25198837a4db'),
+					createdAt: 2026-08-17T11:03:56.093Z,
+					updatedAt: 2026-08-17T11:03:56.093Z,
+					__v: 0
+					}
+			 */
+
+			/***
+			 * 2️⃣ broadcast message back to everyone (including sender) in the room
+			 */
 			io.to(roomId).emit("receive_message", newMessage);
 
-			// 3️⃣ generate a notification, persist in DB and then send to receiving end.
+			/***
+			 * 3️⃣ generate notification,
+			 * persist in DB and
+			 * send through socket.
+			 */
 			if (senderRole === "user") {
-				// User sent -> Notify Admin
+				/***
+				 * User -> Admin
+				 * */
 				const adminUser = await User.findOne({ role: "admin" });
 
-				if (adminUser) {
-					const adminNotification = await Notification.create({
-						recipientId: adminUser._id,
-						message: `You received a message from ${roomName}!`,
-						isRead: false,
-						link: `/profile/chats`,
-						type: "chat",
-					});
-
-					socket
-						.to("admin_room")
-						.emit("new_chat_notification", adminNotification);
-				}
-			} else if (senderRole === "admin") {
-				// Admin sent -> Notify User
-				const userNotification = await Notification.create({
-					recipientId: roomId,
-					message: `You received a message from Admin!`,
+				const adminNotification = await Notification.create({
+					message: `You received a message from ${roomName}`,
 					isRead: false,
+					link: `/profile/chats/${roomId}`,
+					recipientId: adminUser._id,
 					type: "chat",
 				});
+
+				socket
+					.to("admin_room")
+					.emit("new_chat_notification", adminNotification);
+			} else if (senderRole === "admin") {
+				/***
+				 * Admin -> User
+				 * */
+				const userNotification = await Notification.create({
+					message: `You received a message from Admin`,
+					isRead: false,
+					// Added link so `markSeveralChatNotificationsAsRead` controller works for user too
+					link: `/profile/chats/${roomId}`,
+					recipientId: new mongoose.Types.ObjectId(roomId),
+					type: "chat",
+				});
+
+				//
+				/***
+				 * console.log("userNotification", userNotification);
+				 * userNotification {
+						message: 'You received a message from Admin',
+						isRead: false,
+						link: '/profile/chats/6a77417f8cb5f9007e9e40ea',
+						recipientId: new ObjectId('6a77417f8cb5f9007e9e40ea'),
+						type: 'chat',
+						_id: new ObjectId('6a82ea9cb54d25198837a4dd'),
+						createdAt: 2026-08-17T11:03:56.156Z,
+						updatedAt: 2026-08-17T11:03:56.156Z,
+						__v: 0
+						}
+				 */
+
 				socket
 					.to(roomId)
 					.emit("new_chat_notification", userNotification);
@@ -170,26 +227,6 @@ io.on("connection", (socket) => {
 	});
 });
 
-const db = async () => {
-	try {
-		mongoose.connection.on("connected", () => {
-			console.log("Connected to database sucessfully");
-		});
-
-		mongoose.connection.on("error", (err) => {
-			console.log("Error while connecting to database :" + err);
-		});
-
-		mongoose.connection.on("disconnected", () => {
-			console.log("Mongodb connection disconnected");
-		});
-
-		await mongoose.connect(process.env.db_url);
-	} catch (error) {
-		console.log("❌ mongodb connection failed: ", error.message);
-	}
-};
-
 app.use(slidingWindowLimiter(15000, 15));
 app.use("/api", router);
 app.use("/", (req, res) => {
@@ -198,5 +235,5 @@ app.use("/", (req, res) => {
 
 httpServer.listen(port, () => {
 	db();
-	console.log(`Listening port ${port} in ${mode} mode`);
+	console.log(`✅ Listening port ${port} in ${mode} mode`);
 });

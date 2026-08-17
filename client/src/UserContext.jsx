@@ -28,6 +28,12 @@ export const UserProvider = ({ children }) => {
 	const { pathname } = useLocation(); // Tracks the current URL path
 	const [notifications, setNotifications] = useState([]);
 	const [unreadCount, setUnreadCount] = useState(0);
+	const [blinkNonAdminUsersChatLauncher, setBlinkNonAdminUsersChatLauncher] =
+		useState(false);
+	/***
+	 * below states are for non-admin users to track their chatbox open/close states
+	 */
+	const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
 
 	// Verify user auth state everytime URL path changes
 	useEffect(() => {
@@ -195,9 +201,65 @@ export const UserProvider = ({ children }) => {
 		}
 
 		const handleNewNotification = (notification) => {
-			// console.log("New notification received:", notification); // Debug log
-			setNotifications((prev) => [notification, ...prev]);
-			setUnreadCount((prev) => prev + 1);
+			if (notification.type === "chat") {
+				/***
+				 * If chat notification
+				 */
+				if (user.role === "user") {
+					/***
+					 * Notification came from `admin`.
+					 * So blink the non-admin users chat launcher.
+					 */
+					setBlinkNonAdminUsersChatLauncher(true);
+				}
+
+				/***
+				 * Group chat notifications by same link (roomId) if unread
+				 */
+				setNotifications((prev) => {
+					/***
+					 * here,prev = [notification, notification, notification....]
+					 */
+					const existingIdx = prev.findIndex(
+						(n) =>
+							n.type === "chat" &&
+							n.link === notification.link &&
+							!n.isRead,
+					);
+
+					if (existingIdx !== -1) {
+						const existingNotificationList = [...prev];
+						existingNotificationList[existingIdx] = {
+							...existingNotificationList[existingIdx],
+							message: notification.message,
+							createdAt: notification.createdAt,
+						};
+						/***
+						 * Move the updated notification to top
+						 */
+						const [item] = existingNotificationList.splice(
+							existingIdx,
+							1,
+						);
+						return [item, ...existingNotificationList];
+					}
+
+					/***
+					 * For brand new notification (chat | order),
+					 * update unread count and
+					 * append it to the list
+					 */
+					setUnreadCount((count) => count + 1);
+					return [notification, ...prev];
+				});
+			} else {
+				/***
+				 * If order related notifications for both type of users,
+				 * just append them to the notification window
+				 */
+				setNotifications((prev) => [notification, ...prev]);
+				setUnreadCount((prev) => prev + 1);
+			}
 		};
 
 		socket.on("new_chat_notification", handleNewNotification);
@@ -232,7 +294,7 @@ export const UserProvider = ({ children }) => {
 
 		try {
 			// 2. Execute apiFetch() with the required header
-			console.log("data: ", data);
+			// console.log("data: ", data);
 
 			const response = await apiFetch(`${backend_base_url}/api/profile`, {
 				method: "PUT",
@@ -246,7 +308,7 @@ export const UserProvider = ({ children }) => {
 			// 3. Validate the response
 			if (response.ok) {
 				const res = await response.json();
-				console.log("handleProfileInfoUpdate -> updated user: ", res);
+				// console.log("handleProfileInfoUpdate -> updated user: ", res);
 
 				setUser((prevUser) => ({
 					...prevUser,
@@ -256,8 +318,7 @@ export const UserProvider = ({ children }) => {
 				localStorage.removeItem("user");
 				localStorage.setItem("user", JSON.stringify(res.user));
 
-				// 5. Success feedback
-				alert("Profile updated successfully!");
+				toast.success("আপনার প্রোফাইল আপডেট হয়েছে।");
 			} else if (response.status === 401) {
 				logoutUser();
 			} else {
@@ -340,7 +401,7 @@ export const UserProvider = ({ children }) => {
 		setIsAuthenticated(false);
 		setIsAdmin(false);
 		navigate("/login", { replace: true });
-		toast.success("✅ Logged Out");
+		toast.success("Logged Out");
 	};
 
 	return (
@@ -362,6 +423,10 @@ export const UserProvider = ({ children }) => {
 				setNotifications,
 				unreadCount,
 				setUnreadCount,
+				blinkNonAdminUsersChatLauncher,
+				setBlinkNonAdminUsersChatLauncher,
+				isChatBoxOpen,
+				setIsChatBoxOpen,
 			}}
 		>
 			{children}

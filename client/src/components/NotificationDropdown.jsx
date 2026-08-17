@@ -6,14 +6,24 @@ import { backend_base_url } from "../workMode";
 import { IoNotificationsCircleSharp } from "react-icons/io5";
 import { toBanglaNumber } from "../utils/toBanglaNumber";
 import { formatOrderTime } from "../utils/dateFormatter";
+import { toast } from "react-toastify";
 
 const NotificationDropdown = () => {
-	const { notifications, setNotifications, unreadCount, setUnreadCount } =
-		useUserContext();
+	const {
+		isAdmin,
+		notifications,
+		setNotifications,
+		unreadCount,
+		setUnreadCount,
+		setIsChatBoxOpen,
+	} = useUserContext();
 	const notificationWindowRef = useRef();
 	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 
+	/***
+	 * Attach event listener for outside click
+	 */
 	useEffect(() => {
 		const handleClickOutside = (e) => {
 			// If:
@@ -37,27 +47,77 @@ const NotificationDropdown = () => {
 		};
 	}, []);
 
-	const markAsRead = async (id) => {
-		const response = await apiFetch(
-			`${backend_base_url}/api/notifications/${id}`,
-			{
-				method: "PUT",
-				headers: { token: JSON.parse(localStorage.getItem("token")) },
-			},
-		);
+	const markAsRead = async (notification) => {
+		if (notification.isRead) {
+			return;
+		}
 
-		// Update to main DB is done.
-		// No need to re-fetch the notifications from main DB. As we already have the notifications in the context,
-		// we can just update the state to mark the notification as read.
-		if (response.ok) {
-			setNotifications((prev) =>
-				prev.map((notification) =>
-					notification._id === id
-						? { ...notification, isRead: true }
-						: notification,
-				),
-			);
-			setUnreadCount((prev) => Math.max(0, prev - 1));
+		try {
+			const endpoint =
+				notification.type === "chat"
+					? `${backend_base_url}/api/notifications/read-by-link`
+					: `${backend_base_url}/api/notifications/${notification._id}`;
+
+			const response = await apiFetch(endpoint, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					token: JSON.parse(localStorage.getItem("token")),
+				},
+				/***
+				 * If isChat is true, it evaluates to { body: JSON.stringify...},
+				 * which is then merged into the main object.
+				 */
+				...(notification.type === "chat" && {
+					body: JSON.stringify({ link: notification.link }),
+				}),
+			});
+
+			/***
+		 * Update to main DB done.
+			No need to re-fetch notifications from main DB. As we already have the notifications in the context,
+			Let's just update the local state to indicate read/unread. 
+		*/
+			if (response.ok) {
+				setNotifications((prev) => {
+					/***
+					 * here, prev = [n, n, n,.....]
+					 */
+					const updatedList = prev.map((n) => {
+						if (
+							notification.type === "chat" &&
+							n.type === "chat" &&
+							n.link === notification.link
+						) {
+							/***
+							 * If chat notification,
+							 * mark all chat notifications with same link(link same means roomId is also same) as `read`
+							 */
+							return { ...n, isRead: true };
+						} else if (
+							notification.type !== "chat" &&
+							n._id === notification._id
+						) {
+							/***
+							 * If order notification,
+							 * mark only that item as `read`
+							 */
+							return { ...n, isRead: true };
+						} else {
+							/***
+							 * notification not related to the clicked item,
+							 * just let them be.
+							 */
+							return n;
+						}
+					});
+
+					setUnreadCount(updatedList.filter((n) => !n.isRead).length);
+					return updatedList;
+				});
+			}
+		} catch (error) {
+			toast.error("নটিফিকেশন কন্ট্রোলারে সমস্যা হয়েছে!");
 		}
 	};
 
@@ -83,48 +143,27 @@ const NotificationDropdown = () => {
 			{isOpen && (
 				<div
 					ref={notificationWindowRef}
-					className="NOTIFICATIONWINDOW absolute z-60 right-0 top-12 w-64 bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden"
+					className="NOTIFICATIONWINDOW h-[500px] overflow-y-auto absolute z-60 right-0 top-12 w-64 bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden"
 				>
 					{notifications.map((notification) => (
 						<div
 							key={notification._id}
-							onClick={() => {
-								markAsRead(notification._id);
+							onClick={(e) => {
+								e.stopPropagation();
+								markAsRead(notification);
 								setIsOpen(false);
-								// navigate(notification.link);
 							}}
-							className={`p-2 border-b-2 border-gray-400 cursor-pointer 
-                                ${notification.type === "order" ? "bg-blue-100 dark:bg-blue-900" : "bg-green-100 dark:bg-green-900"}
-								`}
+							className="p-3 border-b-2 border-gray-400 cursor-pointer bg-green-100 dark:bg-green-900"
 						>
 							{notification.type === "order" ? (
-								<>
-									<Link
-										to={`${notification.link}`}
-										target="_blank"
-										className="grid grid-cols-[4fr_1fr]"
-									>
-										<p
-											className={`text-xs md:text-sm break-words`}
-										>
-											{" "}
-											{!notification.isRead && "🔵"}{" "}
-											{notification.message}
-										</p>
-
-										<p
-											className={`text-[10px] flex items-center justify-end`}
-										>
-											{
-												formatOrderTime(
-													notification.createdAt,
-												).displayTime
-											}
-										</p>
-									</Link>
-								</>
-							) : (
-								<>
+								/***
+								 * Order notification
+								 */
+								<Link
+									to={`${notification.link}`}
+									target="_blank"
+									className="grid grid-cols-[8fr_1fr]"
+								>
 									<p
 										className={`text-xs md:text-sm break-words`}
 									>
@@ -140,19 +179,69 @@ const NotificationDropdown = () => {
 											).displayTime
 										}
 									</p>
-								</>
+								</Link>
+							) : /***
+							Chat notification 
+							*/
+							isAdmin ? (
+								/***
+								 * chat notification for admin.
+								 * Upon click, admin jumps into the specific chat room.
+								 */
+								<Link
+									to={`${notification.link}`}
+									className="grid grid-cols-[8fr_1fr]"
+								>
+									<p
+										className={`text-xs md:text-sm break-words`}
+									>
+										{" "}
+										{!notification.isRead && "🔵"}{" "}
+										{notification.message}
+									</p>
+
+									<p className={`text-[8px]`}>
+										{
+											formatOrderTime(
+												notification.createdAt,
+											).displayTime
+										}
+									</p>
+								</Link>
+							) : (
+								/***
+								 * chat notification for non-admin.
+								 * Upon clicking, opens the floating chat window
+								 */
+								<p
+									className="grid grid-cols-[8fr_1fr]"
+									onClick={(e) => {
+										e.stopPropagation();
+										setIsChatBoxOpen(true);
+										markAsRead(notification);
+									}}
+								>
+									<p
+										className={`text-xs md:text-sm break-words`}
+									>
+										{" "}
+										{!notification.isRead && "🔵"}{" "}
+										{notification.message}
+									</p>
+
+									<p className={`text-[8px]`}>
+										{
+											formatOrderTime(
+												notification.createdAt,
+											).displayTime
+										}
+									</p>
+								</p>
 							)}
 						</div>
 					))}
 				</div>
 			)}
-			{/* order status change er notification non-admin user er kacche thikmoto jacche.
-            But chat er notification gula dekhte hobe
-
-            Order Fetch Error: Cast to ObjectId failed for value "undefined" 
-            (type string) at path "_id"for model "Order"
-            
-            error dekhacche  */}
 		</div>
 	);
 };
