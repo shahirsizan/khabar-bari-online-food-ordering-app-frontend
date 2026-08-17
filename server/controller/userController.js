@@ -36,28 +36,54 @@ export const getUser = async (req, res) => {
 	}
 };
 
-export const updateUser = async (req, res) => {
-	if (req.user?.role !== "admin") {
-		return res.status(403).json({ message: "You are not admin." });
-	}
-
-	const { id } = req.params;
-	const updateData = req.body;
-
+export const updateProfile = async (req, res) => {
 	try {
-		const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-			new: true,
-			runValidators: true,
-		}).select("-password");
+		if (
+			req.user.role !== "admin" &&
+			req.user._id.toString() !== req.body.originalObject._id.toString()
+		) {
+			return res.status(403).json({ message: "Access denied" });
+		}
 
-		if (!updatedUser) {
+		const { originalObject, userName, phone, streetAddress, city, role } =
+			req.body;
+
+		// 2. Extract user info populated by your isAuth middleware
+		const { _id, email } = originalObject;
+
+		/***
+		 * If I only need to read the data and do not need to modify a Mongoose document AFTER fetching it,
+		 * use the .lean() option DIRECTLY in the query instead of calling .toObject() AFTERWARD.
+		 * It prevents Mongoose from ever creating the heavy document instance in the first place,
+		 * making queries up to 4x faster.
+		 */
+		const userDoc = await User.findOneAndUpdate(
+			{ email: req.user.role === "admin" ? email : req.user.email },
+			{
+				name: userName,
+				phone: phone,
+				streetAddress: streetAddress,
+				city: city,
+				role: req.user.role === "admin" ? role : req.user.role,
+			},
+			{ new: true }, // Returns the modified document
+		).lean();
+
+		if (!userDoc) {
 			return res.status(404).json({ message: "User not found" });
 		}
 
-		res.status(200).json(updatedUser);
+		delete userDoc.password;
+
+		return res.status(200).json({
+			message: "প্রোফাইল আপডেট প্রক্রিয়া সফল হয়েছে।",
+			user: userDoc,
+		});
 	} catch (error) {
-		console.error("Error in updateUser: ", error.message);
-		res.status(500).json({ message: error.message });
+		console.error("profileController -> updateProfile():", error.message);
+		return res.status(500).json({
+			message: "প্রোফাইল আপডেট প্রক্রিয়া ব্যর্থ হয়েছে।",
+		});
 	}
 };
 
