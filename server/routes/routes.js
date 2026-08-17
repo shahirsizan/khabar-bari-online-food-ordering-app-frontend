@@ -32,6 +32,7 @@ import {
 import {
 	getNotifications,
 	markNotificationAsRead,
+	markSeveralChatNotificationsAsRead,
 } from "../controller/notificationController.js";
 import {
 	getChatRooms,
@@ -98,7 +99,16 @@ router.get("/chat/:roomId", isAuth, getRoomMessages);
 router.get("/chatName/:roomId", isAuth, getRoomName);
 
 // Notification routes
+/***
+ * In Express, static routes must always be declared before dynamic parameter routes (/:id).
+ * Otherwise, Express captures 'read-by-link' as the :id parameter.
+ */
 router.get("/notifications", isAuth, getNotifications);
+router.put(
+	"/notifications/read-by-link",
+	isAuth,
+	markSeveralChatNotificationsAsRead,
+);
 router.put("/notifications/:id", isAuth, markNotificationAsRead);
 
 // sslcommerz routes
