@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import SuccessPage from "./pages/SuccessPage.jsx";
@@ -28,8 +28,6 @@ import { ResetPasswordAfterLink } from "./pages/ResetPasswordAfterLink.jsx";
 import ChangePassword from "./pages/ChangePassword.jsx";
 
 const App = () => {
-	const navigate = useNavigate();
-
 	// smooth intro
 	useEffect(() => {
 		AOS.init({
@@ -42,7 +40,7 @@ const App = () => {
 	}, []);
 
 	return (
-		<div className=" ">
+		<div className="APPCOMPONENT">
 			<Routes>
 				{/* Guest Only Routes */}
 				<Route element={<GuestRoute />}>
@@ -68,7 +66,10 @@ const App = () => {
 							/>
 							<Route path="users" element={<UsersPage />} />
 							<Route path="orders" element={<OrdersPage />} />
-							<Route path="chats" element={<AdminChatPanel />} />
+							<Route
+								path="chats/:roomId?"
+								element={<AdminChatPanel />}
+							/>
 						</Route>
 
 						<Route
