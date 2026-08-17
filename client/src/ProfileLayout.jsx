@@ -38,7 +38,7 @@ const ProfileLayout = () => {
 									*/
 							end={tab.path === "/profile" ? true : false} // Prevents partial matches on sub-routes
 							className={({ isActive }) =>
-								`px-4 py-2 text-sm md:text-base font-medium rounded-lg transition-all duration-200 ease-out select-none whitespace-nowrap
+								`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ease-out select-none whitespace-nowrap
 								${
 									isActive
 										? "bg-white text-red-700 shadow-sm border border-gray-200/30"

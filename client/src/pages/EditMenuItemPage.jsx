@@ -35,7 +35,7 @@ const EditMenuItemPage = () => {
 				if (response.ok) {
 					const res = await response.json();
 					setMenuItem(res);
-					console.log("res: ", res);
+					// console.log("res: ", res);
 				} else {
 					throw new Error("Error in fetchAllItems");
 				}

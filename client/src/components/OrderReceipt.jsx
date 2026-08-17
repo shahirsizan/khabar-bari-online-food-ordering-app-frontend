@@ -1,29 +1,30 @@
 import React from "react";
 import Logo from "../assets/food-logo.png";
+import { toBanglaNumber } from "../utils/toBanglaNumber";
 
 const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 	// config object for dynamic visual features based on order status
 	const statusConfig = {
 		pending: {
-			text: "অপেক্ষমান (Pending)",
+			text: "অপেক্ষমান",
 			bg: "bg-yellow-100",
 			textClass: "text-yellow-800",
 			dot: "bg-yellow-500",
 		},
 		preparing: {
-			text: "প্রক্রিয়াধীন (Preparing)",
+			text: "প্রক্রিয়াধীন",
 			bg: "bg-blue-100",
 			textClass: "text-blue-800",
 			dot: "bg-blue-500",
 		},
 		dispatched: {
-			text: "পাঠানো হয়েছে (Dispatched)",
+			text: "পাঠানো হয়েছে",
 			bg: "bg-indigo-100",
 			textClass: "text-indigo-800",
 			dot: "bg-indigo-500",
 		},
 		delivered: {
-			text: "ডেলিভারি সম্পন্ন (Delivered)",
+			text: "ডেলিভারি সম্পন্ন",
 			bg: "bg-green-100",
 			textClass: "text-green-800",
 			dot: "bg-green-500",
@@ -31,15 +32,6 @@ const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 	};
 
 	const currentStatus = statusConfig[orderDetail?.status?.toLowerCase()];
-
-	const toBanglaNumber = (num) => {
-		const b = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-		return num
-			.toString()
-			.split("")
-			.map((d) => b[d])
-			.join("");
-	};
 
 	return (
 		<div
@@ -49,17 +41,15 @@ const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 			<div className="flex gap-2 items-center justify-center mb-10">
 				<img
 					src={Logo}
-					className="w-12 drop-shadow-[1px_1px_1px_black]"
+					className="w-10 md:w-12 drop-shadow-[1px_1px_1px_black]"
 				/>
 
-				<span className="text-3xl rounded-lg font-semibold drop-shadow-[1px_1px_1px_black]">
+				<span className="text-xl md:text-3xl rounded-lg font-semibold drop-shadow-[1px_1px_1px_black]">
 					খাবারবাড়ি
 				</span>
 			</div>
 
 			<div className="text-center mb-6">
-				<div className="text-2xl md:text-3xl mb-4">✅</div>
-
 				<h1 className="text-xl md:text-3xl font-bold text-gray-800">
 					অর্ডারের বিস্তারিত
 				</h1>
@@ -68,15 +58,16 @@ const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 			<div
 				className={`mb-6 flex items-center justify-between p-4 rounded-xl ${currentStatus.bg}`}
 			>
-				<span className="text-sm font-semibold text-gray-600">
+				<span className="text-xs md:text-sm font-semibold text-gray-600">
 					অর্ডারের অবস্থা:
 				</span>
+
 				<div className="flex items-center gap-2">
 					<span
-						className={`h-2.5 w-2.5 rounded-full animate-pulse ${currentStatus.dot}`}
+						className={`h-2.5 w-2.5 rounded-full ${currentStatus.dot}`}
 					></span>
 					<span
-						className={`text-sm md:text-base font-bold ${currentStatus.textClass}`}
+						className={`text-xs md:text-sm font-bold ${currentStatus.textClass}`}
 					>
 						{currentStatus.text}
 					</span>
@@ -104,36 +95,44 @@ const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 
 				<div className="flex justify-between">
 					<div>
-						<p className="text-sm text-gray-600">নাম</p>
+						<p className="text-xs md:text-sm text-gray-600">নাম</p>
 
-						<p className="font-semibold">{orderDetail.userName}</p>
+						<p className="text-xs md:text-sm font-semibold">
+							{orderDetail.userName}
+						</p>
 					</div>
 
 					<div className="text-right">
-						<p className="text-sm text-gray-600">টাকার পরিমাণ</p>
+						<p className="text-xs md:text-sm text-gray-600">
+							টাকার পরিমাণ
+						</p>
 
-						<p className="font-semibold text-green-600 text-lg">
+						<p className="text-xs md:text-sm font-semibold text-green-700">
 							{toBanglaNumber(orderDetail.totalAmount)} ৳
 						</p>
 					</div>
 				</div>
 
 				<div>
-					<p className="text-sm text-gray-600">ডেলিভারি এড্রেস</p>
+					<p className="text-xs md:text-sm text-gray-600">
+						ডেলিভারি এড্রেস
+					</p>
 
-					<p className="font-semibold">
+					<p className="text-xs md:text-sm font-semibold">
 						{orderDetail.streetAddress}, {orderDetail.city}
 					</p>
 				</div>
 
 				<div>
-					<p className="text-sm text-gray-600">যোগাযোগ</p>
+					<p className="text-xs md:text-sm text-gray-600">যোগাযোগ</p>
 
-					<p className="font-semibold">{orderDetail.phone}</p>
+					<p className="text-xs md:text-sm font-semibold">
+						{orderDetail.phone}
+					</p>
 				</div>
 
 				<div className="mt-6">
-					<h3 className="text-sm text-gray-600 mb-2">
+					<h3 className="text-xs md:text-sm text-gray-600 mb-2">
 						খাবারের তালিকা
 					</h3>
 
@@ -141,11 +140,11 @@ const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
 						{orderDetail?.cartProducts?.map((item, index) => (
 							<li
 								key={index}
-								className="flex justify-between border-b last:border-0 pb-1 font-semibold max-md:text-xs"
+								className="flex justify-between border-b last:border-0 pb-1 font-semibold text-xs md:text-sm"
 							>
 								<span>
 									{item.name}
-									<span className="text-xs">
+									<span className="">
 										{" "}
 										x {toBanglaNumber(item.quantity)}
 									</span>

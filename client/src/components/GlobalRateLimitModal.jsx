@@ -33,7 +33,7 @@ export const GlobalRateLimitModal = () => {
 					return 0;
 				}
 
-				console.log(prev);
+				// console.log(prev);
 				return prev - 1;
 			});
 		}, 1000);

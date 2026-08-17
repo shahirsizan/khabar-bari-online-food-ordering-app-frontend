@@ -135,7 +135,7 @@ export const forgotPassword = async (req, res) => {
 export const resetPasswordWithToken = async (req, res) => {
 	try {
 		const hashedResetToken = req.body.resetToken;
-		console.log("hashedResetToken: ", hashedResetToken);
+		// console.log("hashedResetToken: ", hashedResetToken);
 
 		const redisKey = `password_reset_token:${hashedResetToken}`;
 		// 1. Fetch user email from Redis

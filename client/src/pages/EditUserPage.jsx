@@ -40,8 +40,8 @@ const EditUserPage = () => {
 
 				if (response.ok) {
 					const data = await response.json();
-					console.log("`user` : ", user);
-					console.log("`otherUser` : ", data);
+					// console.log("`user` : ", user);
+					// console.log("`otherUser` : ", data);
 					setOtherUser(data);
 
 					if (data.email === user.email) {

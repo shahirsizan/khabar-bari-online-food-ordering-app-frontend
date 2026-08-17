@@ -8,8 +8,6 @@ export default function PasswordResetModal({ isModalOpen, onClose }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [message, setMessage] = useState({ type: "", text: "" });
 
-	console.log("in password reset 0");
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (!email || !email.trim()) {
@@ -19,10 +17,7 @@ export default function PasswordResetModal({ isModalOpen, onClose }) {
 		setIsLoading(true);
 		setMessage({ type: "", text: "" });
 
-		console.log("in password reset 1");
-
 		try {
-			console.log("in password reset 2");
 			const response = await apiFetch(
 				`${backend_base_url}/api/forgot-password`,
 				{
@@ -33,7 +28,6 @@ export default function PasswordResetModal({ isModalOpen, onClose }) {
 					body: JSON.stringify({ email }),
 				},
 			);
-			console.log("in password reset 3");
 
 			const data = await response.json();
 			if (!response.ok) {
