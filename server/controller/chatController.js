@@ -57,10 +57,30 @@ export const getChatRooms = async (req, res) => {
 
 export const getRoomMessages = async (req, res) => {
 	try {
-		const messages = await Message.find({ roomId: req.params.roomId }).sort(
-			{ createdAt: 1 },
-		);
-		res.status(200).json(messages);
+		const { roomId } = req.params;
+		// console.log("roomId: ", roomId);
+
+		const messages = await Message.find({
+			roomId: roomId,
+		}).sort({ createdAt: 1 });
+		res.status(200).json({
+			roomId: roomId,
+			messages: messages,
+		});
+	} catch (error) {
+		console.error("error in getRoomMessages: ", error.message);
+		res.status(500).json({ error: error.message });
+	}
+};
+
+export const getRoomName = async (req, res) => {
+	try {
+		const message = await Message.findOne({
+			roomId: req.params.roomId,
+		}).lean();
+		// console.log("room name: ", message.roomName);
+
+		res.status(200).json(message.roomName);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
