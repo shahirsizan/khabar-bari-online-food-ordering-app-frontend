@@ -6,7 +6,7 @@ const ProtectedLayout = () => {
 
 	// If not authenticated, redirect to login
 	return isInitializing ? (
-		<div className="h-screen flex items-center justify-center text-4xl bg-yellow-500 text-black">
+		<div className="h-screen flex items-center justify-center text-4xl bg-yellow-500 text-black font-atma">
 			Loading...
 		</div>
 	) : isAuthenticated ? (

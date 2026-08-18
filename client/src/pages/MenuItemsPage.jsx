@@ -53,8 +53,11 @@ const MenuItemsPage = () => {
 	return (
 		<>
 			{isLoading ? (
-				<div className="h-screen flex items-center justify-center text-3xl">
-					Loading...
+				<div className="h-screen flex items-center justify-center bg-gray-50 gap-2 font-atma">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-4 border-green-600 mb-4"></div>
+					<p className="text-md md:text-xl font-semibold text-gray-600">
+						Loading Menu Items...
+					</p>
 				</div>
 			) : (
 				<section className="mt-10 mb-10 max-w-2xl mx-auto font-atma">

@@ -12,7 +12,7 @@ const GuestRoute = ({ children }) => {
 
 	// If authenticated, redirect to home
 	return isInitializing ? (
-		<div className="h-screen flex items-center justify-center bg-yellow-500 text-black">
+		<div className="h-screen flex items-center justify-center bg-yellow-500 text-black font-atma">
 			Loading...
 		</div>
 	) : !isAuthenticated ? (

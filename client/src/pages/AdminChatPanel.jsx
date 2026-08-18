@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 export const AdminChatPanel = () => {
 	const navigate = useNavigate();
 	const { roomId } = useParams();
+	const [isLoading, setIsLoading] = useState(true);
 	const [chatRooms, setChatRooms] = useState([]);
 	const [selectedRoomId, setSelectedRoomId] = useState(null);
 	const [selectedRoomName, setSelectedRoomName] = useState(null);
@@ -38,6 +39,8 @@ export const AdminChatPanel = () => {
 				}
 			} catch (err) {
 				console.error("Failed to fetch chat rooms: ", err.message);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -91,6 +94,14 @@ export const AdminChatPanel = () => {
 		return (
 			<div className="h-[300px] flex items-center justify-center text-sm md:text-xl font-bold font-atma">
 				You are not authorized to view this page.
+			</div>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<div className="h-screen flex items-center justify-center text-3xl font-atma">
+				Loading...
 			</div>
 		);
 	}
