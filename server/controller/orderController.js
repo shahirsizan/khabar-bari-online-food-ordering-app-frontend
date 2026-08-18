@@ -6,31 +6,49 @@ import { getIO } from "../utils/io.js";
 export const getOrders = async (req, res) => {
 	try {
 		const { email, role } = req.user;
-		// Get query params: page, limit, search (for email/orderID), status.
+		/***
+		 * Get query params: page, limit, search (for email/orderID), status.
+		 */
 		const { page = 1, limit = 10, search, status } = req.query;
 
-		// Build query object.
+		/***
+		 *  Build query object.
+		 */
 		let queryObj = {};
 		/***
-		 * ℹ⚠️ caution:
+		 * ⚠️Caution:
 		 * While developing `queryObj`, make sure the properties of it
 		 * are similar to the actual field names of orderModel.
 		 */
 		if (role !== "admin") {
-			// non-admin user gets only the orders containing their email.
+			/***
+			 * Non-admin users email is automatically embedded into queryObj.
+			 * So no matter what they search in the searchbar,
+			 * only the orders that contain their email as `userEmail` will be shown.
+			 * For admin, since there will be no embedded `userEmail` in the query,
+			 * his search will cover orders from all emails.
+			 */
 			queryObj.userEmail = email;
-		} else if (search) {
-			// Admins can search by email or order ID
+		}
+
+		if (search) {
+			/***
+			 * Admins can search by email or order ID
+			 */
 			let searchConditions = [];
 
-			// If `search` looks like a valid Mongoose ObjectId
-			// we will check for order id.
+			/***
+			 * If `search` contains ID,
+			 */
 			if (mongoose.Types.ObjectId.isValid(search)) {
 				searchConditions.push({
 					_id: new mongoose.Types.ObjectId(search),
 				});
 			}
 
+			/***
+			 * if search contains other text ( email)
+			 */
 			searchConditions.push({
 				userEmail: { $regex: search, $options: "i" },
 			});
@@ -38,10 +56,16 @@ export const getOrders = async (req, res) => {
 			queryObj.$or = searchConditions;
 		}
 
+		/***
+		 * Apply status filter
+		 */
 		if (status && status !== "All") {
 			queryObj.status = status;
 		}
-		// ex: To fetch page 4, skip (4-1)*limit amount of records.
+
+		/***
+		 * ex: To fetch page 4, skip (4-1)*limit amount of records.
+		 */
 		const skip = (parseInt(page) - 1) * parseInt(limit);
 
 		const orders = await Order.find(queryObj)
