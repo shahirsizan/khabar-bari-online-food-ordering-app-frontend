@@ -1,4 +1,4 @@
-import { mode, frontend_base_url } from "./workMode.js";
+import { mode } from "./workMode.js";
 import express from "express";
 import mongoose, { Mongoose } from "mongoose";
 import bodyParser from "body-parser";
@@ -14,9 +14,20 @@ import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
 
-const allowedOrigins = [frontend_base_url, "https://tokenized.sandbox.bka.sh"];
+const allowedOrigins = [
+	"http://localhost:5173",
+	"https://khabar-bari-frontend.vercel.app",
+	"https://tokenized.sandbox.bka.sh",
+];
 
 const app = express();
+app.use(
+	cors({
+		origin: allowedOrigins,
+		credentials: true,
+		// allowedHeaders: ["Content-Type", "token", "Authorization"],
+	}),
+);
 const port = process.env.PORT || 5000;
 const httpServer = createServer(app);
 app.use(express.json());
