@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useState } from "react";
+import holdUpImage from "../assets/holdup.png";
 
 export const GlobalRateLimitModal = () => {
 	const [visible, setVisible] = useState(false);
@@ -50,9 +51,17 @@ export const GlobalRateLimitModal = () => {
 
 	return (
 		<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-			<div className="bg-white p-10 rounded-xl text-center">
-				<h2 className="text-2xl font-bold">Too Many Requests!</h2>
-				<p className="mt-4">Please wait {seconds} seconds.</p>
+			<div className="bg-white p-10 rounded-xl text-center flex flex-col items-center">
+				{/* Use the imported variable as the src */}
+				<img
+					src={holdUpImage}
+					alt="Hold up meme"
+					className="w-48 h-auto mb-4 rounded-md shadow-sm"
+				/>
+				<h2 className="text-2xl font-bold text-red-600">ধীরে চলুন!</h2>
+				<p className="mt-4 font-medium">
+					{seconds} সেকেন্ড অপেক্ষা করুন।
+				</p>
 			</div>
 		</div>
 	);

@@ -16,12 +16,12 @@ const slidingWindowLimiter = (windowSizeMs, maxRequests) => {
 		console.log("timestamps.length: ", timestamps.length);
 
 		// 3. Check if limit is exceeded
-		// if (timestamps.length >= maxRequests) {
-		// 	return res.status(429).json({
-		// 		message: "Too many requests.",
-		// 		retryAfter: 5, // seconds
-		// 	});
-		// }
+		if (timestamps.length >= maxRequests) {
+			return res.status(429).json({
+				message: "Too many requests.",
+				retryAfter: 5, // seconds
+			});
+		}
 
 		// 4. Add current request timestamp and delegate to next()
 		timestamps.push(currentTime);
