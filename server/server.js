@@ -17,15 +17,9 @@ import { db } from "./utils/db.js";
 const app = express();
 const port = process.env.PORT || 5000;
 const httpServer = createServer(app);
-
 app.use(express.json());
-app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-const allowedOrigins = [
-	"http://localhost:5173",
-	"https://khabar-bari-frontend.vercel.app",
-	"https://tokenized.sandbox.bka.sh",
-];
+const allowedOrigins = [frontend_base_url, "https://tokenized.sandbox.bka.sh"];
 app.use(
 	cors({
 		origin: allowedOrigins,
@@ -35,7 +29,7 @@ app.use(
 );
 
 // Initializing Socket.io once here
-const io = initIO(httpServer, frontend_base_url);
+const io = initIO(httpServer, allowedOrigins);
 
 /***
  * SocketIO controllers

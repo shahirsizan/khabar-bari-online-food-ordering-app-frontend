@@ -7,7 +7,7 @@ import { Order } from "../model/orderModel.js";
 import { User } from "../model/userModel.js";
 import { Notification } from "../model/NotificationModel.js";
 import sendEmail from "../utils/sendEmail.js";
-import { frontend_base_url } from "../workMode.js";
+import { backend_base_url, frontend_base_url, mode } from "../workMode.js";
 
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
@@ -46,10 +46,10 @@ export const sslPaymentInitialize = async (req, res) => {
 		cus_postcode: "1000",
 		cus_country: "Bangladesh",
 		shipping_method: "NO",
-		success_url: `${process.env.IPN_URL}/api/payment/success/${tran_id}`,
-		fail_url: `${process.env.IPN_URL}/api/payment/fail/${tran_id}`,
-		cancel_url: `${process.env.IPN_URL}/api/payment/cancel/${tran_id}`,
-		ipn_url: `${process.env.IPN_URL}/api/payment/ipn`,
+		success_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/success/${tran_id}`,
+		fail_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/fail/${tran_id}`,
+		cancel_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/cancel/${tran_id}`,
+		ipn_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/ipn`,
 		multi_card_name: "bkash",
 	};
 	//

@@ -2,10 +2,10 @@ import { Server } from "socket.io";
 
 let ioInstance = null;
 
-export const initIO = (httpServer, frontendUrl) => {
+export const initIO = (httpServer, allowedOrigins) => {
 	ioInstance = new Server(httpServer, {
 		cors: {
-			origin: frontendUrl,
+			origin: allowedOrigins,
 			methods: ["GET", "POST"],
 		},
 	});
