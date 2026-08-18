@@ -14,12 +14,13 @@ import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
 
+const allowedOrigins = [frontend_base_url, "https://tokenized.sandbox.bka.sh"];
+
 const app = express();
 const port = process.env.PORT || 5000;
 const httpServer = createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const allowedOrigins = [frontend_base_url, "https://tokenized.sandbox.bka.sh"];
 app.use(
 	cors({
 		origin: allowedOrigins,
