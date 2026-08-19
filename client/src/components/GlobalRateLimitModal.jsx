@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import holdUpImage from "../assets/holdup.png";
+import SlowDownSign from "../assets/Slow-Down-Sign.png";
 
 export const GlobalRateLimitModal = () => {
 	const [visible, setVisible] = useState(false);
 	const [seconds, setSeconds] = useState(5);
 
-	// 1️⃣ Listener setup (Runs once at mount)
+	/***
+	 * 1️⃣ Attach event listener on mount
+	 */
 	useEffect(() => {
 		const handleLimit = (e) => {
 			setSeconds(e.detail.retryAfter);
@@ -19,12 +22,13 @@ export const GlobalRateLimitModal = () => {
 			window.removeEventListener("rate-limit-triggered", handleLimit);
 	}, []);
 
-	// 2️⃣ Countdown (Runs only when visibility changes)
+	/***
+	 * 2️⃣ Countdown (Runs only when visibility changes)
+	 */
 	useEffect(() => {
 		if (!visible) {
 			return;
 		}
-		// console.log("hi from RateLimit useEffect!");
 
 		const timer = setInterval(() => {
 			setSeconds((prev) => {
@@ -34,7 +38,6 @@ export const GlobalRateLimitModal = () => {
 					return 0;
 				}
 
-				// console.log(prev);
 				return prev - 1;
 			});
 		}, 1000);
@@ -42,26 +45,28 @@ export const GlobalRateLimitModal = () => {
 		return () => clearInterval(timer);
 	}, [visible]); // Only runs when seconds or visibility changes
 
-	//ℹ️ℹ️ Works. But ei puro component  ta gemini ke diye explain korate hobe.
-	// How does it mount, when the useEffetcs get called, how the intervals work etc
-
 	if (!visible) {
 		return null;
 	}
 
 	return (
-		<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-			<div className="bg-white p-10 rounded-xl text-center flex flex-col items-center">
-				{/* Use the imported variable as the src */}
-				<img
-					src={holdUpImage}
-					alt="Hold up meme"
-					className="w-48 h-auto mb-4 rounded-md shadow-sm"
-				/>
-				<h2 className="text-2xl font-bold text-red-600">ধীরে চলুন!</h2>
-				<p className="mt-4 font-medium">
-					{seconds} সেকেন্ড অপেক্ষা করুন।
-				</p>
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+			<div
+				className="relative w-full max-w-md p-10 rounded-xl text-center flex flex-col items-center justify-center overflow-hidden h-72 shadow-2xl bg-cover bg-center"
+				style={{ backgroundImage: `url(${SlowDownSign})` }}
+			>
+				{/* Backdrop tint layer to make text readable */}
+				<div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+
+				{/* Content Layer forced above the backdrop wrapper */}
+				<div className="relative z-10 text-white">
+					<h2 className="text-3xl font-extrabold text-red-400 drop-shadow-md">
+						ধীরে চলুন!
+					</h2>
+					<p className="mt-4 text-lg font-semibold drop-shadow">
+						{seconds} সেকেন্ড অপেক্ষা করুন।
+					</p>
+				</div>
 			</div>
 		</div>
 	);

@@ -16,7 +16,7 @@ export const apiFetch = async (url, options = {}) => {
 		);
 
 		// Throw an error to stop the original component from processing
-		// throw new Error("Rate limit exceeded");
+		throw new Error("Rate limit exceeded");
 	}
 
 	// 3. If not 429, return the response normally

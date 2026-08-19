@@ -93,9 +93,9 @@ const App = () => {
 				</Route>
 			</Routes>
 
-			{/* The modal needs to be placed where it can sit "on top" of your entire application.
-			The Event Signal: When apiFetch detects a 429, it broadcasts a message through the window object.
-			The Listener: Your GlobalRateLimitModal is "listening" to the window at all times. */}
+			{/* This modal needs to be placed where it can sit "on top" of our application.
+			The Event Signal: When `apiFetch` detects a 429, it broadcasts a message through the window object.
+			The Listener: Below modal is "listening" to the window at all times. */}
 			<GlobalRateLimitModal />
 		</div>
 	);
