@@ -233,7 +233,7 @@ io.on("connection", (socket) => {
 	});
 });
 
-app.use(slidingWindowLimiter(15000, 15));
+app.use(slidingWindowLimiter(10000, 25));
 app.use("/api", router);
 app.use("/", (req, res) => {
 	res.send("cron hit");

@@ -100,6 +100,12 @@ export const UserProvider = ({ children }) => {
 					}
 				}
 			} catch (error) {
+				if (error.message === "429") {
+					/***
+					 * Rate limiting error. No need to logout, just make them wait.
+					 */
+					return;
+				}
 				localStorage.clear();
 				setUser(null);
 				setIsAuthenticated(false);

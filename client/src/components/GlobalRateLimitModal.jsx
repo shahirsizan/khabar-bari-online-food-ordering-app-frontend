@@ -50,21 +50,16 @@ export const GlobalRateLimitModal = () => {
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-			<div
-				className="relative w-full max-w-md p-10 rounded-xl text-center flex flex-col items-center justify-center overflow-hidden h-72 shadow-2xl bg-cover bg-center"
-				style={{ backgroundImage: `url(${SlowDownSign})` }}
-			>
-				{/* Backdrop tint layer to make text readable */}
-				<div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
-
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 font-atma">
+			<div className="relative w-full h-full p-10 text-center flex flex-col items-center justify-center overflow-hidden shadow-2xl bg-cover bg-center">
 				{/* Content Layer forced above the backdrop wrapper */}
 				<div className="relative z-10 text-white">
-					<h2 className="text-3xl font-extrabold text-red-400 drop-shadow-md">
-						ধীরে চলুন!
+					<h2 className="text-lg md:text-6xl font-extrabold text-red-500 drop-shadow-md">
+						ধীরে চলুন
 					</h2>
-					<p className="mt-4 text-lg font-semibold drop-shadow">
-						{seconds} সেকেন্ড অপেক্ষা করুন।
+
+					<p className="mt-4 text-lg md:text-6xl font-semibold drop-shadow">
+						{seconds}
 					</p>
 				</div>
 			</div>
