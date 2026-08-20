@@ -4,7 +4,7 @@ import BiryaniImg3 from "../../assets/biryani2.png";
 import biryaniherocompressed from "../../assets/biryaniherocompressed.png";
 import heroimage from "../../assets/heroimage.jpg";
 
-const Hero2 = () => {
+const Hero = () => {
 	const bgImage = {
 		backgroundImage: `url(${heroimage})`,
 		backgroundPosition: "center",
@@ -76,4 +76,4 @@ const Hero2 = () => {
 	);
 };
 
-export default Hero2;
+export default Hero;
