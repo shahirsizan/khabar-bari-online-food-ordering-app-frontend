@@ -1,4 +1,4 @@
-const mode = "dev"; // prod or dev
+const mode = "prod"; // prod or dev
 var frontend_base_url;
 var backend_base_url;
 if (mode === "dev") {

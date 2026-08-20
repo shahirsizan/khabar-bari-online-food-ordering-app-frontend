@@ -95,18 +95,18 @@ const RecipeList = () => {
 
 	return (
 		<section
-			className="recipeList scroll-mt-32 font-atma py-8 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]"
+			className="recipeList scroll-mt-32 font-atma py-8 lg:py-10 px-[5vw] md:px-[8vw] lg:px-[10vw]"
 			id="recipeList"
 		>
 			{/* header text */}
-			<div className="text-center mb-14 mx-auto">
+			<div className="text-center mb-7 md:mb-14 mx-auto">
 				<p className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]">
 					আমাদের রেসিপিসমূহ{" "}
 				</p>
 			</div>
 
 			{/* CARDS */}
-			<div className="grid grid-cols-fluid-grid gap-3 xl:gap-4">
+			<div className="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] justify-center mx-auto gap-2 xl:gap-3">
 				{menuItems.map((item, index) => {
 					const quantity = getQuantity(item.id);
 					const toBanglaNumber = (number) => {
@@ -149,19 +149,19 @@ const RecipeList = () => {
 						<div
 							key={index}
 							// nicher dark/bright class gula rakhte hobe. Do not remove
-							className="flex flex-col font-atma bg-gradient-to-r from-primary to-secondary text-white p-2 xl:p-4 rounded-2xl shadow-xl group hover:scale-105 transition-all duration-700"
+							className="flex flex-col font-atma bg-gradient-to-r from-primary to-secondary text-white p-2 md:p-3 rounded-3xl shadow-xl group transition-all duration-200"
 						>
 							{/* IMAGE CONTAINER */}
-							<div className="w-full h-32 md:h-40 overflow-hidden flex justify-center items-center rounded-2xl shadow-lg">
+							<div className="w-full h-24 md:h-28 overflow-hidden flex justify-center items-center rounded-3xl">
 								<img
 									src={item.image}
-									className="object-cover group-hover:scale-110 transition-all duration-1000"
+									className="object-cover group-hover:scale-110 transition-all duration-500"
 								/>
 							</div>
 
 							{/* name & desc */}
 							<div className="py-2 xl:py-3">
-								<p className="font-bold text-lg lg:text-2xl text-center drop-shadow-[2px_1px_2px_black]">
+								<p className="font-bold text-sm lg:text-lg text-center drop-shadow-[1px_1px_1px_black]">
 									{item.name}
 								</p>
 							</div>
@@ -169,20 +169,20 @@ const RecipeList = () => {
 							<div className="flex-grow"></div>
 
 							{/* price and counts */}
-							<div className="">
+							<div className="w-full">
 								{/* price */}
 								<div>
-									<p className="font-semibold text-md lg:text-3xl text-center drop-shadow-[2px_1px_2px_black]">
+									<p className="font-semibold text-sm lg:text-lg text-center drop-shadow-[1px_1px_1px_black]">
 										৳ {toBanglaNumber(item.price)}
 									</p>
 								</div>
 
-								<div>
+								<div className="mt-3 md:mt-4 h-5 md:h-8 w-full flex items-center justify-center ">
 									{quantity > 0 ? (
-										<div className="WHEN-SELECTED mt-5 md:mt-10 flex items-center gap-2 justify-center">
+										<div className="WHEN-SELECTED flex items-center gap-2 justify-center h-full w-full">
 											{/* Minus button */}
 											<button
-												className="border-none"
+												className="border-none flex items-center justify-center"
 												onClick={() => {
 													quantity > 1
 														? updateQuantity(
@@ -206,13 +206,13 @@ const RecipeList = () => {
 											</button>
 
 											{/* quantity */}
-											<span className="w-8 text-center font-semibold text-2xl drop-shadow-[2px_1px_2px_black]">
+											<span className="w-8 text-center font-semibold text-sm md:text-lg drop-shadow-[1px_1px_1px_black]">
 												{toBanglaNumber(quantity)}
 											</span>
 
 											{/* Plus button */}
 											<button
-												className="border-none"
+												className="border-none flex items-center justify-center"
 												onClick={() => {
 													updateQuantity(
 														item.id,
@@ -232,7 +232,7 @@ const RecipeList = () => {
 											</button>
 										</div>
 									) : (
-										<div className="WHEN-NOT-SELECTED mt-5 md:mt-10 flex justify-center gap-2">
+										<div className="WHEN-NOT-SELECTED flex items-center justify-center h-full w-full">
 											<button
 												onClick={() => {
 													addToCart(item, 1);
@@ -241,9 +241,9 @@ const RecipeList = () => {
 													// 		dispatch({ type: "ADD_ITEM", payload: { item, quantity } });
 													// 	}, []);
 												}}
-												className="py-1 px-2 rounded-full bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]"
+												className="border-none py-1 px-2 w-2/3 rounded-lg bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]"
 											>
-												<span className=" text-sm md:text-md xl:text-lg text-center">
+												<span className="text-xs md:text-sm text-center">
 													অর্ডার করুন
 												</span>
 											</button>

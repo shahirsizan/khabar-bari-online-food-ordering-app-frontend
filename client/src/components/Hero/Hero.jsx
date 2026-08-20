@@ -23,7 +23,7 @@ const Hero = () => {
 
 	return (
 		<section
-			className="heroSection min-h-[550px] sm:min-h-[600px] pt-20 md:pt-32 pb-8 sm:pb-0 flex justify-center items-center px-[5vw] md:px-[8vw] lg:px-[10vw] "
+			className="heroSection min-h-[550px] sm:min-h-[600px] pt-10 md:pt-32 pb-8 sm:pb-0 flex justify-center items-center px-[5vw] md:px-[8vw] lg:px-[10vw] "
 			style={bgImage}
 		>
 			<div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-20 xl:gap-x-36">
@@ -36,11 +36,11 @@ const Hero = () => {
 					className="font-atma text-white flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
 				>
 					<h1 className="font-bold">
-						<span className="py-4 text-5xl md:text-7xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[5px_5px_5px_black]">
+						<span className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[3px_0px_3px_black]">
 							খাবারবাড়ি
 							<br />
 						</span>{" "}
-						<span className="text-3xl md:text-4xl whitespace-nowrap drop-shadow-[5px_5px_5px_black]">
+						<span className="text-2xl md:text-3xl whitespace-nowrap drop-shadow-[3px_0px_3px_black]">
 							তে স্বাগতম!
 						</span>
 					</h1>
@@ -50,7 +50,7 @@ const Hero = () => {
 							onClick={() => {
 								scrollToRecipeSection();
 							}}
-							className="bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-4 lg:px-6 rounded-full drop-shadow-[2px_3px_2px_black]"
+							className="border-none bg-gradient-to-r from-primary to-secondary/95 hover:scale-105 duration-200 text-lg md:text-2xl xl:text-3xl font-semibold py-1 lg:py-3 px-3 lg:px-6 rounded-xl drop-shadow-[2px_3px_2px_black]"
 						>
 							অর্ডার করুন
 						</button>

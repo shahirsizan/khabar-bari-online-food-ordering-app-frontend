@@ -27,10 +27,10 @@ const ServicesData = [
 const Services = () => {
 	return (
 		<section
-			className="servicesSection font-atma py-8 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]"
+			className="servicesSection font-atma py-6 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]"
 			id="services"
 		>
-			<div className="text-center mb-14 mx-auto">
+			<div className="text-center mb-7 md:mb-14 mx-auto">
 				<p className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[2px_1px_2px_black]">
 					আমাদের সেবাসমূহ
 				</p>
@@ -44,7 +44,7 @@ const Services = () => {
 					>
 						{/* image */}
 						<div className="w-full flex justify-center items-center">
-							<div className="h-[70px] w-[70px] md:h-[100px] md:w-[100px] px-2 py-2 rounded-full overflow-hidden">
+							<div className="h-[50px] w-[50px] md:h-[80px] md:w-[80px] px-2 py-2 rounded-full overflow-hidden">
 								<img
 									src={service.img}
 									className="h-full w-full object-cover group-hover:rotate-6 duration-300"
