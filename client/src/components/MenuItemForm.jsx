@@ -11,14 +11,26 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 	const [name, setName] = useState(menuItem?.name || "");
 	const [description, setDescription] = useState(menuItem?.description || "");
 	const [basePrice, setBasePrice] = useState(menuItem?.basePrice || "");
+	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Upon pressing the `Save` button.
+	/***
+	 * Upon pressing the `Save` button.
+	 */
 	const handleFormSubmit = async (ev, data) => {
 		ev.preventDefault();
 
 		if (!image || !name || !description || !basePrice) {
 			return toast.warn("দয়া করে সকল ফিল্ড পূরণ করুন।");
+		}
+
+		/***
+		 * Regex check whether the numeric string contains only English digits (0-9)
+		 */
+		const isEnglishNumeric = /^[0-9]+$/.test(basePrice);
+		if (!isEnglishNumeric) {
+			setError("ইংরেজিতে দাম উল্লেখ করুন!");
+			return;
 		}
 
 		setIsLoading(true);
@@ -93,6 +105,9 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 						value={basePrice}
 						onChange={(ev) => setBasePrice(ev.target.value)}
 					/>
+					{error && (
+						<p className="text-red-600 mt-2 text-[14px]">{error}</p>
+					)}
 
 					<button
 						type="submit"
