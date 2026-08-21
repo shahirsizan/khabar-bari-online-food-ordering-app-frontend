@@ -42,6 +42,11 @@ export async function addMenuItem(req, res) {
 
 	const { name, description, image, basePrice } = req.body;
 
+	const isEnglishNumeric = /^[0-9]+$/.test(basePrice);
+	if (!isEnglishNumeric) {
+		return res.status(500).json({ message: "ইংরেজিতে দাম উল্লেখ করুন।" });
+	}
+
 	try {
 		const dataToInsert = {
 			image: image,

@@ -36,11 +36,11 @@ const Hero = () => {
 					className="font-atma text-white flex flex-col justify-center gap-4 pt-4 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
 				>
 					<h1 className="font-bold">
-						<span className="py-4 text-3xl md:text-5xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[3px_0px_3px_black]">
+						<span className="py-4 text-6xl md:text-8xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[3px_0px_3px_black]">
 							খাবারবাড়ি
 							<br />
 						</span>{" "}
-						<span className="text-2xl md:text-3xl whitespace-nowrap drop-shadow-[3px_0px_3px_black]">
+						<span className="text-3xl md:text-4xl lg:text-5xl whitespace-nowrap drop-shadow-[3px_0px_3px_black]">
 							তে স্বাগতম!
 						</span>
 					</h1>
