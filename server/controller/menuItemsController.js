@@ -1,9 +1,26 @@
 import { MenuItem } from "../model/MenuItem.js";
+import redis from "../utils/redis.js";
 
 export const getAllMenuItems = async (req, res) => {
 	try {
+		const CACHE_KEY = "menu_items:all";
+		/***
+		 * Check Redis cache first
+		 */
+		const cachedMenuItems = await redis.get(CACHE_KEY);
+		if (cachedMenuItems) {
+			return res.status(200).json(JSON.parse(cachedMenuItems));
+		}
+
+		/***
+		 * Cache Miss: Fetch from MongoDB
+		 */
 		const allMenuItems = await MenuItem.find().lean();
-		// console.log(allMenuItems);
+
+		/***
+		 * Store in Redis with TTL
+		 */
+		await redis.set(CACHE_KEY, JSON.stringify(allMenuItems), "EX", 3600);
 
 		res.status(200).json(allMenuItems);
 	} catch (error) {
@@ -21,9 +38,18 @@ export const getMenuItem = async (req, res) => {
 
 	const { id } = req.params;
 
+	const CACHE_KEY = `menu_items:${id}`;
+	/***
+	 * Check Redis cache first
+	 */
+	const cachedMenuItem = await redis.get(CACHE_KEY);
+	if (cachedMenuItem) {
+		return res.status(200).json(JSON.parse(cachedMenuItem));
+	}
+
 	try {
 		const menuItem = await MenuItem.findById(id).lean();
-		// console.log(menuItem);
+		await redis.set(CACHE_KEY, JSON.stringify(menuItem), "EX", 3600);
 
 		res.status(200).json(menuItem);
 	} catch (error) {
@@ -55,6 +81,12 @@ export async function addMenuItem(req, res) {
 			basePrice: basePrice,
 		};
 		const menuItemDoc = await MenuItem.create(dataToInsert);
+
+		/***
+		 * Invalidate stale cache
+		 */
+		await redis.del("menu_items:all");
+
 		return res.status(200).json({
 			message: "আইটেম সংযোজন প্রক্রিয়া সফল হয়েছে।",
 			menuItemDoc: menuItemDoc,
@@ -85,6 +117,11 @@ export const updateMenuItem = async (req, res) => {
 			return res.status(404).json({ message: "Menu item not found" });
 		}
 
+		/***
+		 * Invalidate stale cache
+		 */
+		await redis.del("menu_items:all");
+
 		res.status(200).json({
 			message: "আইটেম এডিট প্রক্রিয়া সফল হয়েছে।",
 			updatedItem,
@@ -111,6 +148,11 @@ export const deleteMenuItem = async (req, res) => {
 		if (!deletedItem) {
 			return res.status(404).json({ message: "Menu item not found" });
 		}
+
+		/***
+		 * Invalidate stale cache
+		 */
+		await redis.del("menu_items:all");
 
 		res.status(200).json({
 			message: "আইটেম ডেলেট প্রক্রিয়া সফল হয়েছে।",
