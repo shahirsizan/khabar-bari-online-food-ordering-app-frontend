@@ -1,73 +1,63 @@
-# Khabarbari (খাবারবাড়ি) 🍲
+# Khabarbari (খাবারবাড়ি)
 
-An online food ordering platform featuring real-time chat facility, SSLCommerz payment gateway and notification system.
-
----
-
-## 🚀 Live Demo
-
-- **Frontend (Vercel):** [https://khabar-bari-client.vercel.app](https://khabar-bari-client.vercel.app)
-- **Backend API (Render):** [https://khabar-bari-backend.onrender.com](https://khabar-bari-backend.onrender.com)
+An online food ordering platform featuring SSLCommerz Payment Gateway, real-time chat facility and notification system.
 
 ---
 
-## ✨ Key Features
+# 🌐 Demo
 
-- **🍔 Interactive Recipe & Menu Catalog:** Real-time quantity updates with custom localized Bengali numeral formatting.
-- **🛒 Persistent Cart Management:** Dynamic cart state powered by React Context with instant price calculations.
-- **🛡️ Custom Global Rate Limiter:** Protects backend endpoints with a sliding-window rate-limiting algorithm and a global client popup modal (`GlobalRateLimitModal`).
-- **💬 Real-Time Admin Chat:** WebSockets (Socket.io) integration for direct messaging between customers and platform admins.
-- **🔐 Authentication & Authorization:** Protected routes, guest routes, and secure user management with password reset functionality.
-- **📱 Responsive & Smooth UI:** Tailwind CSS layout enhanced with AOS (Animate on Scroll) animations.
+- **Live Website:** [https://khabar-bari-frontend.vercel.app](https://khabar-bari-frontend.vercel.app)
 
 ---
 
-## 🛠️ Tech Stack
+# 🧩 Features
+
+### Functional Features
+
+- **Pay Online:** Users can pay online through `SSLCommerz Payment Gateway`.
+- **Download Receipt:** Users can `download order receipts`.
+- **Chat:** `Bidirectional communication` between the client and the store admin through chat.
+- **Get Notified:** `Real-time notification` to notify relevant party about new order placement, order status change and receipt of chat message.
+- **Control Panel:** `Control panel` for both admin and non-admin users.
+- **Search, Filter & Pagination:** Users can `search` for food items. They can also `search` and `filter` their orders by parameters like orderID and completion status. `Pagination` enabled for better UX.
+
+---
+
+### Non-Functional Features
+
+- **Rate Limiting:** `Sliding-Window Rate limiting` implemented to prevent bot attacks.
+- **Authentication & Authorization:** `Token-based` authentication and `Role-based` authorization implemented.
+- **Online Status Indicator:** `Status indicator` enabled in chat to see who is online.
+- **Password Reset:** Authenticated users can `reset password` from control panel. Unauthenticated users can reset if they `forget password`.
+- **Bengali Format:** `Bengali numeral formatting` implemented for all types of numerical calculation.
+- **Frontend PDF Generation:** PDF generated `in the clients browser` to eliminate server-side rendering overhead.
+- **Optimized Image Uploads:** Upload images from the frontend `directly to the Cloudinary server` bypassing our Node.js server using `pre-signed URLs` to reduce CPU overhead of our backend server.
+- **Search, Filter & Pagination:** Utilized MongoDB `indexing` and limit/skip `pagination` to efficiently serve search results.
+- **Caching:** Utilized `Redis` to cache hot data like `password reset tokens with TTLs` to reduce database read and write overhead.
+- **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback for important updates.
+- **Email Dispatch:** Integrated `nodemailer` to send emails for `password reset verification link`.
+- **WebSocket:** `Socket.io` utilized to eliminate costly HTTP polling for live chats and notifications.
+- **Responsive Layout:** Adaptive UI developed by `Tailwind CSS`.
+
+---
+
+# 🛠️ Tech Stack
 
 ### Frontend
 
-- **Framework:** React 18 (Vite)
-- **Styling:** Tailwind CSS, AOS
-- **Routing:** React Router DOM v6
-- **Real-Time Communications:** Socket.io-client
+- **Structure and State Management:** React
+- **Styling:** Tailwind CSS
+- **Real-Time Communication:** Socket.io-client
 
 ### Backend
 
 - **Runtime:** Node.js, Express.js
-- **Database:** MongoDB & Mongoose ORM
-- **Real-Time Engine:** Socket.io
-- **Security & Middleware:** CORS, Custom Rate Limiter, Body-Parser
+- **Database:** MongoDB
+- **Real-Time Communication:** Socket.io
 
 ### Deployment & Infrastructure
 
-- **Client Hosting:** Vercel
-- **Server Hosting:** Render
-- **Database Hosting:** MongoDB Atlas
-
----
-
-## 📂 Project Structure
-
-```text
-khabarbari/
-├── client/                     # Vite React Frontend
-│   ├── src/
-│   │   ├── assets/             # Images and static assets
-│   │   ├── components/         # Reusable UI components (Modal, Navbar, etc.)
-│   │   ├── pages/              # Route pages (Landing, Profile, Orders, etc.)
-│   │   ├── utils/              # API fetch wrappers and helpers
-│   │   ├── App.jsx             # Route definitions and main entry
-│   │   └── main.jsx
-│   ├── .env.development        # Development environment variables
-│   ├── .env.production         # Production environment variables
-│   └── package.json
-│
-└── server/                     # Express Node.js Backend
-    ├── controllers/            # Request handlers
-    ├── middleware/             # Rate limiters & Auth checks
-    ├── model/                  # Mongoose schemas (User, Message, Notification, etc.)
-    ├── routes/                 # API endpoint routers
-    ├── utils/                  # Socket.io & DB connection helpers
-    ├── server.js               # Entry point
-    └── package.json
-```
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** MongoDB Atlas
+- **Redis Cache:** Upstash Redis
