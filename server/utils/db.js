@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import "dotenv/config";
-import { mode } from "../workMode";
+import { mode } from "../workMode.js";
 
 export const db = async () => {
 	try {
