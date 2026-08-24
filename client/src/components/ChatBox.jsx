@@ -9,6 +9,7 @@ export const ChatBox = ({
 	isChatBoxOpen,
 	setIsChatBoxOpen,
 }) => {
+	const [isLoading, setIsLoading] = useState(true);
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState("");
 	const messagesEndRef = useRef(null);
@@ -146,6 +147,7 @@ export const ChatBox = ({
 
 		const loadChatHistory = async () => {
 			try {
+				setIsLoading(true);
 				const response = await apiFetch(
 					`${backend_base_url}/api/chat/${roomId}`,
 				);
@@ -163,6 +165,8 @@ export const ChatBox = ({
 				}
 			} catch (err) {
 				console.error("Error loading chat history: ", err.message);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -227,34 +231,42 @@ export const ChatBox = ({
 			</div>
 
 			{/* chat body */}
-			<div className="flex-1 overflow-y-auto p-2 space-y-3 text-xs md:text-sm">
-				{messages?.map((msg) => {
-					const isMe = msg.senderId === currentSenderId;
+			{isLoading ? (
+				<div className="h-[100px] flex items-center justify-center text-lg text-gray-700 font-atma">
+					লোডিং...
+				</div>
+			) : (
+				<div className="flex-1 overflow-y-auto p-2 space-y-3 text-xs md:text-sm">
+					{messages?.map((msg) => {
+						const isMe = msg.senderId === currentSenderId;
 
-					return (
-						<div
-							key={msg._id}
-							className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-						>
+						return (
 							<div
-								className={`max-w-[75%] px-3 py-2 rounded-lg shadow relative text-gray-900 ${
-									isMe
-										? "bg-[#dcf8c6] rounded-tr-none"
-										: "bg-white rounded-tl-none"
-								}`}
+								key={msg._id}
+								className={`flex ${isMe ? "justify-end" : "justify-start"}`}
 							>
-								<p className="pr-12 break-words">{msg.text}</p>
+								<div
+									className={`max-w-[75%] px-3 py-2 rounded-lg shadow relative text-gray-900 ${
+										isMe
+											? "bg-[#dcf8c6] rounded-tr-none"
+											: "bg-white rounded-tl-none"
+									}`}
+								>
+									<p className="pr-12 break-words">
+										{msg.text}
+									</p>
 
-								<span className="absolute bottom-1 right-1 text-[8px] md:text-[10px] text-gray-500 whitespace-nowrap">
-									{formatTime(msg.createdAt)}
-								</span>
+									<span className="absolute bottom-1 right-1 text-[8px] md:text-[10px] text-gray-500 whitespace-nowrap">
+										{formatTime(msg.createdAt)}
+									</span>
+								</div>
 							</div>
-						</div>
-					);
-				})}
+						);
+					})}
 
-				<div ref={messagesEndRef} />
-			</div>
+					<div ref={messagesEndRef} />
+				</div>
+			)}
 
 			{/* Input Form */}
 			<form

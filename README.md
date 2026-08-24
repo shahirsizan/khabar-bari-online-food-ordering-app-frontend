@@ -21,12 +21,11 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Control Panel:** `Control panel` for both admin and non-admin users.
 - **Search, Filter & Pagination:** Users can `search` for food items. They can also `search` and `filter` their orders by parameters like orderID and completion status. `Pagination` enabled for better UX.
 
----
-
 ### Non-Functional Features
 
 - **Rate Limiting:** `Sliding-Window Rate limiting` implemented to prevent bot attacks.
-- **Authentication & Authorization:** `Token-based` authentication and `Role-based` authorization implemented.
+- **Dual-Token Authentication (AT/RT):** Access-Tokens paired with Refresh-Tokens to authenticate users.
+- **Role-Based Access Control (RBAC):** Middleware-level authorization enforcing distinct route permissions for admin and non-admin users.
 - **Online Status Indicator:** `Status indicator` enabled in chat to see who is online.
 - **Password Reset:** Authenticated users can `reset password` from control panel. Unauthenticated users can reset if they `forget password`.
 - **Bengali Format:** `Bengali numeral formatting` implemented for all types of numerical calculation.

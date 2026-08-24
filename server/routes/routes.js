@@ -115,10 +115,9 @@ router.put(
 );
 router.put("/notifications/:id", isAuth, markNotificationAsRead);
 
-// sslcommerz routes
-const store_id = process.env.STORE_ID;
-const store_passwd = process.env.STORE_PASS;
-const is_live = false;
+/***
+ * SSLCommerz routes
+ */
 
 /***
  * Triggered when user clicks "pay now" button.
