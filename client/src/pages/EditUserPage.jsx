@@ -32,9 +32,6 @@ const EditUserPage = () => {
 					`${backend_base_url}/api/users/${id}`,
 					{
 						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
 					},
 				);
 
@@ -72,7 +69,6 @@ const EditUserPage = () => {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
-					token: JSON.parse(localStorage.getItem("token")),
 				},
 				body: JSON.stringify(data),
 			});

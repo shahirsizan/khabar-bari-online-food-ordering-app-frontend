@@ -62,7 +62,6 @@ const NotificationDropdown = () => {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
-					token: JSON.parse(localStorage.getItem("token")),
 				},
 				/***
 				 * If isChat is true, it evaluates to { body: JSON.stringify...},

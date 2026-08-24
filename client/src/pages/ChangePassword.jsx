@@ -47,7 +47,6 @@ export default function ChangePassword() {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
-						token: JSON.parse(localStorage.getItem("token")),
 					},
 					body: JSON.stringify({
 						oldPassword: formData.oldPassword,

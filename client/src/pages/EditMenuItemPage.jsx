@@ -26,9 +26,6 @@ const EditMenuItemPage = () => {
 					`${backend_base_url}/api/menu-items/${id}`,
 					{
 						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
 					},
 				);
 
@@ -57,9 +54,6 @@ const EditMenuItemPage = () => {
 				`${backend_base_url}/api/menu-items/${id}`,
 				{
 					method: "DELETE",
-					headers: {
-						token: JSON.parse(localStorage.getItem("token")),
-					},
 				},
 			);
 

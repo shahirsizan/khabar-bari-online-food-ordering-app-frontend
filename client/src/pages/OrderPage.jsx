@@ -51,9 +51,6 @@ const OrderPage = () => {
 					`${backend_base_url}/api/order/${id}`,
 					{
 						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
 					},
 				);
 

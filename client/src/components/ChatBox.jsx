@@ -76,13 +76,6 @@ export const ChatBox = ({
 				try {
 					const response = await apiFetch(
 						`${backend_base_url}/api/chatName/${selectedRoomId}`,
-						{
-							headers: {
-								token: JSON.parse(
-									localStorage.getItem("token"),
-								),
-							},
-						},
 					);
 
 					if (response.ok) {
@@ -155,11 +148,6 @@ export const ChatBox = ({
 			try {
 				const response = await apiFetch(
 					`${backend_base_url}/api/chat/${roomId}`,
-					{
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
-					},
 				);
 
 				if (response.ok) {

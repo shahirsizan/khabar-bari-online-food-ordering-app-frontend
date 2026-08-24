@@ -7,7 +7,7 @@ import {
 } from "react";
 import { replace, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
-import { apiFetch } from "./utils/api";
+import { apiFetch, setAccessToken } from "./utils/api";
 import { backend_base_url } from "./workMode";
 import { initializeSocket } from "./utils/socket";
 import { toast } from "react-toastify";
@@ -21,7 +21,6 @@ export const UserProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [isAdmin, setIsAdmin] = useState(false);
-	const [token, setToken] = useState(localStorage.getItem("token") || null);
 	const [loading, setLoading] = useState(false);
 	const [socket, setSocket] = useState(null);
 	const [isAdminOnline, setIsAdminOnline] = useState(false); // Tracks admin's online status
@@ -50,13 +49,12 @@ export const UserProvider = ({ children }) => {
 				publicRoutes.includes(pathname) ||
 				pathname.startsWith("/reset-password-after-link");
 
-			const token = localStorage.getItem("token");
 			const user = localStorage.getItem("user");
 
-			if (!token || !user) {
+			if (!user) {
 				setIsInitializing(false);
 				if (!userCurrentlyOnPublicRoute) {
-					// no `token`, no `user obj`, also currently on private route, so redirect to "/login.
+					// no `user obj`, also currently on private route, so redirect to "/login.
 					// Else let them stay on the public routes"
 					navigate("/login");
 				}
@@ -68,9 +66,6 @@ export const UserProvider = ({ children }) => {
 			try {
 				const response = await apiFetch(`${backend_base_url}/api/me`, {
 					method: "GET",
-					headers: {
-						token: JSON.parse(token),
-					},
 				});
 
 				if (response.ok) {
@@ -177,11 +172,6 @@ export const UserProvider = ({ children }) => {
 		try {
 			const response = await apiFetch(
 				`${backend_base_url}/api/notifications`,
-				{
-					headers: {
-						token: JSON.parse(localStorage.getItem("token")),
-					},
-				},
 			);
 			if (response.ok) {
 				const res = await response.json();
@@ -295,9 +285,6 @@ export const UserProvider = ({ children }) => {
 		 */
 		ev.preventDefault();
 
-		// 1. Retrieve the token for authorization
-		const token = JSON.parse(localStorage.getItem("token"));
-
 		try {
 			// 2. Execute apiFetch() with the required header
 			// console.log("data: ", data);
@@ -306,7 +293,6 @@ export const UserProvider = ({ children }) => {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
-					token: token,
 				},
 				body: JSON.stringify(data),
 			});
@@ -364,24 +350,23 @@ export const UserProvider = ({ children }) => {
 						success: false,
 						message: res.message || "Login failed",
 					};
-				} else {
-					// console.log("targetRoute: ", targetRoute);
-
-					// if user has a populated cart, redirect them to cart page after login
-					localStorage.setItem("token", JSON.stringify(res.token));
-					localStorage.setItem("user", JSON.stringify(res.userObj));
-					setUser(res.userObj);
-					setIsAuthenticated(true);
-					if (res.userObj?.role === "admin") {
-						setIsAdmin(true);
-					} else {
-						setIsAdmin(false);
-					}
-					navigate(targetRoute || "/", {
-						replace: true,
-					});
-					return { success: true, message: res.message };
 				}
+
+				setAccessToken(res.accessToken);
+
+				// if user has a populated cart, redirect them to cart page after login
+				localStorage.setItem("user", JSON.stringify(res.userObj));
+				setUser(res.userObj);
+				setIsAuthenticated(true);
+				if (res.userObj?.role === "admin") {
+					setIsAdmin(true);
+				} else {
+					setIsAdmin(false);
+				}
+				navigate(targetRoute || "/", {
+					replace: true,
+				});
+				return { success: true, message: res.message };
 			} catch (error) {
 				console.error(error.message);
 				return {
@@ -395,20 +380,55 @@ export const UserProvider = ({ children }) => {
 		[],
 	);
 
-	const logoutUser = async () => {
-		// Clear the casrt state in cartCOntext
-		clearCart();
-		// Remove the relevant storage items, keep dark mode preference
-		localStorage.removeItem("token");
-		localStorage.removeItem("cart");
-		localStorage.removeItem("user");
-		setUser(null);
-		setToken(null);
-		setIsAuthenticated(false);
-		setIsAdmin(false);
-		navigate("/login", { replace: true });
-		toast.success("Logged Out");
+	const logoutUser = async (reasonMessage = null) => {
+		try {
+			/***
+			 * Instruct backend to clear httpOnly cookie
+			 */
+			await apiFetch(`${backend_base_url}/api/logout`, {
+				method: "POST",
+			});
+		} catch (error) {
+			console.error("Backend logout failed: ", error.message);
+		} finally {
+			/***
+			 * Perform local cleanup regardless of network success/failure
+			 */
+			clearCart();
+			setAccessToken(null);
+			localStorage.removeItem("cart");
+			localStorage.removeItem("user");
+			setUser(null);
+			setIsAuthenticated(false);
+			setIsAdmin(false);
+
+			if (reasonMessage) {
+				toast.warn(reasonMessage);
+			} else {
+				toast.success("Logged Out");
+			}
+
+			navigate("/login", { replace: true });
+		}
 	};
+
+	/***
+	 * Global listener for session expiry dispatched from apiFetch
+	 */
+	useEffect(() => {
+		const handleSessionExpired = () => {
+			logoutUser("Logged out because refresh token is invalid!");
+		};
+
+		window.addEventListener("auth-session-expired", handleSessionExpired);
+
+		return () => {
+			window.removeEventListener(
+				"auth-session-expired",
+				handleSessionExpired,
+			);
+		};
+	}, []);
 
 	return (
 		<UserContext.Provider
@@ -416,7 +436,6 @@ export const UserProvider = ({ children }) => {
 				user,
 				setUser,
 				isAdmin,
-				token,
 				loading,
 				isInitializing,
 				isAuthenticated,

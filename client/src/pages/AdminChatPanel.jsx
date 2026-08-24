@@ -28,7 +28,6 @@ export const AdminChatPanel = () => {
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
-							token: JSON.parse(localStorage.getItem("token")),
 						},
 					},
 				);

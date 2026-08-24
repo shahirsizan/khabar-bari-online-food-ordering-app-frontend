@@ -19,9 +19,6 @@ const MenuItemsPage = () => {
 					`${backend_base_url}/api/menu-items`,
 					{
 						method: "GET",
-						headers: {
-							token: JSON.parse(localStorage.getItem("token")),
-						},
 					},
 				);
 

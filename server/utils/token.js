@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { mode } from "../workMode.js";
 
 export const generateTokens = (user) => {
 	const accessToken = jwt.sign(
@@ -16,7 +17,7 @@ export const generateTokens = (user) => {
 
 export const cookieOptions = {
 	httpOnly: true,
-	secure: true, // Required for cross-site (Vercel -> Render)
-	sameSite: "none", // Required for cross-site cookies
+	secure: mode === "prod", // Required for cross-site (Vercel -> Render)
+	sameSite: mode === "prod" ? "none" : "lax", // Required for cross-site cookies
 	maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
 };

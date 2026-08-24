@@ -48,7 +48,6 @@ export default function MenuItemForm({ whatToDo, menuItem }) {
 				body: JSON.stringify(data),
 				headers: {
 					"Content-Type": "application/json", // This tells Express to parse req.body
-					token: JSON.parse(localStorage.getItem("token")),
 				},
 			});
 

@@ -4,6 +4,8 @@ import { paymentController } from "../controller/paymentController.js";
 import {
 	forgotPassword,
 	loginUser,
+	logout,
+	refreshToken,
 	registerUser,
 	resetPasswordWithToken,
 	updatePasswordWhenLoggedIn,
@@ -62,6 +64,8 @@ const router = Router();
 // Auth related routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/refresh-token", refreshToken);
+router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.put("/reset-password-with-token", resetPasswordWithToken);
 router.put(

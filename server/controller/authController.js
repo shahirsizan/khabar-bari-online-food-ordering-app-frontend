@@ -4,6 +4,7 @@ import { User } from "../model/userModel.js";
 import sendEmail from "../utils/sendEmail.js";
 import redis from "../utils/redis.js";
 import { frontend_base_url } from "../workMode.js";
+import { cookieOptions, generateTokens } from "../utils/token.js";
 
 export const registerUser = async (req, res) => {
 	try {
@@ -55,36 +56,82 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
 	const { email, password } = req.body;
 
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email }).lean();
 
 	if (!user) {
-		res.status(404).json({
+		return res.status(404).json({
 			message: "User with the email doesn't exist",
 		});
-		return;
 	}
 
 	const passwordMatches = await bcrypt.compare(password, user.password);
 
 	if (!passwordMatches) {
 		res.status(400).json({
-			message: "Invalid password",
+			message: "ইনভ্যালিড পাসওয়ার্ড!",
 		});
 		return;
 	}
+	const { accessToken, refreshToken } = generateTokens(user);
 
-	const token = jwt.sign({ _id: user._id }, process.env.JWT_SEC, {
-		expiresIn: "1d",
-	});
-
-	const userObj = user.toObject();
+	const userObj = user;
 	delete userObj.password;
 
-	res.status(200).json({
-		message: "Logged in successfully",
+	/***
+	 * Send Refresh Token in secure cookie
+	 */
+	res.cookie("refreshToken", refreshToken, cookieOptions);
+
+	return res.status(200).json({
+		message: "লগইন সফল হয়েছে!",
 		userObj,
-		token,
+		accessToken,
 	});
+};
+
+export const refreshToken = async (req, res) => {
+	const refreshToken = req.cookies?.refreshToken;
+
+	try {
+		if (!refreshToken) {
+			return res.status(401).json({ message: "রিফ্রেশ টোকেন মিসিং!" });
+		}
+
+		jwt.verify(refreshToken, process.env.JWT_SEC, async (err, decoded) => {
+			if (err) {
+				return res
+					.status(403)
+					.json({ message: "ইনভ্যালিড রিফ্রেশ টোকেন!" });
+			}
+
+			const user = await User.findById(decoded.id).lean();
+			if (!user) {
+				return res.status(404).json({ message: "ইউজার পাওয়া যায়নি!" });
+			}
+
+			const newAccessToken = jwt.sign(
+				{ id: user._id, role: user.role },
+				process.env.JWT_SEC,
+				{ expiresIn: "15m" },
+			);
+
+			return res.status(200).json({ accessToken: newAccessToken });
+		});
+	} catch (error) {
+		/***
+		 * Clear invalid/expired cookie from browser immediately
+		 */
+		res.clearCookie("refreshToken", cookieOptions);
+		return res.status(401).json({
+			message:
+				"Invalid or expired refresh token. Browser refreshToken hase been deleted.",
+		});
+	}
+};
+
+export const logout = (req, res) => {
+	res.clearCookie("refreshToken", cookieOptions);
+	return res.status(200).json({ message: "লগআউট সফল হয়েছে!" });
 };
 
 export const forgotPassword = async (req, res) => {

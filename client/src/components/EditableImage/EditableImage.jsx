@@ -18,9 +18,6 @@ export default function EditableImage({ link, setLink }) {
 				`${backend_base_url}/api/get-presigned-signature`,
 				{
 					method: "GET",
-					headers: {
-						token: JSON.parse(localStorage.getItem("token")),
-					},
 				},
 			);
 

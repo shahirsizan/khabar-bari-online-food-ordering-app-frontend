@@ -17,8 +17,6 @@ const UsersPage = () => {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					// Using the token pattern you established
-					token: JSON.parse(localStorage.getItem("token")),
 				},
 			});
 
@@ -47,8 +45,6 @@ const UsersPage = () => {
 					method: "DELETE",
 					headers: {
 						"Content-Type": "application/json",
-						// Using the token pattern you established
-						token: JSON.parse(localStorage.getItem("token")),
 					},
 				},
 			);

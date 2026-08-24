@@ -103,7 +103,6 @@ const CartPage = () => {
 						method: "POST",
 						headers: {
 							"content-type": "application/json",
-							token: JSON.parse(localStorage.getItem("token")),
 						},
 						body: JSON.stringify(data),
 					},

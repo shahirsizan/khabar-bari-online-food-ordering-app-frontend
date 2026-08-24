@@ -38,7 +38,6 @@ const OrdersPage = () => {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
-						token: JSON.parse(localStorage.getItem("token")),
 					},
 					body: JSON.stringify({ status: changedStatus }),
 				},
@@ -83,9 +82,6 @@ const OrdersPage = () => {
 			try {
 				const response = await apiFetch(url, {
 					method: "GET",
-					headers: {
-						token: JSON.parse(localStorage.getItem("token")),
-					},
 				});
 
 				if (response.ok) {
