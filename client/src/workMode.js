@@ -9,4 +9,4 @@ if (mode === "dev") {
 	backend_base_url = "https://khabar-bari-backend.onrender.com";
 }
 
-export { frontend_base_url, backend_base_url };
+export { mode, frontend_base_url, backend_base_url };
