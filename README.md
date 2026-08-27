@@ -1,6 +1,6 @@
 # Khabarbari (খাবারবাড়ি)
 
-An online food ordering platform featuring SSLCommerz Payment Gateway, real-time chat facility and notification system.
+An online food ordering platform featuring SSLCommerz Payment Gateway, real-time chat and notification system.
 
 ---
 
@@ -14,7 +14,7 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 
 ### Functional Features
 
-- **Pay Online:** Users can pay online through `SSLCommerz Payment Gateway`.
+- **Pay Online:** Users can pay online through `SSLCommerz` Payment Gateway.
 - **Download Receipt:** Users can `download order receipts`.
 - **Chat:** `Bidirectional communication` between the client and the store admin through chat.
 - **Get Notified:** `Real-time notification` to notify relevant party about new order placement, order status change and receipt of chat message.
@@ -24,19 +24,18 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 ### Non-Functional Features
 
 - **Rate Limiting:** `Sliding-Window Rate limiting` implemented to prevent bot attacks.
-- **Dual-Token Authentication (AT/RT):** Access-Tokens paired with Refresh-Tokens to authenticate users.
-- **Role-Based Access Control (RBAC):** Middleware-level authorization enforcing distinct route permissions for admin and non-admin users.
-- **Online Status Indicator:** `Status indicator` enabled in chat to see who is online.
+- **Dual-Token Authentication (AT/RT):** Access-Token(AT) paired with Refresh-Token(RT) to authenticate users.
+- **Role-Based Access Control (RBAC):** Distinct route permissions enforced for admin and non-admin users.
+- **Chat Online Status Indicator:** `Status indicator` feature enabled in chat to see who's online.
 - **Password Reset:** Authenticated users can `reset password` from control panel. Unauthenticated users can reset if they `forget password`.
-- **Bengali Format:** `Bengali numeral formatting` implemented for all types of numerical calculation.
-- **Frontend PDF Generation:** PDF generated `in the clients browser` to eliminate server-side rendering overhead.
+- **Bengali Format:** `Bengali` numeral formatting implemented for all types of numerical calculation.
+- **Frontend PDF Generation:** PDF generation delegated to `clients browser` to eliminate server-side rendering overhead.
 - **Optimized Image Uploads:** Upload images from the frontend `directly to the Cloudinary server` bypassing our Node.js server using `pre-signed URLs` to reduce CPU overhead of our backend server.
 - **Search, Filter & Pagination:** Utilized MongoDB `indexing` and limit/skip `pagination` to efficiently serve search results.
-- **Caching:** Utilized `Redis` to cache hot data like `password reset tokens with TTLs` to reduce database read and write overhead.
-- **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback for important updates.
+- **Caching:** Utilized `Redis` to cache hot data like recipe items and password `reset tokens with TTLs` to reduce database read and write overhead.
+- **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback.
 - **Email Dispatch:** Integrated `nodemailer` to send emails for `password reset verification link`.
 - **WebSocket:** `Socket.io` utilized to eliminate costly HTTP polling for live chats and notifications.
-- **Responsive Layout:** Adaptive UI developed by `Tailwind CSS`.
 
 ---
 
