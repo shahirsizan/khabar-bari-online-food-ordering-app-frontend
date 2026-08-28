@@ -5,6 +5,10 @@ import { AuditLog } from "../model/AuditLogModel.js";
  * with search, filtering, and pagination facility
  */
 export const getAuditLogs = async (req, res) => {
+	if (req.user.role !== "admin") {
+		return res.status(403).json({ message: "You are not admin" });
+	}
+
 	try {
 		const page = parseInt(req.query.page) || 1;
 		const limit = parseInt(req.query.limit) || 10;
@@ -58,6 +62,10 @@ export const getAuditLogs = async (req, res) => {
  * Get single audit log
  */
 export const getAuditLogById = async (req, res) => {
+	if (req.user.role !== "admin") {
+		return res.status(403).json({ message: "You are not admin" });
+	}
+
 	try {
 		const log = await AuditLog.findById(req.params.id)
 			.populate("userId", "name email phone role", "User")
