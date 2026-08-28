@@ -5,6 +5,9 @@ const auditLogSchema = new mongoose.Schema(
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
+			/***
+			 * Mongoose assumes `userId` stores the `_id` (primary key) of a document in the User collection.
+			 */
 			required: true,
 			index: true,
 		},
