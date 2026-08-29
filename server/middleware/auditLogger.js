@@ -1,11 +1,50 @@
 import { AuditLog } from "../model/AuditLogModel.js";
-import { getIO } from "../utils/io.js";
 
 /**
  * This middleware hooks into Express's res.on("finish") event.
  * It executes after the request controller completes, ensuring that audit logs are
  * generated only if the operation succeeded (statusCode < 400).
  */
+
+const SENSITIVE_KEYS = new Set([
+	"password",
+	"confirmpassword",
+	"token",
+	"accesstoken",
+	"refreshtoken",
+]);
+
+/**
+ * Recursively sanitize sensitive keys and truncate data to prevent size limit violation
+ */
+const sanitizeAndTruncate = (obj, maxStringLen = 400) => {
+	if (!obj || typeof obj !== "object") {
+		return obj;
+	}
+
+	if (Array.isArray(obj)) {
+		return obj.map((item) => {
+			return sanitizeAndTruncate(item, maxStringLen);
+		});
+	}
+
+	const cleanedObj = {};
+	for (const [key, value] of Object.entries(obj)) {
+		if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+			cleanedObj[key] = "[SENSITIVE INFO]";
+		} else if (typeof value === "string") {
+			cleanedObj[key] =
+				value.length > maxStringLen
+					? `${value.substring(0, maxStringLen)}... [TRUNCATED]`
+					: value;
+		} else if (typeof value === "object" && value !== null) {
+			cleanedObj[key] = sanitizeAndTruncate(value, maxStringLen);
+		} else {
+			cleanedObj[key] = value;
+		}
+	}
+	return cleanedObj;
+};
 
 export const auditLogger = (action, targetEntityType) => {
 	return (req, res, next) => {
@@ -15,16 +54,11 @@ export const auditLogger = (action, targetEntityType) => {
 					const targetId =
 						req.params.id || req.body.id || req.body._id || null;
 					const ipAddress =
-						req.headers["x-forwarded-for"] ||
-						req.socket.remoteAddress ||
-						"Unknown";
+						req.ip || req.socket.remoteAddress || "Unknown";
 					const userAgent = req.headers["user-agent"] || "Unknown";
 
 					// Sanitize sensitive body fields
-					const sanitizedBody = { ...req.body };
-					delete sanitizedBody.password;
-					delete sanitizedBody.confirmPassword;
-					delete sanitizedBody.token;
+					const sanitizedBody = sanitizeAndTruncate(req.body);
 
 					const logEntry = await AuditLog.create({
 						userId: req.user._id,

@@ -66,4 +66,9 @@ const auditLogSchema = new mongoose.Schema(
  */
 auditLogSchema.index({ createdAt: -1, action: 1 });
 
+/***
+ * Automatically delete logs after 6 hours (21600 seconds)
+ */
+auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 21600 });
+
 export const AuditLog = mongoose.model("AuditLog", auditLogSchema);
