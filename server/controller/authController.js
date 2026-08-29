@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../model/userModel.js";
 import sendEmail from "../utils/sendEmail.js";
-import redis from "../utils/redis.js";
+import { redis } from "../utils/redis.js";
 import { frontend_base_url } from "../workMode.js";
 import { cookieOptions, generateTokens } from "../utils/token.js";
 

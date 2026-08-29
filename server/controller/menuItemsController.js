@@ -1,5 +1,5 @@
 import { MenuItem } from "../model/MenuItem.js";
-import redis from "../utils/redis.js";
+import { redis } from "../utils/redis.js";
 
 export const getAllMenuItems = async (req, res) => {
 	try {

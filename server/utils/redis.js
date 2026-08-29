@@ -3,30 +3,64 @@ import { mode } from "../workMode.js";
 import "dotenv/config";
 
 /***
- * For local development, use dockerized redis container.
- * For production, use Upstash redis connection
+ * FACTORY PATTERN
  */
-let redis;
-if (mode === "dev") {
-	redis = new Redis({
-		host: process.env.REDIS_HOST,
-		port: process.env.REDIS_PORT,
-		family: 4, // Forces IPv4
-	});
-} else {
-	redis = new Redis(process.env.REDIS_URL, {
-		tls: {
-			rejectUnauthorized: false,
+
+/***
+ * FACTORY PATTERN
+ * Generate config based on environment
+ */
+const getRedisConfig = (isWorker = false) => {
+	const baseConfig =
+		mode === "dev"
+			? {
+					host: process.env.REDIS_HOST,
+					port: parseInt(process.env.REDIS_PORT),
+					family: 4,
+				}
+			: { tls: { rejectUnauthorized: false } };
+
+	const connectionString =
+		mode === "prod" ? process.env.REDIS_URL : undefined;
+
+	return {
+		connectionString,
+		options: {
+			...baseConfig,
+			maxRetriesPerRequest: isWorker ? null : 1,
+			/***
+			 *  Workers must have `null`. Normal cache instances can use default or 1 for fast fail.
+			 */
 		},
-	});
-}
+	};
+};
 
-redis.on("connect", () => {
-	console.log("✅ Connected to Redis.");
-});
+/***
+ * FACTORY PATTERN
+ * Generate redis instance based on purpose
+ */
+export const createRedisInstance = (isWorker = false) => {
+	const config = getRedisConfig(isWorker);
+	return config.connectionString
+		? new Redis(config.connectionString, config.options)
+		: new Redis(config.options);
+};
 
-redis.on("error", (err) => {
-	console.error("❌ No Redis connection: ", err);
-});
+/***
+ * Connection for normal caching
+ */
+export const redis = createRedisInstance(false);
 
-export default redis;
+/***
+ * Connection for BullMQ workers (consumers).
+ */
+export const bullMqWorkerConnection = createRedisInstance(true);
+
+/***
+ * Connection for BullMQ Queues (producers).
+ * Queues/Producers can reuse connection of the caching instance
+ */
+export const bullMqQueueConnection = redis;
+
+redis.on("connect", () => console.log("✅ Connected to Redis Cache."));
+redis.on("error", (err) => console.error("❌ Redis Cache Error: ", err));
