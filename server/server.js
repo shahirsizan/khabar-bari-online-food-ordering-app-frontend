@@ -22,6 +22,15 @@ const allowedOrigins = [
 ];
 
 const app = express();
+/***
+ * This is important for Audit Logs.
+ * The result: req.ip will now return the real client IP address instead of our proxy's IP.
+ * Without this, every log entry will show the same IP address (Our proxy's),
+ * rendering the ipAddress field useless.
+ * Client (Real User) ──> Reverse Proxy (Nginx/Cloudflare) ──> Express App
+ * `1` -> Trust only the first upstream proxy hop (Perfect for Nginx, Heroku, or Render).
+ */
+app.set("trust proxy", 1);
 app.use(
 	cors({
 		origin: allowedOrigins,
