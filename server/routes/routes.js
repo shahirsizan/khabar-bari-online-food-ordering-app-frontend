@@ -11,7 +11,12 @@ import {
 	updatePasswordWhenLoggedIn,
 } from "../controller/authController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
+import { auditLogger } from "../middleware/auditLogger.js";
 import { upload } from "../middleware/upload.js";
+import {
+	getAuditLogById,
+	getAuditLogs,
+} from "../controller/auditLogController.js";
 import { getPresignedSignature } from "../controller/uploadController.js";
 import {
 	addMenuItem,
@@ -61,49 +66,95 @@ import {
 
 const router = Router();
 
-// Auth related routes
+/***
+ * User related routes
+ */
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
-router.put("/reset-password-with-token", resetPasswordWithToken);
+router.put(
+	"/reset-password-with-token",
+	auditLogger("RESET_USER_PASSWORD", "User"),
+	resetPasswordWithToken,
+);
 router.put(
 	"/update-password-when-logged-in",
 	isAuth,
+	auditLogger("RESET_USER_PASSWORD", "User"),
 	updatePasswordWhenLoggedIn,
 );
-
 router.get("/me", isAuth, (req, res) => {
 	res.json(req.user);
 });
-
-// Menu Item routes
-router.get("/get-presigned-signature", isAuth, getPresignedSignature); // Direct Cloudinary image upload
-router.post("/menu-items", isAuth, addMenuItem);
-router.get("/menu-items", getAllMenuItems);
-router.get("/menu-items/:id", isAuth, getMenuItem);
-router.put("/menu-items/:id", isAuth, updateMenuItem);
-router.delete("/menu-items/:id", isAuth, deleteMenuItem);
-
-// User routes
 router.get("/users", isAuth, getAllUsers);
 router.get("/users/:id", isAuth, getUser);
-router.put("/profile", isAuth, updateProfile);
-router.delete("/users/:id", isAuth, deleteUser);
+router.put(
+	"/profile",
+	isAuth,
+	auditLogger("UPDATE_USER", "User"),
+	updateProfile,
+);
+router.delete(
+	"/users/:id",
+	isAuth,
+	auditLogger("DELETE_USER", "User"),
+	deleteUser,
+);
 
-// Order routes
+/***
+ * Menu Item routes
+ */
+router.get("/get-presigned-signature", isAuth, getPresignedSignature); // Direct Cloudinary image upload
+router.post(
+	"/menu-items",
+	isAuth,
+	auditLogger("CREATE_MENU_ITEM", "MenuItem"),
+	addMenuItem,
+);
+router.get("/menu-items", getAllMenuItems);
+router.get("/menu-items/:id", isAuth, getMenuItem);
+router.put(
+	"/menu-items/:id",
+	isAuth,
+	auditLogger("UPDATE_MENU_ITEM", "MenuItem"),
+	updateMenuItem,
+);
+router.delete(
+	"/menu-items/:id",
+	isAuth,
+	auditLogger("DELETE_MENU_ITEM", "MenuItem"),
+	deleteMenuItem,
+);
+
+/***
+ * Order routes
+ */
 router.get("/orders", isAuth, getOrders);
 router.get("/order/:id", isAuth, getOrder);
-router.put("/order/:id", isAuth, updateOrderStatus);
+router.put(
+	"/order/:id",
+	isAuth,
+	auditLogger("UPDATE_ORDER_STATUS", "Order"),
+	updateOrderStatus,
+);
 
-// chat routes
+/***
+ * Chat routes
+ */
 router.get("/chat/rooms", isAuth, getChatRooms);
 router.get("/chat/:roomId", isAuth, getRoomMessages);
 router.get("/chatName/:roomId", isAuth, getRoomName);
 
-// Notification routes
 /***
+ * Audit log routes
+ */
+router.get("/audit-logs", isAuth, getAuditLogs);
+router.get("/audit-logs/:id", isAuth, getAuditLogById);
+
+/***
+ * Notification routes
  * In Express, static routes must always be declared before dynamic parameter routes (/:id).
  * Otherwise, Express captures 'read-by-link' as the :id parameter.
  */
