@@ -14,6 +14,7 @@ import { getIO, initIO } from "./utils/io.js";
 import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
+import { initAuditWorker } from "./utils/auditWorker.js";
 
 const allowedOrigins = [
 	"http://localhost:5173",
@@ -53,6 +54,11 @@ app.use(
 
 // Initializing Socket.io once here
 const io = initIO(httpServer, allowedOrigins);
+
+/***
+ * Start BullMQ background worker
+ */
+initAuditWorker();
 
 /***
  * SocketIO controllers

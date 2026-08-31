@@ -11,7 +11,7 @@ import {
 	updatePasswordWhenLoggedIn,
 } from "../controller/authController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
-import { auditLogger } from "../middleware/auditLogger.js";
+import { auditLoggerMiddleware } from "../middleware/auditLoggerMiddleware.js";
 import { upload } from "../middleware/upload.js";
 import {
 	getAuditLogById,
@@ -76,13 +76,13 @@ router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.put(
 	"/reset-password-with-token",
-	auditLogger("RESET_USER_PASSWORD", "User"),
+	auditLoggerMiddleware("RESET_USER_PASSWORD", "User"),
 	resetPasswordWithToken,
 );
 router.put(
 	"/update-password-when-logged-in",
 	isAuth,
-	auditLogger("RESET_USER_PASSWORD", "User"),
+	auditLoggerMiddleware("RESET_USER_PASSWORD", "User"),
 	updatePasswordWhenLoggedIn,
 );
 router.get("/me", isAuth, (req, res) => {
@@ -93,13 +93,13 @@ router.get("/users/:id", isAuth, getUser);
 router.put(
 	"/profile",
 	isAuth,
-	auditLogger("UPDATE_USER", "User"),
+	auditLoggerMiddleware("UPDATE_USER", "User"),
 	updateProfile,
 );
 router.delete(
 	"/users/:id",
 	isAuth,
-	auditLogger("DELETE_USER", "User"),
+	auditLoggerMiddleware("DELETE_USER", "User"),
 	deleteUser,
 );
 
@@ -110,7 +110,7 @@ router.get("/get-presigned-signature", isAuth, getPresignedSignature); // Direct
 router.post(
 	"/menu-items",
 	isAuth,
-	auditLogger("CREATE_MENU_ITEM", "MenuItem"),
+	auditLoggerMiddleware("CREATE_MENU_ITEM", "MenuItem"),
 	addMenuItem,
 );
 router.get("/menu-items", getAllMenuItems);
@@ -118,13 +118,13 @@ router.get("/menu-items/:id", isAuth, getMenuItem);
 router.put(
 	"/menu-items/:id",
 	isAuth,
-	auditLogger("UPDATE_MENU_ITEM", "MenuItem"),
+	auditLoggerMiddleware("UPDATE_MENU_ITEM", "MenuItem"),
 	updateMenuItem,
 );
 router.delete(
 	"/menu-items/:id",
 	isAuth,
-	auditLogger("DELETE_MENU_ITEM", "MenuItem"),
+	auditLoggerMiddleware("DELETE_MENU_ITEM", "MenuItem"),
 	deleteMenuItem,
 );
 
@@ -136,7 +136,7 @@ router.get("/order/:id", isAuth, getOrder);
 router.put(
 	"/order/:id",
 	isAuth,
-	auditLogger("UPDATE_ORDER_STATUS", "Order"),
+	auditLoggerMiddleware("UPDATE_ORDER_STATUS", "Order"),
 	updateOrderStatus,
 );
 
