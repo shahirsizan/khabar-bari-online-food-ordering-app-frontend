@@ -36,16 +36,13 @@ const auditLogSchema = new mongoose.Schema(
 			enum: ["MenuItem", "Order", "User"],
 			index: true,
 		},
-		targetId: {
-			type: String,
-			default: null,
-		},
 		details: {
 			method: { type: String },
 			url: { type: String },
 			urlParams: { type: Object },
 			queryParams: { type: Object },
-			body: { type: Object },
+			reqBody: { type: Object },
+			resBody: { type: Object },
 		},
 		ipAddress: {
 			type: String,
