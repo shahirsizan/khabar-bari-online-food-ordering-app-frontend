@@ -6,14 +6,13 @@ const auditLogSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 			/***
-			 * Mongoose assumes `userId` stores the `_id` (primary key) of a document in the User collection.
+			 * Mongoose assumes `userId` references the `_id` (primary key) field of documents in User collection.
 			 */
 			required: true,
 			index: true,
 		},
 		userEmail: {
 			type: String,
-			required: true,
 		},
 		action: {
 			type: String,
@@ -38,9 +37,9 @@ const auditLogSchema = new mongoose.Schema(
 		},
 		details: {
 			method: { type: String },
-			url: { type: String },
-			urlParams: { type: Object },
-			queryParams: { type: Object },
+			url: { type: String, default: null },
+			urlParams: { type: Object, default: null },
+			queryParams: { type: Object, default: null },
 			reqBody: { type: Object },
 			resBody: { type: Object },
 		},
@@ -58,14 +57,15 @@ const auditLogSchema = new mongoose.Schema(
 	},
 );
 
-/***
- * Compound index
+/**
+ * Compound Indexes for high-performance filtering & sorting
  */
+auditLogSchema.index({ userId: 1, createdAt: -1 });
 auditLogSchema.index({ createdAt: -1, action: 1 });
 
 /***
  * Automatically delete logs after 6 hours (21600 seconds)
  */
-auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 21600 });
+// auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 21600 });
 
 export const AuditLog = mongoose.model("AuditLog", auditLogSchema);
