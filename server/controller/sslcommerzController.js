@@ -8,6 +8,7 @@ import { User } from "../model/userModel.js";
 import { Notification } from "../model/NotificationModel.js";
 import sendEmail from "../utils/sendEmail.js";
 import { backend_base_url, frontend_base_url, mode } from "../workMode.js";
+import { auditQueue } from "../utils/auditQueue.js";
 
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
@@ -19,7 +20,7 @@ const is_live = false;
  */
 export const sslPaymentInitialize = async (req, res) => {
 	/***
-	 * req.body is:
+	 * req.body:
 	 * 		{
 				amount: cartTotal,
 				orderId: 1,
@@ -52,10 +53,10 @@ export const sslPaymentInitialize = async (req, res) => {
 		ipn_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/ipn`,
 		multi_card_name: "bkash",
 	};
-	//
+
 	/***
-	 * run `ngrok http 5000` in terminal to generate neu ngrom url
-	 * change the `IPN_URL` env shit everytime the machine restarts. Because ngrok changes the url everytime.
+	 * run `ngrok http 5000` in terminal while in `dev` mode.
+	 * Because SSLCommerz requires a public URL to send IPN (Instant Payment Notification) callbacks.
 	 */
 
 	try {
@@ -79,17 +80,8 @@ export const sslPaymentInitialize = async (req, res) => {
 				paid: false,
 			};
 
-			const result = await Order.insertOne(finalOrder);
+			const result = await Order.create(finalOrder);
 			console.log(`router.post("/order",...) -> result: `, result);
-
-			/***
-			 * the insertOne() method ⬆️ resolves to an object with the following properties:
-			 * result :
-			 * {
-					acknowledged: true,
-					insertedId: new ObjectId('65a12345f1234567890abcde')
-				}
-			 */
 
 			res.status(200).json({ redirectUrl: GatewayPageURL });
 			return;
@@ -114,11 +106,11 @@ export const sslPaymentIPN = async (req, res) => {
 		/***
          * console.log("req.body: ", req.body);
          * req.body:  {
-                amount: '220.00',
+                👉 amount: '220.00',
                 bank_tran_id: '260813224353cWmrBTAoQ30oRgp',
                 base_fair: '0.00',
                 card_brand: 'MOBILEBANKING',
-                card_issuer: 'BKash Mobile Banking',
+                👉 card_issuer: 'BKash Mobile Banking',
                 card_issuer_country: 'Bangladesh',
                 card_issuer_country_code: 'BD',
                 card_no: '',
@@ -134,9 +126,9 @@ export const sslPaymentIPN = async (req, res) => {
                 status: 'VALID',
                 store_amount: '214.50',
                 store_id: 'shahi6a2b98c5d0da6',
-                tran_date: '2026-08-13 22:43:43',
-                tran_id: 'j0Pz_hU77K-3PHG9KW0GN',
-                val_id: '260813224353QQCg3EiAU7gduKD',
+                👉 tran_date: '2026-08-13 22:43:43',
+                👉 tran_id: 'j0Pz_hU77K-3PHG9KW0GN',
+                👉 val_id: '260813224353QQCg3EiAU7gduKD',
                 value_a: '',
                 value_b: '',
                 value_c: '',
@@ -150,7 +142,7 @@ export const sslPaymentIPN = async (req, res) => {
 		const { tran_id, val_id } = req.body;
 
 		if (!tran_id || !val_id) {
-			console.error(`tran_id / val_id missing`);
+			console.error(`IPN Error: tran_id / val_id missing`);
 			return res.status(200).send("tran_id / val_id missing");
 		}
 
@@ -162,7 +154,7 @@ export const sslPaymentIPN = async (req, res) => {
 		}).lean();
 		if (!orderObj) {
 			console.error(`IPN Error: No order found for tran_id: ${tran_id}`);
-			return res.status().send("Order not found");
+			return res.status(200).send("Order not found");
 		}
 
 		/***
@@ -193,17 +185,17 @@ export const sslPaymentIPN = async (req, res) => {
                     response,
                 );
              * response:  {
-                    status: 'VALID',
+                    👉status: 'VALID',
                     tran_date: '2026-06-14 15:18:29',
-                    tran_id: 'wZr9Dxy4oiaIvq2fZ7oKxIbcUkxlFA',
-                    val_id: '260614151839MOgiSqKwPnQ4kR2',
-                    amount: '300.00',
-                    store_amount: '292.5',
+                    👉tran_id: 'wZr9Dxy4oiaIvq2fZ7oKxIbcUkxlFA',
+                    👉val_id: '260614151839MOgiSqKwPnQ4kR2',
+                    👉amount: '300.00',
+                    👉store_amount: '292.5',
                     currency: 'BDT',
                     bank_tran_id: '260614151839soRgpuAh1WSYBkr',
                     card_type: 'BKASH-BKash',
                     card_no: '',
-                    card_issuer: 'BKash Mobile Banking',
+                    👉card_issuer: 'BKash Mobile Banking',
                     card_brand: 'MOBILEBANKING',
                     card_category: 'MOBILE',
                     card_sub_brand: '',
@@ -239,8 +231,11 @@ export const sslPaymentIPN = async (req, res) => {
 
 			const { status, tran_id, val_id, amount } = response;
 
-			// Check if `paid amount` matches expected amount
-			const paidAmount = parseFloat(response.amount);
+			/***
+			 * Check if `paid amount` matches expected amount. 
+				If not, we mark the order as `paid: false` and return early.
+			 */
+			const paidAmount = parseFloat(amount);
 			const expectedAmount = parseFloat(orderObj.totalAmount);
 			if (paidAmount !== expectedAmount) {
 				console.error(`paidAmount and expectedAmount don't match`);
@@ -251,22 +246,64 @@ export const sslPaymentIPN = async (req, res) => {
 				return res.status(200).send("Amount mismatch detected");
 			}
 
-			// If validated, update the DB entry as `paid: true`
-			await Order.updateOne(
+			/***
+			 * All validation completed.
+			 * Update DB entry as `paid: true`
+			 * and get the updated document with user info embedded
+			 */
+			const orderObjWithUser = await Order.findOneAndUpdate(
 				{ tran_id: tran_id },
 				{ $set: { paid: true } },
-			);
+				/***
+				 * Returns the modified document instead of the original
+				 */
+				{ new: true },
+			)
+				.populate("userId", "name email")
+				.exec();
+			/***
+				 * orderObjWithUser:
+				 * {
+							"_id": "65a1234b56c7890123def456",
+							"tran_id": "TXN_987654321",
+							"totalAmount": 149.99,
+							"status": "paid",
+							"userId": {
+								"_id": "65b9876f54e3210987abc654",
+								"name": "John Doe",
+								"email": "johndoe@example.com"
+							},
+							"createdAt": "2026-03-31T10:00:00.000Z",
+							"updatedAt": "2026-03-31T10:05:00.000Z",
+							"__v": 0
+							}
+				 */
 
 			/***
-			 * ℹ️ℹ️ℹ️ Send receipt pdf to user through email. Kalke dekhte hobe
+			 * Time to audit log the successful payment. But because our existing logging middleware
+			 * doesn't have access to the `req` and `res` objects during this server-server webhook context,
+			 * we will manually enqueue new log entry to bullmq through Redis for async processing.
 			 */
-			// await sendEmail({
-			// 	email: orderObj.userEmail,
-			// 	subject: "Order Confirmed",
-			// 	message: message,
-			// });
+			await auditQueue.add("new-audit-log", {
+				userId:
+					orderObjWithUser.userId?._id || orderObjWithUser.userId?.id,
+				userEmail: orderObjWithUser.userId?.email,
+				action: "PLACE_ORDER",
+				targetEntityType: "Order",
+				details: {
+					method: "POST",
+					url: "/api/payment/ipn",
+					reqBody: req.body,
+					resBody: response,
+				},
+				// Below fields are `default` from mongoose schema
+				// ipAddress:,
+				// userAgent:,
+			});
 
-			// Now notify admin for a new order.
+			/***
+			 * Notify admin for a new order.
+			 */
 			const adminUser = await User.findOne({ role: "admin" });
 			if (adminUser) {
 				const adminId = adminUser._id;
@@ -286,10 +323,10 @@ export const sslPaymentIPN = async (req, res) => {
 				// Dispatch notification
 				const io = getIO();
 				io.to("admin_room").emit("new_order_placed", adminNotification);
-
-				// Success response to SSLCommerz
-				return res.status(200).send("IPN Processed Successfully");
 			}
+
+			// Success response to SSLCommerz
+			return res.status(200).send("IPN Processed Successfully");
 		} else {
 			/***
              * Handle failed validation cleanly. Instead of deleting,
