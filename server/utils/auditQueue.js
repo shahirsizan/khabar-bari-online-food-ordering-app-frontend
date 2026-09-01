@@ -1,10 +1,10 @@
 import { Queue } from "bullmq";
-import { bullMqQueueConnection } from "./redis.js";
+import { bullMqProducerRedisConnection } from "./redis.js";
 
 export const AUDIT_QUEUE_NAME = "audit-log-queue";
 
 export const auditQueue = new Queue(AUDIT_QUEUE_NAME, {
-	connection: bullMqQueueConnection,
+	connection: bullMqProducerRedisConnection,
 	defaultJobOptions: {
 		attempts: 3,
 		backoff: {

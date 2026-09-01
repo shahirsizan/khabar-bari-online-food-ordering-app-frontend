@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { bullMqWorkerConnection } from "./redis.js";
+import { bullMqConsumerRedisConnection } from "./redis.js";
 import { AUDIT_QUEUE_NAME } from "./auditQueue.js";
 import { AuditLog } from "../model/AuditLogModel.js";
 
@@ -114,7 +114,7 @@ export const initAuditWorker = () => {
 			// const time2 = Date.now();
 			// console.log("Total time required: ", time2 - time1);
 		},
-		{ connection: bullMqWorkerConnection },
+		{ connection: bullMqConsumerRedisConnection },
 	);
 
 	worker.on("failed", (job, err) => {

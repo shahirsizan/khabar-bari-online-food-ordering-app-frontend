@@ -52,21 +52,23 @@ export const createRedisInstance = (isBullMq = false) => {
 /***
  * Connection for normal backend caching
  */
-export const redis = createRedisInstance(false);
-redis.on("connect", () => console.log("✅ Connected to Redis Cache."));
+export const redisConnection = createRedisInstance(false);
+redisConnection.on("connect", () =>
+	console.log("✅ Connected to Redis Cache."),
+);
 
 /***
  * Dedicated connection for BullMQ Queues (Producers)
  */
-export const bullMqQueueConnection = createRedisInstance(true);
-bullMqQueueConnection.on("connect", () =>
+export const bullMqProducerRedisConnection = createRedisInstance(true);
+bullMqProducerRedisConnection.on("connect", () =>
 	console.log("✅ Connected to Redis BullMQ Queue."),
 );
 
 /***
  * Dedicated connection for BullMQ Workers (Consumers)
  */
-export const bullMqWorkerConnection = createRedisInstance(true);
-bullMqWorkerConnection.on("connect", () =>
+export const bullMqConsumerRedisConnection = createRedisInstance(true);
+bullMqConsumerRedisConnection.on("connect", () =>
 	console.log("✅ Connected to Redis BullMQ Worker."),
 );

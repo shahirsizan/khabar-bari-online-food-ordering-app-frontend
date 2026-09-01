@@ -1,5 +1,5 @@
 import { MenuItem } from "../model/MenuItem.js";
-import { redis } from "../utils/redis.js";
+import { redisConnection } from "../utils/redis.js";
 
 export const getAllMenuItems = async (req, res) => {
 	try {
@@ -7,7 +7,7 @@ export const getAllMenuItems = async (req, res) => {
 		/***
 		 * Check Redis cache first
 		 */
-		const cachedMenuItems = await redis.get(CACHE_KEY);
+		const cachedMenuItems = await redisConnection.get(CACHE_KEY);
 		if (cachedMenuItems) {
 			return res.status(200).json(JSON.parse(cachedMenuItems));
 		}
@@ -20,7 +20,12 @@ export const getAllMenuItems = async (req, res) => {
 		/***
 		 * Store in Redis with TTL
 		 */
-		await redis.set(CACHE_KEY, JSON.stringify(allMenuItems), "EX", 3600);
+		await redisConnection.set(
+			CACHE_KEY,
+			JSON.stringify(allMenuItems),
+			"EX",
+			3600,
+		);
 
 		res.status(200).json(allMenuItems);
 	} catch (error) {
@@ -42,14 +47,19 @@ export const getMenuItem = async (req, res) => {
 	/***
 	 * Check Redis cache first
 	 */
-	const cachedMenuItem = await redis.get(CACHE_KEY);
+	const cachedMenuItem = await redisConnection.get(CACHE_KEY);
 	if (cachedMenuItem) {
 		return res.status(200).json(JSON.parse(cachedMenuItem));
 	}
 
 	try {
 		const menuItem = await MenuItem.findById(id).lean();
-		await redis.set(CACHE_KEY, JSON.stringify(menuItem), "EX", 3600);
+		await redisConnection.set(
+			CACHE_KEY,
+			JSON.stringify(menuItem),
+			"EX",
+			3600,
+		);
 
 		res.status(200).json(menuItem);
 	} catch (error) {
@@ -85,7 +95,7 @@ export async function addMenuItem(req, res) {
 		/***
 		 * Invalidate stale cache
 		 */
-		await redis.del("menu_items:all");
+		await redisConnection.del("menu_items:all");
 
 		return res.status(200).json({
 			message: "আইটেম সংযোজন প্রক্রিয়া সফল হয়েছে।",
@@ -120,7 +130,7 @@ export const updateMenuItem = async (req, res) => {
 		/***
 		 * Invalidate stale cache
 		 */
-		await redis.del("menu_items:all");
+		await redisConnection.del("menu_items:all");
 
 		res.status(200).json({
 			message: "আইটেম এডিট প্রক্রিয়া সফল হয়েছে।",
@@ -152,7 +162,7 @@ export const deleteMenuItem = async (req, res) => {
 		/***
 		 * Invalidate stale cache
 		 */
-		await redis.del("menu_items:all");
+		await redisConnection.del("menu_items:all");
 
 		res.status(200).json({
 			message: "আইটেম ডেলেট প্রক্রিয়া সফল হয়েছে।",

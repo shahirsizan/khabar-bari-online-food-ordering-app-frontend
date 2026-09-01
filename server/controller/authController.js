@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../model/userModel.js";
 import sendEmail from "../utils/sendEmail.js";
-import { redis } from "../utils/redis.js";
+import { redisConnection } from "../utils/redis.js";
 import { frontend_base_url } from "../workMode.js";
 import { cookieOptions, generateTokens } from "../utils/token.js";
 
@@ -150,7 +150,7 @@ export const forgotPassword = async (req, res) => {
 
 		// 2. Set reset token to expire in 10 minutes
 		// format: (key) password_reset:<hashedToken> -> (value) user.email
-		await redis.set(
+		await redisConnection.set(
 			`password_reset_token:${hashedResetToken}`,
 			user.email,
 			"EX",
@@ -186,7 +186,7 @@ export const resetPasswordWithToken = async (req, res) => {
 
 		const redisKey = `password_reset_token:${hashedResetToken}`;
 		// 1. Fetch user email from Redis
-		const userEmail = await redis.get(redisKey);
+		const userEmail = await redisConnection.get(redisKey);
 
 		if (!userEmail) {
 			return res
@@ -205,7 +205,7 @@ export const resetPasswordWithToken = async (req, res) => {
 		await user.save();
 
 		// 3. Delete reset token from Redis to prevent reuse.
-		await redis.del(redisKey);
+		await redisConnection.del(redisKey);
 
 		res.status(200).json({
 			success: true,
