@@ -26,6 +26,7 @@ import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal.jsx";
 import { AdminChatPanel } from "./pages/AdminChatPanel.jsx";
 import { ResetPasswordAfterLink } from "./pages/ResetPasswordAfterLink.jsx";
 import ChangePassword from "./pages/ChangePassword.jsx";
+import AuditLogsPage from "./pages/AuditLogsPage.jsx";
 
 const App = () => {
 	// smooth intro
@@ -70,6 +71,7 @@ const App = () => {
 								path="chats/:roomId?"
 								element={<AdminChatPanel />}
 							/>
+							<Route path="logs" element={<AuditLogsPage />} />
 						</Route>
 
 						<Route

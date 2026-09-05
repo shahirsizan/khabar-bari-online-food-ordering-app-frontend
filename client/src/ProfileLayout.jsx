@@ -11,6 +11,7 @@ const ProfileLayout = () => {
 		{ label: "Users", adminOnly: true, path: "/profile/users" },
 		{ label: "Chats", adminOnly: true, path: "/profile/chats" },
 		{ label: "Orders", path: "/profile/orders" },
+		{ label: "Activity Logs", adminOnly: true, path: "/profile/logs" },
 	];
 
 	// hide non-admin tabs for `non-admin` users
