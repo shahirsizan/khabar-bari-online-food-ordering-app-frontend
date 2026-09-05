@@ -14,28 +14,30 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 
 ### Functional Features
 
-- **Pay Online:** Users can pay online through `SSLCommerz` Payment Gateway.
+- **Pay Online:** Users can pay online through `SSLCommerz`.
 - **Download Receipt:** Users can `download order receipts`.
-- **Chat:** `Bidirectional communication` between the client and the store admin through chat.
-- **Get Notified:** `Real-time notification` to notify relevant party about new order placement, order status change and receipt of chat message.
-- **Control Panel:** `Control panel` for both admin and non-admin users.
-- **Search, Filter & Pagination:** Users can `search` for food items. They can also `search` and `filter` their orders by parameters like orderID and completion status. `Pagination` enabled for better UX.
+- **Chat:** `Bidirectional communication` between the client and the store admin.
+- **Get Notified:** `Real-time notification` to notify relevant party about important events.
+- **Control Panel:** `Control panel` for both admin and customers.
+- **Activity Log:** `System-wide` activity logging to keep track of different activities.
+- **Search, Filter & Pagination:** Search, Filter & Pagination implemented `to improve UX`.
 
 ### Non-Functional Features
 
-- **Rate Limiting:** `Sliding-Window Rate limiting` implemented to prevent bot attacks.
-- **Dual-Token Authentication (AT/RT):** Access-Token(AT) paired with Refresh-Token(RT) to authenticate users.
-- **Role-Based Access Control (RBAC):** Distinct route permissions enforced for admin and non-admin users.
-- **Chat Online Status Indicator:** `Status indicator` feature enabled in chat to see who's online.
-- **Password Reset:** Authenticated users can `reset password` from control panel. Unauthenticated users can reset if they `forget password`.
-- **Bengali Format:** `Bengali` numeral formatting implemented for all types of numerical calculation.
-- **Frontend PDF Generation:** PDF generation delegated to `clients browser` to eliminate server-side rendering overhead.
-- **Optimized Image Uploads:** Upload images from the frontend `directly to the Cloudinary server` bypassing our Node.js server using `pre-signed URLs` to reduce CPU overhead of our backend server.
+- **Rate Limiting:** `Sliding-Window Rate limit` to prevent bot attacks.
+- **Dual-Token Authentication (AT/RT):** `Access-Token` paired with `Refresh-Token` to authenticate users.
+- **Role-Based Access Control (RBAC):** `Role based access` for admin and non-admin users.
+- **Online Status Indicator:** `Online Status indicator` in chat to see who's online.
+- **Password Reset:** Authenticated users can `reset` their password. Unauthenticated users can reset if they `forget` their password.
+- **Background Job:** The task to track and log activities is `Offloaded as background tasks` using BullMQ to ensure the main request-response cycles are not blocked.
+- **WebSocket:** `Socket.io` utilized to eliminate costly HTTP polling for live chats and notifications.
 - **Search, Filter & Pagination:** Utilized MongoDB `indexing` and limit/skip `pagination` to efficiently serve search results.
+- **Optimized Image Uploads:** Admin can upload images from the frontend `directly to the Cloudinary server` bypassing our Express server using `pre-signed URLs` to reduce our server CPUs computation overhead.
 - **Caching:** Utilized `Redis` to cache hot data like recipe items and password `reset tokens with TTLs` to reduce database read and write overhead.
 - **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback.
 - **Email Dispatch:** Integrated `nodemailer` to send emails for `password reset verification link`.
-- **WebSocket:** `Socket.io` utilized to eliminate costly HTTP polling for live chats and notifications.
+- **Frontend PDF Generation:** PDF generation delegated to `clients browser` to eliminate server-side rendering overhead.
+- **Bengali Format:** `Bengali` numeral formatting implemented for all types of numerical calculation.
 
 ---
 
@@ -51,6 +53,7 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 
 - **Runtime:** Node.js, Express.js
 - **Database:** MongoDB
+- **Background Worker:** BullMQ
 - **Real-Time Communication:** Socket.io
 
 ### Deployment & Infrastructure
@@ -58,4 +61,4 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Frontend:** Vercel
 - **Backend:** Render
 - **Database:** MongoDB Atlas
-- **Redis Cache:** Upstash Redis
+- **Redis & Message Broker:** Upstash Redis
