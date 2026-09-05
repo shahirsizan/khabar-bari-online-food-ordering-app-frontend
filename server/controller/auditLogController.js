@@ -15,29 +15,35 @@ export const getAuditLogs = async (req, res) => {
 		const skip = (page - 1) * limit;
 		const { action, targetEntityType, search } = req.query;
 
-		// Build dynamic query
-		const query = {};
+		const dynamicQuery = {};
 
-		if (action) query.action = action;
-		if (targetEntityType) query.targetEntityType = targetEntityType;
-
+		if (action) {
+			dynamicQuery.action = action;
+		}
+		if (targetEntityType) {
+			dynamicQuery.targetEntityType = targetEntityType;
+		}
+		/***
+		 * `search` is applied over everything for partial match.
+		 */
 		if (search) {
-			query.$or = [
+			dynamicQuery.$or = [
 				{ userEmail: { $regex: search, $options: "i" } },
 				{ action: { $regex: search, $options: "i" } },
-				{ targetId: { $regex: search, $options: "i" } },
+				{ targetEntityType: { $regex: search, $options: "i" } },
 			];
 		}
 
 		const [logs, total] = await Promise.all([
-			AuditLog.find(query)
+			AuditLog.find(dynamicQuery)
 				.sort({ createdAt: -1 })
 				.skip(skip)
 				.limit(limit)
 				.populate("userId", "name email phone role", "User")
 				.lean(),
-			AuditLog.countDocuments(query),
+			AuditLog.countDocuments(dynamicQuery),
 		]);
+		const totalPages = Math.ceil(total / limit) || 1;
 
 		return res.status(200).json({
 			success: true,
@@ -45,7 +51,7 @@ export const getAuditLogs = async (req, res) => {
 			pagination: {
 				total,
 				page,
-				pages: Math.ceil(total / limit),
+				pages: totalPages,
 				limit,
 			},
 		});
