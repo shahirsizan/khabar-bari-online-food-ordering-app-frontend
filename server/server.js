@@ -14,6 +14,7 @@ import { getIO, initIO } from "./utils/io.js";
 import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
+import { initAuditWorker } from "./utils/auditWorker.js";
 
 const allowedOrigins = [
 	"http://localhost:5173",
@@ -22,6 +23,15 @@ const allowedOrigins = [
 ];
 
 const app = express();
+/***
+ * This is important for Audit Logs.
+ * The result: req.ip will now return the real client IP address instead of our proxy's IP.
+ * Without this, every log entry will show the same IP address (Our proxy's),
+ * rendering the ipAddress field useless.
+ * Client (Real User) ──> Reverse Proxy (Nginx/Cloudflare) ──> Express App
+ * `1` -> Trust only the first upstream proxy hop (Perfect for Nginx, Heroku, or Render).
+ */
+app.set("trust proxy", 1);
 app.use(
 	cors({
 		origin: allowedOrigins,
@@ -44,6 +54,11 @@ app.use(
 
 // Initializing Socket.io once here
 const io = initIO(httpServer, allowedOrigins);
+
+/***
+ * Start BullMQ background worker
+ */
+initAuditWorker();
 
 /***
  * SocketIO controllers
