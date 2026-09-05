@@ -27,6 +27,7 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Rate Limiting:** `Sliding-Window Rate limit` to prevent bot attacks.
 - **Dual-Token Authentication (AT/RT):** `Access-Token` paired with `Refresh-Token` to authenticate users.
 - **Role-Based Access Control (RBAC):** `Role based access` for admin and non-admin users.
+- **Activity Logging:** Admin can inspect system-wide activity logs in their admin panel.
 - **Online Status Indicator:** `Online Status indicator` in chat to see who's online.
 - **Password Reset:** Authenticated users can `reset` their password. Unauthenticated users can reset if they `forget` their password.
 - **Background Job:** The task to track and log activities is `Offloaded as background tasks` using BullMQ to ensure the main request-response cycles are not blocked.
