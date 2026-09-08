@@ -47,8 +47,6 @@ export const apiFetch = async (url, options = {}) => {
 		throw new Error("429");
 	}
 
-	// now ok
-
 	/***
 	 * Handle 401, Access token expired, have to generate a new AT from RT)
 	 */
