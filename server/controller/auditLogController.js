@@ -1,4 +1,5 @@
 import { AuditLog } from "../model/AuditLogModel.js";
+import { createAuditLogQueryBuilder } from "../builder/auditLogQueryBuilder.js";
 
 /**
  * Get all audit logs
@@ -15,24 +16,14 @@ export const getAuditLogs = async (req, res) => {
 		const skip = (page - 1) * limit;
 		const { action, targetEntityType, search } = req.query;
 
-		const dynamicQuery = {};
-
-		if (action) {
-			dynamicQuery.action = action;
-		}
-		if (targetEntityType) {
-			dynamicQuery.targetEntityType = targetEntityType;
-		}
 		/***
-		 * `search` is applied over everything for partial match.
+		 * Make the mongoose query using Builder Pattern.
 		 */
-		if (search) {
-			dynamicQuery.$or = [
-				{ userEmail: { $regex: search, $options: "i" } },
-				{ action: { $regex: search, $options: "i" } },
-				{ targetEntityType: { $regex: search, $options: "i" } },
-			];
-		}
+		const dynamicQuery = createAuditLogQueryBuilder()
+			.filterByAction(action)
+			.filterByTargetEntity(targetEntityType)
+			.filterBySearch(search)
+			.build();
 
 		const [logs, total] = await Promise.all([
 			AuditLog.find(dynamicQuery)
