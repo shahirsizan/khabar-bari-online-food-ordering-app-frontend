@@ -150,12 +150,14 @@ export const forgotPassword = async (req, res) => {
 
 		// 2. Set reset token to expire in 10 minutes
 		// format: (key) password_reset:<hashedToken> -> (value) user.email
-		await redisConnection.set(
-			`password_reset_token:${hashedResetToken}`,
-			user.email,
-			"EX",
-			600,
-		);
+		if (redisConnection) {
+			await redisConnection.set(
+				`password_reset_token:${hashedResetToken}`,
+				user.email,
+				"EX",
+				600,
+			);
+		}
 
 		// 3. Create URL(Will redirect to frontend) with resetToken embedded
 		const resetUrl = `${frontend_base_url}/reset-password-after-link?resetToken=${hashedResetToken}`;
@@ -185,13 +187,18 @@ export const resetPasswordWithToken = async (req, res) => {
 		// console.log("hashedResetToken: ", hashedResetToken);
 
 		const redisKey = `password_reset_token:${hashedResetToken}`;
+
+		if (!redisConnection) {
+			throw new Error("Redis not activated!");
+		}
+
 		// 1. Fetch user email from Redis
 		const userEmail = await redisConnection.get(redisKey);
 
 		if (!userEmail) {
-			return res
-				.status(400)
-				.json({ error: "Invalid or expired password reset token." });
+			return res.status(400).json({
+				error: "Invalid or expired password reset token.",
+			});
 		}
 
 		// 2. Find user in DB and update password

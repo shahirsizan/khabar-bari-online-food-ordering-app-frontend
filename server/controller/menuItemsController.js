@@ -7,9 +7,11 @@ export const getAllMenuItems = async (req, res) => {
 		/***
 		 * Check Redis cache first
 		 */
-		const cachedMenuItems = await redisConnection.get(CACHE_KEY);
-		if (cachedMenuItems) {
-			return res.status(200).json(JSON.parse(cachedMenuItems));
+		if (redisConnection) {
+			const cachedMenuItems = await redisConnection.get(CACHE_KEY);
+			if (cachedMenuItems) {
+				return res.status(200).json(JSON.parse(cachedMenuItems));
+			}
 		}
 
 		/***
@@ -20,12 +22,14 @@ export const getAllMenuItems = async (req, res) => {
 		/***
 		 * Store in Redis with TTL
 		 */
-		await redisConnection.set(
-			CACHE_KEY,
-			JSON.stringify(allMenuItems),
-			"EX",
-			3600,
-		);
+		if (redisConnection) {
+			await redisConnection.set(
+				CACHE_KEY,
+				JSON.stringify(allMenuItems),
+				"EX",
+				3600,
+			);
+		}
 
 		res.status(200).json(allMenuItems);
 	} catch (error) {
@@ -47,19 +51,24 @@ export const getMenuItem = async (req, res) => {
 	/***
 	 * Check Redis cache first
 	 */
-	const cachedMenuItem = await redisConnection.get(CACHE_KEY);
-	if (cachedMenuItem) {
-		return res.status(200).json(JSON.parse(cachedMenuItem));
+	if (redisConnection) {
+		const cachedMenuItem = await redisConnection.get(CACHE_KEY);
+		if (cachedMenuItem) {
+			return res.status(200).json(JSON.parse(cachedMenuItem));
+		}
 	}
 
 	try {
 		const menuItem = await MenuItem.findById(id).lean();
-		await redisConnection.set(
-			CACHE_KEY,
-			JSON.stringify(menuItem),
-			"EX",
-			3600,
-		);
+
+		if (redisConnection) {
+			await redisConnection.set(
+				CACHE_KEY,
+				JSON.stringify(menuItem),
+				"EX",
+				3600,
+			);
+		}
 
 		res.status(200).json(menuItem);
 	} catch (error) {
@@ -95,7 +104,9 @@ export async function addMenuItem(req, res) {
 		/***
 		 * Invalidate stale cache
 		 */
-		await redisConnection.del("menu_items:all");
+		if (redisConnection) {
+			await redisConnection.del("menu_items:all");
+		}
 
 		return res.status(200).json({
 			message: "আইটেম সংযোজন প্রক্রিয়া সফল হয়েছে।",
@@ -130,7 +141,9 @@ export const updateMenuItem = async (req, res) => {
 		/***
 		 * Invalidate stale cache
 		 */
-		await redisConnection.del("menu_items:all");
+		if (redisConnection) {
+			await redisConnection.del("menu_items:all");
+		}
 
 		res.status(200).json({
 			message: "আইটেম এডিট প্রক্রিয়া সফল হয়েছে।",
