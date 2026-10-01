@@ -12,7 +12,6 @@ import {
 } from "../controller/authController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { auditLoggerMiddleware } from "../middleware/auditLoggerMiddleware.js";
-import { upload } from "../middleware/upload.js";
 import {
 	getAuditLogById,
 	getAuditLogs,
@@ -46,16 +45,7 @@ import {
 	getRoomMessages,
 	getRoomName,
 } from "../controller/chatController.js";
-import { nanoid } from "nanoid";
 import "dotenv/config";
-import mongoose from "mongoose";
-import { getIO } from "../utils/io.js";
-import { Message } from "../model/Message.js";
-import { User } from "../model/userModel.js";
-import { Order } from "../model/orderModel.js";
-import { Notification } from "../model/NotificationModel.js";
-import SSLCommerzPayment from "sslcommerz-lts";
-import { frontend_base_url } from "../workMode.js";
 import {
 	sslCommerzFail,
 	sslCommerzPaymentStatusPolling,
