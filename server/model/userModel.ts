@@ -1,6 +1,19 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-const schema = new Schema(
+export interface IUser {
+	_id: mongoose.Types.ObjectId;
+	name: string;
+	email: string;
+	password?: string; // Optional because we'll omit it in auth middleware.
+	phone: string;
+	streetAddress: string;
+	city: string;
+	role: "user" | "admin";
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+const schema = new Schema<IUser>(
 	{
 		name: { type: String, required: true },
 		email: {
@@ -26,6 +39,7 @@ const schema = new Schema(
 		},
 		role: {
 			type: String,
+			enum: ["admin", "user"],
 			default: "user",
 			required: true,
 		},
@@ -35,4 +49,4 @@ const schema = new Schema(
 	},
 );
 
-export const User = mongoose.model("User", schema);
+export const User = mongoose.model<IUser>("User", schema);
