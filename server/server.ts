@@ -1,7 +1,6 @@
 import { mode } from "./workMode.js";
 import express from "express";
 import mongoose, { Mongoose } from "mongoose";
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./routes/routes.js";
@@ -10,17 +9,29 @@ import slidingWindowLimiter from "./middleware/rateLimiter.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { Message } from "./model/Message.js";
-import { getIO, initIO } from "./utils/io.js";
+import { initIO } from "./utils/io.js";
 import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
 import { initAuditWorker } from "./utils/auditWorker.js";
 
-const allowedOrigins = [
-	"http://localhost:5173",
-	"https://khabar-bari-frontend.vercel.app",
-	"https://tokenized.sandbox.bka.sh",
-];
+interface SocketUserPresence {
+	_id: string;
+	role: "admin" | "user";
+}
+
+interface SocketTrackingInfo {
+	socketId: string;
+	role: "admin" | "user";
+}
+
+interface SocketMessagePayload {
+	roomId: string;
+	roomName: string;
+	senderId: string;
+	senderRole: "admin" | "user";
+	text: string;
+}
 
 const app = express();
 /***
@@ -32,18 +43,16 @@ const app = express();
  * `1` -> Trust only the first upstream proxy hop (Perfect for Nginx, Heroku, or Render).
  */
 app.set("trust proxy", 1);
-app.use(
-	cors({
-		origin: allowedOrigins,
-		credentials: true,
-		// allowedHeaders: ["Content-Type", "token", "Authorization"],
-	}),
-);
 const port = process.env.PORT || 5000;
 const httpServer = createServer(app);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+const allowedOrigins = [
+	"http://localhost:5173",
+	"https://khabar-bari-frontend.vercel.app",
+	"https://tokenized.sandbox.bka.sh",
+];
 app.use(
 	cors({
 		origin: allowedOrigins,
@@ -64,10 +73,15 @@ initAuditWorker();
  * SocketIO controllers
  */
 // Map to track online users: Key = userId, Value = { socketId, role}
-const onlineUsers = new Map();
+// typed Map instance: Key = userId (string), Value = SocketTrackingInfo object
+const onlineUsers = new Map<string, SocketTrackingInfo>();
 io.on("connection", (socket) => {
 	// Triggered as soon as any user lands on the app
-	socket.on("register_presence", ({ user }) => {
+	socket.on("register_presence", ({ user }: { user: SocketUserPresence }) => {
+		if (!user) {
+			return;
+		}
+
 		onlineUsers.set(user._id, { socketId: socket.id, role: user.role });
 
 		if (user.role === "admin") {
@@ -83,7 +97,7 @@ io.on("connection", (socket) => {
 	});
 
 	// Triggered when a user joins a room.
-	socket.on("join_room", ({ roomId }) => {
+	socket.on("join_room", ({ roomId }: { roomId: string }) => {
 		socket.join(roomId);
 	});
 
@@ -103,7 +117,7 @@ io.on("connection", (socket) => {
 
 	// Triggered to sync the Admin Sidebar on mount.
 	socket.on("get_online_users", () => {
-		const onlineIds = [];
+		const onlineIds: string[] = [];
 		// Key = userId, Value = { socketId, role}
 		for (let [id, connectedUser] of onlineUsers.entries()) {
 			// populate the map with non-admin entries.
@@ -115,8 +129,9 @@ io.on("connection", (socket) => {
 	});
 
 	// Handle messages
-	socket.on("send_message", async (data) => {
+	socket.on("send_message", async (data: SocketMessagePayload) => {
 		const { roomId, roomName, senderId, senderRole, text } = data;
+
 		/***
 		 * console.log(typeof roomId);		string   
 			console.log(typeof roomName);		string
@@ -169,23 +184,26 @@ io.on("connection", (socket) => {
 				 * */
 				const adminUser = await User.findOne({ role: "admin" });
 
-				const adminNotification = await Notification.create({
-					message: `You received a message from ${roomName}`,
-					isRead: false,
-					link: `/profile/chats/${roomId}`,
-					recipientId: adminUser._id,
-					type: "chat",
-				});
+				// Critical safety fallback validation to prevent crashing server on missing admin
+				if (adminUser) {
+					const adminNotification = await Notification.create({
+						message: `You got a message from ${roomName}`,
+						isRead: false,
+						link: `/profile/chats/${roomId}`,
+						recipientId: adminUser._id,
+						type: "chat",
+					});
 
-				socket
-					.to("admin_room")
-					.emit("new_chat_notification", adminNotification);
+					socket
+						.to("admin_room")
+						.emit("new_chat_notification", adminNotification);
+				}
 			} else if (senderRole === "admin") {
 				/***
 				 * Admin -> User
 				 * */
 				const userNotification = await Notification.create({
-					message: `You received a message from Admin`,
+					message: `You got a message from Admin`,
 					isRead: false,
 					// Added link so `markSeveralChatNotificationsAsRead` controller works for user too
 					link: `/profile/chats/${roomId}`,
@@ -213,15 +231,17 @@ io.on("connection", (socket) => {
 					.to(roomId)
 					.emit("new_chat_notification", userNotification);
 			}
-		} catch (error) {
-			console.error("Error saving message: ", error.message);
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				console.error("Error saving message: ", error.message);
+			}
 		}
 	});
 
 	// On disconnect
 	socket.on("disconnect", () => {
-		let disconnectedUserId = null;
-		let disconnectedUserRole = null;
+		let disconnectedUserId: string | null = null;
+		let disconnectedUserRole: "admin" | "user" | null = null;
 
 		// Find which user belonged to this socket instance
 		for (let [id, connectedUser] of onlineUsers.entries()) {
