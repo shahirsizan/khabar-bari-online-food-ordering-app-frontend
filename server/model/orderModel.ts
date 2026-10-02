@@ -1,6 +1,33 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { model, Schema, Document } from "mongoose";
+import { IUser } from "./userModel.js";
 
-const OrderSchema = new Schema(
+interface ICartProduct {
+	id: string;
+	name: string;
+	price: number;
+	desc: string;
+	image: string;
+	quantity: number;
+}
+
+export interface IOrder {
+	_id: mongoose.Types.ObjectId;
+	userId: mongoose.Types.ObjectId | IUser;
+	userName: string;
+	userEmail: string;
+	phone: string;
+	streetAddress: string;
+	city: string;
+	totalAmount: string;
+	cartProducts: ICartProduct[];
+	tran_id: string;
+	paid: boolean;
+	status: "Pending" | "Preparing" | "Dispatched" | "Delivered";
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+const OrderSchema = new Schema<IOrder>(
 	{
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -13,13 +40,14 @@ const OrderSchema = new Schema(
 		streetAddress: { type: String, required: true },
 		city: { type: String, required: true },
 		totalAmount: { type: String, required: true },
-		cartProducts: Object,
+		cartProducts: { type: [Object], required: true },
 		tran_id: { type: String, required: true, unique: true, index: true },
 		paid: { type: Boolean, default: false, required: true },
 		status: {
 			type: String,
 			default: "Pending",
 			enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
+			required: true,
 		},
 	},
 	{ timestamps: true },
@@ -31,9 +59,10 @@ const OrderSchema = new Schema(
 OrderSchema.index(
 	{ createdAt: 1 },
 	{
-		expireAfterSeconds: 1800,
+		expireAfterSeconds: 3600,
 		partialFilterExpression: { paid: false },
 	},
 );
 
-export const Order = mongoose.models?.Order || model("Order", OrderSchema);
+export const Order =
+	mongoose.models?.Order || model<IOrder>("Order", OrderSchema);
