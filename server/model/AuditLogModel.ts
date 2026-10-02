@@ -1,6 +1,39 @@
 import mongoose from "mongoose";
+import { IUser } from "./userModel.js";
 
-const auditLogSchema = new mongoose.Schema(
+export type AuditAction =
+	| "CREATE_MENU_ITEM"
+	| "UPDATE_MENU_ITEM"
+	| "DELETE_MENU_ITEM"
+	| "PLACE_ORDER"
+	| "UPDATE_ORDER_STATUS"
+	| "DELETE_USER"
+	| "UPDATE_USER"
+	| "RESET_USER_PASSWORD";
+
+export type AuditTargetEntity = "MenuItem" | "Order" | "User";
+
+export interface IAuditLog {
+	_id: mongoose.Types.ObjectId;
+	userId: mongoose.Types.ObjectId | IUser;
+	userEmail?: string;
+	action: AuditAction;
+	targetEntityType: AuditTargetEntity;
+	details: {
+		method?: string;
+		url?: string | null;
+		urlParams?: Record<string, any> | null;
+		queryParams?: Record<string, any> | null;
+		reqBody?: Record<string, any>;
+		resBody?: Record<string, any>;
+	};
+	ipAddress: string;
+	userAgent: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+const auditLogSchema = new mongoose.Schema<IAuditLog>(
 	{
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -68,4 +101,6 @@ auditLogSchema.index({ createdAt: -1, action: 1 });
  */
 // auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 21600 });
 
-export const AuditLog = mongoose.model("AuditLog", auditLogSchema);
+export const AuditLog =
+	mongoose.models?.AuditLog ||
+	mongoose.model<IAuditLog>("AuditLog", auditLogSchema);
