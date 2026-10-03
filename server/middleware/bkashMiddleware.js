@@ -1,7 +1,7 @@
 import axios from "axios";
 import globals from "node-global-storage";
 
-class Middleware {
+class BkashMiddleware {
 	// To get `Grant_Token`
 	bkash_auth = async (req, res, next) => {
 		globals.unsetValue("id_token"); //because upon grant_token call, a new id_token will be returned. SO we first delete the existing one
@@ -21,7 +21,7 @@ class Middleware {
 						username: process.env.bkash_username,
 						password: process.env.bkash_password,
 					},
-				}
+				},
 			);
 			globals.setValue("id_token", data.id_token, { protected: true });
 			// req.newData = data;
@@ -35,6 +35,6 @@ class Middleware {
 	};
 }
 
-const middleware = new Middleware();
+const bkashMiddlewareObj = new BkashMiddleware();
 
-export { middleware };
+export { bkashMiddlewareObj };

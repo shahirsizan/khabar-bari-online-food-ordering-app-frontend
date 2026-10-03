@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { middleware } from "../middleware/middleware.js";
+import { bkashMiddlewareObj } from "../middleware/bkashMiddleware.js";
 import { paymentController } from "../controller/paymentController.js";
 import {
 	forgotPassword,
@@ -204,13 +204,13 @@ router.get("/payment/status/:tranId", sslCommerzPaymentStatusPolling);
  */
 router.post(
 	"/bkash/payment/create",
-	middleware.bkash_auth,
+	bkashMiddlewareObj.bkash_auth,
 	paymentController.payment_create,
 );
 
 router.get(
 	"/bkash/payment/callback",
-	middleware.bkash_auth,
+	bkashMiddlewareObj.bkash_auth,
 	paymentController.call_back,
 );
 
@@ -222,7 +222,7 @@ router.get(
 
 router.get(
 	"/bkash/payment/refund/:trxID",
-	middleware.bkash_auth,
+	bkashMiddlewareObj.bkash_auth,
 	paymentController.refund,
 );
 
