@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { bkashMiddlewareObj } from "../middleware/bkashMiddleware.js";
-import { paymentController } from "../controller/paymentController.js";
+import { paymentController } from "../controller/bkashPaymentController.js";
 import {
 	forgotPassword,
 	loginUser,
