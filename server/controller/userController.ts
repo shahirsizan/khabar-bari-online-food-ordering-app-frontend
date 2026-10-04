@@ -1,23 +1,41 @@
-import { User } from "../model/userModel.js";
+import { RequestHandler } from "express";
+import { IUser, User } from "../model/userModel.js";
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers: RequestHandler<
+	{},
+	Omit<IUser, "password">[] | { message: string },
+	{},
+	{}
+> = async (req, res) => {
 	if (req.user?.role !== "admin") {
 		return res.status(403).json({ message: "You are not admin." });
 	}
 
 	try {
 		const users = await User.find().select("-password").lean();
+		console.log("Dang!");
 
 		res.status(200).json(users);
-	} catch (error) {
-		console.error("Error in getAllUsers:", error.message);
-		res.status(500).json({
-			message: error.message,
-		});
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Error in getAllUsers:", error.message);
+			res.status(500).json({
+				message: error.message,
+			});
+		} else {
+			res.status(500).json({
+				message: "An unexpected error occured.",
+			});
+		}
 	}
 };
 
-export const getUser = async (req, res) => {
+export const getUser: RequestHandler<
+	{ id: string },
+	Omit<IUser, "password"> | { message: string },
+	{},
+	{}
+> = async (req, res) => {
 	if (req.user?.role !== "admin") {
 		return res.status(403).json({ message: "You are not admin." });
 	}
@@ -25,18 +43,46 @@ export const getUser = async (req, res) => {
 	const { id } = req.params;
 
 	try {
-		const user = await User.findById(id).select("-password").lean();
+		const user: Omit<IUser, "password"> | null = await User.findById(id)
+			.select("-password")
+			.lean();
+
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
 
 		res.status(200).json(user);
-	} catch (error) {
-		console.error("Error in getUser:", error.message);
-		res.status(500).json({
-			message: error.message,
-		});
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Error in getUser:", error.message);
+			res.status(500).json({
+				message: error.message,
+			});
+		} else {
+			res.status(500).json({
+				message: "An unexpected error occured.",
+			});
+		}
 	}
 };
 
-export const updateProfile = async (req, res) => {
+export const updateProfile: RequestHandler<
+	{ id: string },
+	{ message: string; user: Omit<IUser, "password"> } | { message: string },
+	{
+		originalObject: Omit<IUser, "password">;
+		userName: string;
+		phone: string;
+		streetAddress: string;
+		city: string;
+		role: string;
+	},
+	{}
+> = async (req, res) => {
+	if (!req.user) {
+		return res.status(401).json({ message: "Access denied" });
+	}
+
 	try {
 		if (
 			req.user.role !== "admin" &&
@@ -57,7 +103,7 @@ export const updateProfile = async (req, res) => {
 		 * It prevents Mongoose from ever creating the heavy document instance in the first place,
 		 * making queries up to 4x faster.
 		 */
-		const userDoc = await User.findOneAndUpdate(
+		const userDoc = (await User.findOneAndUpdate(
 			{ email: req.user.role === "admin" ? email : req.user.email },
 			{
 				name: userName,
@@ -67,27 +113,37 @@ export const updateProfile = async (req, res) => {
 				role: req.user.role === "admin" ? role : req.user.role,
 			},
 			{ new: true }, // Returns the modified document
-		).lean();
+		)
+			.select("-password")
+			.lean()) as Omit<IUser, "password"> | null;
 
 		if (!userDoc) {
 			return res.status(404).json({ message: "User not found" });
 		}
 
-		delete userDoc.password;
-
 		return res.status(200).json({
 			message: "প্রোফাইল আপডেট প্রক্রিয়া সফল হয়েছে।",
 			user: userDoc,
 		});
-	} catch (error) {
-		console.error("profileController -> updateProfile():", error.message);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error(
+				"profileController -> updateProfile():",
+				error.message,
+			);
+		}
 		return res.status(500).json({
 			message: "প্রোফাইল আপডেট প্রক্রিয়া ব্যর্থ হয়েছে।",
 		});
 	}
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser: RequestHandler<
+	{ id: string },
+	{ message: string },
+	{},
+	{}
+> = async (req, res) => {
 	if (req.user?.role !== "admin") {
 		return res.status(403).json({ message: "You are not admin." });
 	}
@@ -104,10 +160,12 @@ export const deleteUser = async (req, res) => {
 		}
 
 		res.status(200).json({ message: "User deleted successfully" });
-	} catch (error) {
-		console.error("Error in deleteUser:", error.message);
-		res.status(500).json({
-			message: error.message,
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Error in deleteUser:", error.message);
+		}
+		return res.status(500).json({
+			message: "প্রোফাইল আপডেট প্রক্রিয়া ব্যর্থ হয়েছে।",
 		});
 	}
 };
