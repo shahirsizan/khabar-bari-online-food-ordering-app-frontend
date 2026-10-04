@@ -1,10 +1,10 @@
+import "dotenv/config";
 import { mode } from "./workMode.js";
 import express from "express";
 import mongoose, { Mongoose } from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./routes/routes.js";
-import "dotenv/config";
 import slidingWindowLimiter from "./middleware/rateLimiter.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -14,6 +14,7 @@ import { Notification } from "./model/NotificationModel.js";
 import { User } from "./model/userModel.js";
 import { db } from "./utils/db.js";
 import { initAuditWorker } from "./utils/auditWorker.js";
+import { v2 as cloudinary } from "cloudinary";
 
 interface SocketUserPresence {
 	_id: string;
@@ -60,6 +61,19 @@ app.use(
 		// allowedHeaders: ["Content-Type", "token", "Authorization"],
 	}),
 );
+
+/***
+ * Initialize Cloudinary (No need to store the return value)
+ * Because it configures a global singleton instance, the best practice in Node.js/Express
+ * is to call cloudinary.config() once in server.ts right after the environment variables load.
+ * Once done, we can simply import { v2 as cloudinary } anywhere else in our project and start
+ * uploading instantly without needing to configure it over and over again.
+ */
+cloudinary.config({
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME as string,
+	api_key: process.env.CLOUDINARY_API_KEY as string,
+	api_secret: process.env.CLOUDINARY_API_SECRET as string,
+});
 
 // Initializing Socket.io once here
 const io = initIO(httpServer, allowedOrigins);

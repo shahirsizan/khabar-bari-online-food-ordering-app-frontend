@@ -39,7 +39,7 @@ export default function EditableImage({ link, setLink }) {
 
 			// 3. Post directly to Cloudinary endpoint bypassing our backend
 			const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-			const uploadResponse = await apiFetch(cloudinaryUrl, {
+			const uploadResponse = await fetch(cloudinaryUrl, {
 				method: "POST",
 				body: formData, // Do NOT set Content-Type header; fetch handles boundaries automatically with FormData
 			});
