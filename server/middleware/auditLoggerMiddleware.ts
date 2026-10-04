@@ -1,5 +1,6 @@
-import { AuditLog } from "../model/AuditLogModel.js";
 import { auditQueue } from "../utils/auditQueue.js";
+import { AuditAction, AuditTargetEntity } from "../model/AuditLogModel.js";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 
 /**
  * This middleware hooks into Express's res.on("finish") event.
@@ -7,8 +8,18 @@ import { auditQueue } from "../utils/auditQueue.js";
  * generated only if the operation succeeded (statusCode < 400).
  */
 
-export const auditLoggerMiddleware = (action, targetEntityType) => {
-	return async (req, res, next) => {
+export const auditLoggerMiddleware = (
+	action: AuditAction,
+	targetEntityType: AuditTargetEntity,
+): RequestHandler => {
+	return async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		if (!req.user) {
+			return next();
+		}
 		/***
 		 * We have to Intercept both the `req` and `res` bodies early
 		 * because the moment we encounter the "finish" event,
@@ -21,13 +32,15 @@ export const auditLoggerMiddleware = (action, targetEntityType) => {
 		const urlParams = req.params;
 		const queryParams = req.query;
 		const reqBody = req.body;
-		const ipAddress = req.ip || req.socket.remoteAddress || "Unknown";
+		const ipAddress = req.ip || "Unknown";
 		const userAgent = req.headers["user-agent"] || "Unknown";
-		let resBody = null;
+
+		let resBody: any = null;
+		// Hijacking the Express response streaming method to extract response data copies
 		const originalSend = res.send;
-		res.send = function (body) {
+		res.send = function (body: any): Response {
 			resBody = typeof body === "string" ? JSON.parse(body) : body;
-			return originalSend.apply(res, arguments);
+			return originalSend.apply(res, arguments as any);
 		};
 
 		// await new Promise((resolve, reject) => {
@@ -41,7 +54,7 @@ export const auditLoggerMiddleware = (action, targetEntityType) => {
 		 * Upon res cycle completion, we get back to below event listener.
 		 */
 
-		res.on("finish", async () => {
+		res.on("finish", async (): Promise<void> => {
 			if (res.statusCode >= 200 && res.statusCode < 400) {
 				try {
 					/***
@@ -65,11 +78,13 @@ export const auditLoggerMiddleware = (action, targetEntityType) => {
 					});
 
 					console.log("job added to bullmq queue.");
-				} catch (err) {
-					console.error(
-						"❌ Failed to push audit job to queue:",
-						err.message,
-					);
+				} catch (err: unknown) {
+					if (err instanceof Error) {
+						console.error(
+							"❌ Failed to push audit job to queue:",
+							err.message,
+						);
+					}
 				}
 			}
 		});
