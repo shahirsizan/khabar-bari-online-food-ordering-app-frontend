@@ -10,6 +10,13 @@ interface ICartProduct {
 	quantity: number;
 }
 
+export type OrderStatusType =
+	| "Pending"
+	| "Preparing"
+	| "Dispatched"
+	| "Delivered"
+	| "All";
+
 export interface IOrder {
 	_id: mongoose.Types.ObjectId;
 	userId: mongoose.Types.ObjectId | IUser;
@@ -22,7 +29,7 @@ export interface IOrder {
 	cartProducts: ICartProduct[];
 	tran_id: string;
 	paid: boolean;
-	status: "Pending" | "Preparing" | "Dispatched" | "Delivered";
+	status: OrderStatusType;
 	createdAt: Date;
 	updatedAt: Date;
 }
