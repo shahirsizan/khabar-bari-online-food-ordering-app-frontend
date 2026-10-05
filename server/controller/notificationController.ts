@@ -19,10 +19,6 @@ export const getNotifications: RequestHandler<
 			.limit(20)
 			.lean()) as INotification[] | [];
 
-		if (notifications.length === 0) {
-			return res.status(404).json({ message: "Notifications not found" });
-		}
-
 		return res.status(200).json(notifications);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
