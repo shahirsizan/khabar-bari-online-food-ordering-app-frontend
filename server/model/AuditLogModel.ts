@@ -101,6 +101,4 @@ auditLogSchema.index({ createdAt: -1, action: 1 });
  */
 // auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 21600 });
 
-export const AuditLog =
-	mongoose.models?.AuditLog ||
-	mongoose.model<IAuditLog>("AuditLog", auditLogSchema);
+export const AuditLog = mongoose.model<IAuditLog>("AuditLog", auditLogSchema);

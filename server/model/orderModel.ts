@@ -71,5 +71,4 @@ OrderSchema.index(
 	},
 );
 
-export const Order =
-	mongoose.models?.Order || model<IOrder>("Order", OrderSchema);
+export const Order = model<IOrder>("Order", OrderSchema);
