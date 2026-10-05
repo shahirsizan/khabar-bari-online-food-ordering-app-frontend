@@ -1,20 +1,38 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { Notification } from "../model/NotificationModel.js";
-import { Order } from "../model/orderModel.js";
+import { IOrder, Order, OrderStatusType } from "../model/orderModel.js";
 import { getIO } from "../utils/io.js";
+import { RequestHandler } from "express";
 
-export const getOrders = async (req, res) => {
+export const getOrders: RequestHandler<
+	{},
+	| {
+			currentPage: number;
+			totalPages: number;
+			currentPageOrders: IOrder[];
+			totalOrders: number;
+	  }
+	| { message: string },
+	{},
+	{ page?: string; limit?: string; search?: string; status?: OrderStatusType }
+> = async (req, res) => {
 	try {
+		if (!req.user) {
+			return res.status(401).json({ message: "User not authenticated." });
+		}
+
 		const { email, role } = req.user;
+
 		/***
 		 * Get query params: page, limit, search (for email/orderID), status.
 		 */
-		const { page = 1, limit = 10, search, status } = req.query;
+		const { page = "1", limit = "10", search, status } = req.query;
 
 		/***
 		 *  Build query object.
 		 */
-		let queryObj = {};
+		let queryObj: any = {};
+
 		/***
 		 * ⚠️Caution:
 		 * While developing `queryObj`, make sure the properties of it
@@ -79,22 +97,35 @@ export const getOrders = async (req, res) => {
 
 		return res.status(200).json({
 			currentPage: parseInt(page),
-			totalPages: Math.ceil(total / limit),
+			totalPages: Math.ceil(total / parseInt(limit)),
 			currentPageOrders: orders,
 			totalOrders: total,
 		});
-	} catch (error) {
-		console.error("getOrders -> Error: ", error.message);
-		res.status(500).json({ message: error.message });
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("getOrders -> Error: ", error.message);
+			res.status(500).json({ message: error.message });
+		} else {
+			res.status(500).json({ message: "getOrders -> Error occured" });
+		}
 	}
 };
 
-export const getOrder = async (req, res) => {
+export const getOrder: RequestHandler<
+	{ id: string },
+	IOrder | { message: string },
+	{},
+	{}
+> = async (req, res) => {
 	try {
+		if (!req.user) {
+			return res.status(401).json({ message: "User not authenticated." });
+		}
+
 		const { email, role } = req.user;
 		const { id } = req.params;
 
-		const order = await Order.findById(id);
+		const order = (await Order.findById(id)) as IOrder | null;
 
 		if (!order) {
 			return res.status(404).json({ message: "Order not found" });
@@ -105,25 +136,33 @@ export const getOrder = async (req, res) => {
 		// For regular users, check if the orders `userEmail` and the requestors `email` match or not.
 		if (role !== "admin" && order.userEmail !== email) {
 			return res.status(403).json({
-				status: 403,
 				message:
 					"Unauthorized: You do not have permission to view this order.",
 			});
 		}
 
 		return res.status(200).json(order);
-	} catch (error) {
-		console.error("Order Fetch Error:", error.message);
-		res.status(500).json({ message: error.message });
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Order Fetch Error:", error.message);
+			res.status(500).json({ message: error.message });
+		} else {
+			res.status(500).json({ message: "getOrder() error" });
+		}
 	}
 };
 
-export const updateOrderStatus = async (req, res) => {
+export const updateOrderStatus: RequestHandler<
+	{ id: string },
+	{ updatedOrder: IOrder; message: string } | { message: string },
+	{ status: OrderStatusType },
+	{}
+> = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { status } = req.body; // e.g., "completed"
+		const { status } = req.body; // Example: "Delivered"
 
-		const updatedOrder = await Order.findByIdAndUpdate(
+		const updatedOrder: IOrder | null = await Order.findByIdAndUpdate(
 			{ _id: new mongoose.Types.ObjectId(id) },
 			{ status: status },
 			{ new: true },
@@ -133,9 +172,9 @@ export const updateOrderStatus = async (req, res) => {
 			return res.status(404).json({ message: "Order not found" });
 		}
 
-		// make notification object.
+		// Make notification object.
 		const notification = new Notification({
-			recipientId: new mongoose.Types.ObjectId(updatedOrder.userId), // Who placed the order
+			recipientId: updatedOrder.userId as mongoose.Types.ObjectId, // Who placed the order
 			type: "order",
 			message: `Your order #${id} is now ${status}.`,
 			link: `/order/${id}`, // Link to the order details page
@@ -161,11 +200,17 @@ export const updateOrderStatus = async (req, res) => {
 			message: "স্ট্যাটাস আপডেট প্রক্রিয়া সফল হয়েছে!",
 			updatedOrder: updatedOrder,
 		});
-	} catch (error) {
-		console.log("updateOrderStatus() error: ", error.message);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("updateOrderStatus() error: ", error.message);
 
-		res.status(500).json({
-			message: "স্ট্যাটাস আপডেট প্রক্রিয়া ব্যর্থ হয়েছে!",
-		});
+			res.status(500).json({
+				message: "স্ট্যাটাস আপডেট প্রক্রিয়া ব্যর্থ হয়েছে!",
+			});
+		} else {
+			res.status(500).json({
+				message: "স্ট্যাটাস আপডেট প্রক্রিয়া ব্যর্থ হয়েছে!",
+			});
+		}
 	}
 };
