@@ -1,10 +1,26 @@
-export const createAuditLogQueryBuilder = () => {
-	const dynamicQuery = {};
+import { FilterQuery } from "mongoose";
+import {
+	IAuditLog,
+	AuditAction,
+	AuditTargetEntity,
+} from "../model/AuditLogModel.js";
 
-	const builder = {
+interface IAuditLogQueryBuilder {
+	filterByAction(action?: AuditAction): IAuditLogQueryBuilder;
+	filterByTargetEntity(
+		targetEntityType?: AuditTargetEntity,
+	): IAuditLogQueryBuilder;
+	filterBySearch(search?: string): IAuditLogQueryBuilder;
+	build(): FilterQuery<IAuditLog>;
+}
+
+export const createAuditLogQueryBuilder = (): IAuditLogQueryBuilder => {
+	const dynamicQuery: FilterQuery<IAuditLog> = {};
+
+	const builder: IAuditLogQueryBuilder = {
 		filterByAction(action) {
 			if (action) {
-				dynamicQuery.action = action;
+				dynamicQuery.action = action as AuditAction;
 			}
 			/***
 			 * return the builder reference so that next method in the chain can execute over the updated object.
@@ -14,7 +30,8 @@ export const createAuditLogQueryBuilder = () => {
 
 		filterByTargetEntity(targetEntityType) {
 			if (targetEntityType) {
-				dynamicQuery.targetEntityType = targetEntityType;
+				dynamicQuery.targetEntityType =
+					targetEntityType as AuditTargetEntity;
 			}
 			/***
 			 * return the builder reference so that next method in the chain can execute over the updated object.
@@ -24,7 +41,10 @@ export const createAuditLogQueryBuilder = () => {
 
 		filterBySearch(search) {
 			if (search && search.trim() !== "") {
-				const searchRegex = { $regex: search.trim(), $options: "i" };
+				const searchRegex = {
+					$regex: search.trim(),
+					$options: "i",
+				};
 				dynamicQuery.$or = [
 					{ userEmail: searchRegex },
 					{ action: searchRegex },
