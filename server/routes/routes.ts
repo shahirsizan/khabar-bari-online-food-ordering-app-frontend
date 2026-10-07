@@ -5,7 +5,7 @@ import {
 	forgotPassword,
 	loginUser,
 	logout,
-	refreshToken,
+	generateAccessTokenUsingRefreshToken,
 	registerUser,
 	resetPasswordWithToken,
 	updatePasswordWhenLoggedIn,
@@ -61,7 +61,7 @@ const router = Router();
  */
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/refresh-token", refreshToken);
+router.post("/refresh-token", generateAccessTokenUsingRefreshToken);
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.put(
