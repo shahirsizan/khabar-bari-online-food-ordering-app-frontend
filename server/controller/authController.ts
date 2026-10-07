@@ -111,7 +111,7 @@ export const loginUser: RequestHandler<
 			});
 		}
 
-		const passwordMatches = bcrypt.compare(
+		const passwordMatches = await bcrypt.compare(
 			password,
 			user.password as string,
 		);
