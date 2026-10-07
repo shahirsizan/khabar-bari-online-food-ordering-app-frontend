@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./routes/routes.js";
 import slidingWindowLimiter from "./middleware/rateLimiter.js";
+import "./utils/redis.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { Message } from "./model/Message.js";
