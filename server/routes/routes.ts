@@ -12,10 +12,7 @@ import {
 } from "../controller/authController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { auditLoggerMiddleware } from "../middleware/auditLoggerMiddleware.js";
-import {
-	getAuditLogById,
-	getAuditLogs,
-} from "../controller/auditLogController.js";
+import { getAuditLogs } from "../controller/auditLogController.js";
 import { getPresignedSignature } from "../controller/uploadController.js";
 import {
 	addMenuItem,
@@ -141,7 +138,6 @@ router.get("/chatName/:roomId", isAuth, getRoomName);
  * Audit log routes
  */
 router.get("/audit-logs", isAuth, getAuditLogs);
-router.get("/audit-logs/:id", isAuth, getAuditLogById);
 
 /***
  * Notification routes
