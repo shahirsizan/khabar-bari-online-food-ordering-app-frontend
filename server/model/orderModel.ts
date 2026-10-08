@@ -1,7 +1,7 @@
 import mongoose, { model, Schema, Document } from "mongoose";
 import { IUser } from "./userModel.js";
 
-interface ICartProduct {
+export interface ICartProduct {
 	id: string;
 	name: string;
 	price: number;
