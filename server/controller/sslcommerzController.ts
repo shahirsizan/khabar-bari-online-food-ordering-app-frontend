@@ -1,14 +1,36 @@
+import { RequestHandler } from "express";
 import { nanoid } from "nanoid";
 import "dotenv/config";
 import mongoose from "mongoose";
 import { getIO } from "../utils/io.js";
 import SSLCommerzPayment from "sslcommerz-lts";
-import { Order } from "../model/orderModel.js";
-import { User } from "../model/userModel.js";
+import { ICartProduct, IOrder, Order } from "../model/orderModel.js";
+import { IUser, User } from "../model/userModel.js";
 import { Notification } from "../model/NotificationModel.js";
 import sendEmail from "../utils/sendEmail.js";
 import { backend_base_url, frontend_base_url, mode } from "../workMode.js";
 import { auditQueue } from "../utils/auditQueue.js";
+
+interface IPopulatedUser {
+	_id: mongoose.Types.ObjectId;
+	name: string;
+	email: string;
+	role: string;
+}
+
+interface InitPaymentRequestBody {
+	amount: number;
+	user: Omit<Partial<IUser>, "password">;
+	cartItems: ICartProduct[];
+}
+
+interface IPNRequestBody {
+	tran_id?: string;
+	val_id?: string;
+	amount?: string;
+	status?: string;
+	[key: string]: any;
+}
 
 const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASS;
@@ -16,50 +38,88 @@ const is_live = false;
 
 /***
  * Triggered when user clicks "pay now" button.
-	Gets redirected to sslcommerz gateway UI.
+ * Gets redirected to sslcommerz gateway screen.
  */
-export const sslPaymentInitialize = async (req, res) => {
-	/***
-	 * req.body:
-	 * 		{
-				amount: cartTotal,
-				orderId: 1,
-				user,
-				cartItems,
-			};
-	 */
-
-	// nanoid() -> default size is 21.
-	// const tran_id = nanoid(30);
-	const tran_id = nanoid();
-	const data = {
-		total_amount: req.body.amount,
-		currency: "BDT",
-		tran_id: tran_id,
-		product_name: "Consumer Product",
-		product_category: "Consumer Product",
-		product_profile: "general",
-		cus_name: req.body.user.name,
-		cus_email: req.body.user.email,
-		cus_phone: req.body.user.phone,
-		cus_add1: req.body.user.streetAddress,
-		cus_city: req.body.user.city,
-		cus_postcode: "1000",
-		cus_country: "Bangladesh",
-		shipping_method: "NO",
-		success_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/success/${tran_id}`,
-		fail_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/fail/${tran_id}`,
-		cancel_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/cancel/${tran_id}`,
-		ipn_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/ipn`,
-		multi_card_name: "bkash",
-	};
-
-	/***
-	 * run `ngrok http 5000` in terminal while in `dev` mode.
-	 * Because SSLCommerz requires a public URL to send IPN (Instant Payment Notification) callbacks.
-	 */
-
+export const sslPaymentInitialize: RequestHandler<
+	{},
+	{ redirectUrl: string } | { message: string },
+	InitPaymentRequestBody,
+	{}
+> = async (req, res) => {
 	try {
+		if (!store_id || !store_passwd) {
+			console.error("Missing sslcommerz store_id and store_passwd.");
+			return res.status(500).json({
+				message: "sslcommerz setup configs are currently unavailable.",
+			});
+		}
+
+		const { amount, user, cartItems } = req.body;
+
+		if (
+			!amount ||
+			!user ||
+			!user._id ||
+			!cartItems ||
+			cartItems.length === 0
+		) {
+			return res.status(400).json({
+				message: "Order details or user profile inputs are missing.",
+			});
+		}
+
+		/*** Interface detail
+	 interface InitPaymentRequestBody {
+		amount: number;
+		user: {
+			_id: string;
+			name: string;
+			email: string;
+			phone: string;
+			streetAddress: string;
+			city: string;
+		};
+		cartItems: {
+			id: string;
+			name: string;
+			price: number;
+			desc: string;
+			image: string;
+			quantity: number;
+		}[];
+	}
+	 */
+
+		// nanoid() -> default size is 21.
+		// const tran_id = nanoid(30);
+		const tran_id = nanoid();
+		const data = {
+			total_amount: amount,
+			currency: "BDT",
+			tran_id: tran_id,
+			product_name: "Consumer Product",
+			product_category: "Consumer Product",
+			product_profile: "general",
+			cus_name: user.name,
+			cus_email: user.email?.toLowerCase().trim(),
+			cus_phone: user.phone,
+			cus_add1: user.streetAddress,
+			cus_city: user.city,
+			cus_postcode: "1000",
+			cus_country: "Bangladesh",
+			shipping_method: "NO",
+			success_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/success/${tran_id}`,
+			fail_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/fail/${tran_id}`,
+			cancel_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/cancel/${tran_id}`,
+			ipn_url: `${mode === "dev" ? process.env.IPN_URL : backend_base_url}/api/payment/ipn`,
+			multi_card_name: "bkash",
+		};
+
+		/***
+		 * run `ngrok http 5000` in terminal while in `dev` mode.
+		 * Because SSLCommerz requires a public URL to send IPN (Instant Payment Notification) callbacks.
+		 */
+
 		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
 		const apiResponse = await sslcz.init(data);
 		// console.log("apiResponse: ", apiResponse);
@@ -67,15 +127,15 @@ export const sslPaymentInitialize = async (req, res) => {
 		if (apiResponse) {
 			let GatewayPageURL = apiResponse.GatewayPageURL;
 
-			const finalOrder = {
-				totalAmount: req.body.amount,
-				userId: req.body.user._id,
-				userName: req.body.user.name,
-				userEmail: req.body.user.email,
-				phone: req.body.user.phone,
-				streetAddress: req.body.user.streetAddress,
-				city: req.body.user.city,
-				cartProducts: req.body.cartItems,
+			const finalOrder: Partial<IOrder> = {
+				totalAmount: `${amount}`,
+				userId: user._id,
+				userName: user.name,
+				userEmail: user.email?.toLowerCase().trim(),
+				phone: user.phone,
+				streetAddress: user.streetAddress,
+				city: user.city,
+				cartProducts: cartItems,
 				tran_id: tran_id,
 				paid: false,
 			};
@@ -86,8 +146,14 @@ export const sslPaymentInitialize = async (req, res) => {
 			res.status(200).json({ redirectUrl: GatewayPageURL });
 			return;
 		}
-	} catch (error) {
-		console.log("Error: ", error.message);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("sslPaymentInitialize() error ", error.message);
+		}
+		console.log("sslPaymentInitialize() error: ", error);
+		return res.status(500).json({
+			message: "একটি সমস্যা হয়েছে। পুনরায় চেষ্টা করুন!",
+		});
 	}
 };
 
@@ -99,7 +165,12 @@ export const sslPaymentInitialize = async (req, res) => {
  * But they won't have our `store_id` and `store_passwd`. Only we have this.
  * Thus we let sslcommerz validate us by using our credentials in the background.
  */
-export const sslPaymentIPN = async (req, res) => {
+export const sslPaymentIPN: RequestHandler<
+	{},
+	string,
+	IPNRequestBody,
+	{}
+> = async (req, res) => {
 	try {
 		console.log("/payment/ipn called by sslcommerz");
 
@@ -147,29 +218,28 @@ export const sslPaymentIPN = async (req, res) => {
 		}
 
 		/***
-		 * Null record guard
+		 * Idempotency guard: Skip if already processed and already paid
+		 * 1. Fetch order from DB first
+		 * 2. If order.paid === true, it immediately returns HTTP 200 to prevent duplicate database
+		 * writes or duplicate notifications.
 		 */
 		const orderObj = await Order.findOne({
 			tran_id: tran_id,
+			paid: false,
 		}).lean();
+
 		if (!orderObj) {
 			console.error(`IPN Error: No order found for tran_id: ${tran_id}`);
 			return res.status(200).send("Order not found");
 		}
 
-		/***
-		 * Idempotency guard: Skip if already processed
-		 * 1. Fetch order from DB first
-		 * 2. If order.paid === true, it immediately returns HTTP 200 to prevent duplicate database
-		 * writes or duplicate notifications.
-		 */
-		if (orderObj.paid) {
-			console.log(`IPN Info: Order ${tran_id} already processed.`);
-			return res.status(200).send("Order already processed");
-		}
-
 		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-		const response = await sslcz.validate({
+		const response: {
+			status: "VALID" | "VALIDATED" | "INVALID_TRANSACTION";
+			tran_id: string;
+			val_id: string;
+			amount: string;
+		} = await sslcz.validate({
 			val_id,
 			store_id: store_id,
 			store_passwd: store_passwd,
@@ -237,12 +307,8 @@ export const sslPaymentIPN = async (req, res) => {
 			 */
 			const paidAmount = parseFloat(amount);
 			const expectedAmount = parseFloat(orderObj.totalAmount);
-			if (paidAmount !== expectedAmount) {
+			if (paidAmount.toFixed(2) !== expectedAmount.toFixed(2)) {
 				console.error(`paidAmount and expectedAmount don't match`);
-				await Order.updateOne(
-					{ tran_id: tran_id },
-					{ $set: { paid: false } },
-				);
 				return res.status(200).send("Amount mismatch detected");
 			}
 
@@ -252,31 +318,44 @@ export const sslPaymentIPN = async (req, res) => {
 			 * and get the updated document with user info embedded
 			 */
 			const orderObjWithUser = await Order.findOneAndUpdate(
-				{ tran_id: tran_id },
+				{ tran_id: tran_id, paid: false },
 				{ $set: { paid: true } },
+				{ new: true },
 				/***
 				 * Returns the modified document instead of the original
 				 */
-				{ new: true },
-			)
-				.populate("userId", "name email")
-				.exec();
+			).populate<{ userId: IPopulatedUser }>("userId", "name email role");
+			/***
+			 * By default, TS only expects a simple ID string. When we use .populate(), Mongoose changes
+			 * that ID into a full sub-object at runtime. TS does not know this happened, so it will throw
+			 * errors if we try to read properties inside it.
+			 * The solution: We pass the populated object type directly inside the populate() method
+			 */
+
+			if (!orderObjWithUser) {
+				return res
+					.status(200)
+					.send(
+						"Order execution race condition blocked successfully.",
+					);
+			}
+
 			/***
 				 * orderObjWithUser:
 				 * {
-							"_id": "65a1234b56c7890123def456",
-							"tran_id": "TXN_987654321",
-							"totalAmount": 149.99,
-							"status": "paid",
-							"userId": {
-								"_id": "65b9876f54e3210987abc654",
-								"name": "John Doe",
-								"email": "johndoe@example.com"
-							},
-							"createdAt": "2026-03-31T10:00:00.000Z",
-							"updatedAt": "2026-03-31T10:05:00.000Z",
-							"__v": 0
-							}
+					"_id": "65a1234b56c7890123def456",
+					"tran_id": "TXN_987654321",
+					"totalAmount": 149.99,
+					"status": "paid",
+					"userId": {
+						"_id": "65b9876f54e3210987abc654",
+						"name": "John Doe",
+						"email": "johndoe@gmail.com"
+					},
+					"createdAt": "2026-03-31T10:00:00.000Z",
+					"updatedAt": "2026-03-31T10:05:00.000Z",
+					"__v": 0
+					}
 				 */
 
 			/***
@@ -285,8 +364,7 @@ export const sslPaymentIPN = async (req, res) => {
 			 * we will manually enqueue new log entry to bullmq through Redis for async processing.
 			 */
 			await auditQueue.add("new-audit-log", {
-				userId:
-					orderObjWithUser.userId?._id || orderObjWithUser.userId?.id,
+				userId: orderObjWithUser.userId?._id,
 				userEmail: orderObjWithUser.userId?.email,
 				action: "PLACE_ORDER",
 				targetEntityType: "Order",
@@ -304,16 +382,13 @@ export const sslPaymentIPN = async (req, res) => {
 			/***
 			 * Notify admin for a new order.
 			 */
-			const adminUser = await User.findOne({ role: "admin" });
+			const adminUser = await User.findOne({ role: "admin" }).lean();
 			if (adminUser) {
-				const adminId = adminUser._id;
-				const customerName = orderObj.userName;
-
 				const adminNotification = await Notification.create({
-					recipientId: new mongoose.Types.ObjectId(adminId),
-					message: `New order by ${customerName}`,
+					recipientId: new mongoose.Types.ObjectId(adminUser._id),
+					message: `New order by ${orderObjWithUser.userName}`,
 					type: "order",
-					link: `/order/${orderObj._id.toString()}`,
+					link: `/order/${orderObjWithUser._id.toString()}`,
 					metadata: {
 						orderId: orderObj._id,
 						status: "Pending",
@@ -329,19 +404,17 @@ export const sslPaymentIPN = async (req, res) => {
 			return res.status(200).send("IPN Processed Successfully");
 		} else {
 			/***
-             * Handle failed validation cleanly. Instead of deleting,
-               we keep the record for audit purpose with payment status "false" (failed)
-             */
-			await Order.updateOne(
-				{ tran_id: tran_id },
-				{ $set: { paid: false } },
-			);
+			 * In case of failed validation, Instead of deleting, we keep the record for
+			 * audit purpose with payment status "false" as it is already marked as "false"
+			 */
 			return res.status(200).send("Payment validation failed");
 		}
-	} catch (error) {
-		console.error("IPN Exception: ", error.message);
-		// Ensure connection closes
-		return res.status(500).send("Internal Server Error");
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("sslPaymentIPN() error ", error.message);
+		}
+		console.log("sslPaymentIPN() error: ", error);
+		return res.status(500).json("Problem while processing sslPaymentIPN");
 	}
 };
 
@@ -356,36 +429,54 @@ export const sslPaymentIPN = async (req, res) => {
 /***
  * Success Redirect Endpoint
  */
-export const sslCommerzSuccess = async (req, res) => {
+export const sslCommerzSuccess: RequestHandler<
+	{ tranId: string },
+	{},
+	{},
+	{}
+> = async (req, res) => {
 	try {
+		const { tranId } = req.params;
 		console.log("/payment/success/:tranId called");
 		return res.redirect(
 			303,
-			`${frontend_base_url}/success?tranId=${req.params.tranId}`,
+			`${frontend_base_url}/success?tranId=${tranId}`,
 		);
-	} catch (error) {
-		console.error(error.message);
-		res.status(500).json({
-			message: "Server error during success redirect",
-		});
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("sslCommerzSuccess() error ", error.message);
+		}
+		console.log("sslCommerzSuccess() error: ", error);
+		return res
+			.status(500)
+			.json({ message: "Problem while processing sslCommerzSuccess()" });
 	}
 };
 
 /***
  * Failure Redirect Endpoint
  */
-export const sslCommerzFail = async (req, res) => {
+export const sslCommerzFail: RequestHandler<
+	{ tranId: string },
+	{},
+	{},
+	{}
+> = async (req, res) => {
 	try {
 		console.log("/payment/fail/:tranId called");
+		const { tranId } = req.params;
 		return res.redirect(
 			303,
-			`${frontend_base_url}/error?tranId=${req.params.tranId}&message=failed`,
+			`${frontend_base_url}/error?tranId=${tranId}&message=failed`,
 		);
-	} catch (error) {
-		console.error(error.message);
-		res.status(500).json({
-			message: "Server error during failure redirect",
-		});
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("sslCommerzFail() error ", error.message);
+		}
+		console.log("sslCommerzFail() error: ", error);
+		return res
+			.status(500)
+			.json("Problem while processing sslCommerzFail()");
 	}
 };
 
@@ -393,11 +484,30 @@ export const sslCommerzFail = async (req, res) => {
  * Payment status polling endpoint
  */
 
-export const sslCommerzPaymentStatusPolling = async (req, res) => {
+export const sslCommerzPaymentStatusPolling: RequestHandler<
+	{ tranId: string },
+	| { message: string; paid: boolean; orderDetail: any | null }
+	| { message: string },
+	{},
+	{}
+> = async (req, res) => {
 	try {
 		const { tranId } = req.params;
 
-		const order = await Order.findOne({ tran_id: tranId });
+		if (!tranId) {
+			return res.status(400).json({
+				message: "TrxId is unavailable.",
+			});
+		}
+
+		const order = await Order.findOne({
+			tran_id: tranId,
+		})
+			.populate<{ userId: Omit<IUser, "password"> }>(
+				"userId",
+				"-password",
+			)
+			.lean();
 
 		if (!order) {
 			return res
@@ -410,8 +520,13 @@ export const sslCommerzPaymentStatusPolling = async (req, res) => {
 			paid: order.paid,
 			orderDetail: order.paid ? order : null,
 		});
-	} catch (error) {
-		console.error("/payment/status/:tranId Error: ", error.message);
-		res.status(500).json({ error: error.message });
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.log("/payment/status/:tranId Error: ", error.message);
+		}
+		console.log("/payment/status/:tranId Error: ", error);
+		return res
+			.status(500)
+			.json({ message: "/payment/status/:tranId Error: " });
 	}
 };
