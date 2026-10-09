@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useState, ChangeEvent } from "react";
 import { apiFetch } from "../../utils/api";
 import { backend_base_url } from "../../workMode";
 
-export default function EditableImage({ link, setLink }) {
+interface EditableImageProps {
+	link: string;
+	setLink: (url: string) => void;
+}
+
+interface PresignedSignatureResponse {
+	signature: string;
+	timestamp: string;
+	upload_preset: string;
+	apiKey: string;
+	cloudName: string;
+}
+
+interface CloudinaryUploadResponse {
+	secure_url: string;
+	[key: string]: any;
+}
+
+const EditableImage: React.FC<EditableImageProps> = ({ link, setLink }) => {
 	const [isLoading, setIsLoading] = React.useState(false);
 
-	const handleFileChange = async (ev) => {
-		if (ev.target.files?.length === 0) {
+	const handleFileChange = async (
+		ev: ChangeEvent<HTMLInputElement>,
+	): Promise<void> => {
+		const fileList = ev.target.files;
+
+		if (!fileList || fileList?.length === 0) {
 			return alert("Please select an image first!");
 		}
 
@@ -25,13 +47,13 @@ export default function EditableImage({ link, setLink }) {
 				throw new Error("Failed to fetch upload signature.");
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as PresignedSignatureResponse;
 			const { signature, timestamp, upload_preset, apiKey, cloudName } =
 				data;
 
 			// 2. Prepare the multipart form data for direct Cloudinary upload
 			const formData = new FormData();
-			formData.append("file", ev.target.files[0]); // The selected file
+			formData.append("file", fileList[0]); // The selected file
 			formData.append("api_key", apiKey);
 			formData.append("timestamp", timestamp);
 			formData.append("signature", signature);
@@ -41,7 +63,7 @@ export default function EditableImage({ link, setLink }) {
 			const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 			const uploadResponse = await fetch(cloudinaryUrl, {
 				method: "POST",
-				body: formData, // Do NOT set Content-Type header; fetch handles boundaries automatically with FormData
+				body: formData, // Do NOT set `Content-Type` header; fetch handles boundaries automatically with FormData
 			});
 
 			if (!uploadResponse.ok) {
@@ -52,16 +74,23 @@ export default function EditableImage({ link, setLink }) {
 				);
 			}
 
-			const uploadResult = await uploadResponse.json();
+			const uploadResult =
+				(await uploadResponse.json()) as CloudinaryUploadResponse;
 			console.log(
 				"Direct Cloudinary upload secure_url: ",
 				uploadResult.secure_url,
 			);
 
 			setLink(uploadResult.secure_url); // Update the parent component's state with the new image URL
-		} catch (error) {
-			console.error("Error uploading file: ", error.message);
-			alert(error.message || "Something went wrong during the upload.");
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				console.error("Error uploading file: ", error.message);
+				alert(
+					error.message ||
+						"আপলোড করতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।",
+				);
+			}
+			console.error("Error uploading file: ", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -89,6 +118,7 @@ export default function EditableImage({ link, setLink }) {
 			<label>
 				<input
 					type="file"
+					accept="image/*"
 					className="hidden"
 					onChange={(ev) => {
 						handleFileChange(ev);
@@ -104,4 +134,6 @@ export default function EditableImage({ link, setLink }) {
 			</label>
 		</div>
 	);
-}
+};
+
+export default EditableImage;
