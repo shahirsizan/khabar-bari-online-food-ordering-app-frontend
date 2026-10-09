@@ -10,7 +10,15 @@ import { UserProvider } from "./UserContext.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+	throw new Error(
+		"Failed to find the root element. Your index.html might be missing a <div id='root'> tag.",
+	);
+}
+
+ReactDOM.createRoot(rootElement).render(
 	<BrowserRouter>
 		<CartProvider>
 			<UserProvider>
