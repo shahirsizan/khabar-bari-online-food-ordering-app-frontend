@@ -1,8 +1,9 @@
 import { FaLocationArrow, FaMobileAlt } from "react-icons/fa";
 import footerLogo from "../../assets/food-logo.png";
 import { Link } from "react-router-dom";
+import React from "react";
 
-const Footer = () => {
+const Footer: React.FC<{}> = () => {
 	const year = new Date().getFullYear();
 
 	return (
@@ -11,6 +12,7 @@ const Footer = () => {
 				<h1 className="max-sm:m-auto font-bold sm:text-left text-justify flex items-center gap-3">
 					<img
 						src={footerLogo}
+						alt="Khabarbari App Logo"
 						className="w-5 md:w-10 drop-shadow-[1px_1px_1px_black]"
 					/>
 					<span className="text-sm md:text-md bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary/90 drop-shadow-[1px_1px_1px_black]">
@@ -35,26 +37,30 @@ const Footer = () => {
 
 			<div className="text-center py-1 text-sm md:text-md">
 				Engineered by:{" "}
-				<Link
-					to={"https://github.com/shahirsizan"}
+				<a
+					href={"https://github.com/shahirsizan"}
 					target="_blank"
+					rel="noopener noreferrer"
 					className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_1px_black]"
 				>
 					<span className="flex-nowrap">Shahir Adil Sizan</span>
-				</Link>
+				</a>
 			</div>
 
 			<div className="text-center py-1 text-sm md:text-md">
 				Source Code:{" "}
-				<Link
-					to={
-						"https://github.com/shahirsizan/khabar-bari-online-food-ordering-app-frontend"
-					}
+				<a
+					href="https://github.com/shahirsizan/khabar-bari-online-food-ordering-app-frontend"
 					target="_blank"
+					rel="noopener noreferrer"
 					className="font-semibold bg-clip-text text-transparent bg-gradient-to-b from-primary to-secondary drop-shadow-[1px_1px_1px_black]"
 				>
 					Github
-				</Link>
+				</a>
+			</div>
+
+			<div className="text-center py-1 text-sm md:text-md">
+				&copy; {year} খাবারবাড়ি. All rights reserved.
 			</div>
 		</section>
 	);

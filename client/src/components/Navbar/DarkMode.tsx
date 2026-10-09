@@ -2,14 +2,19 @@ import React, { useState, useEffect } from "react";
 import darkPng from "../../assets/website/dark-mode-button.png";
 import lightPng from "../../assets/website/light-mode-button.png";
 
-const DarkMode = () => {
-	const [theme, setTheme] = useState(
-		localStorage.getItem("theme") ? localStorage.getItem("theme") : "light",
-	);
+type ThemeMode = "light" | "dark";
 
-	const rootHtmlElement = document.documentElement;
+const DarkMode: React.FC<{}> = () => {
+	const [theme, setTheme] = useState<ThemeMode>(() => {
+		const savedTheme = localStorage.getItem("theme");
+		return savedTheme === "dark" || savedTheme === "light"
+			? (savedTheme as ThemeMode)
+			: "light";
+	});
 
 	useEffect(() => {
+		const rootHtmlElement = document.documentElement;
+
 		if (theme === "dark") {
 			rootHtmlElement.classList.add("dark");
 			localStorage.setItem("theme", "dark");
@@ -19,8 +24,9 @@ const DarkMode = () => {
 		}
 	}, [theme]);
 
-	const toggleTheme = () =>
+	const toggleTheme = (): void => {
 		setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+	};
 
 	return (
 		<button

@@ -1,11 +1,8 @@
-import BiryaniImg1 from "../../assets/biryani3.png";
-import BiryaniImg2 from "../../assets/biryani5.png";
-import BiryaniImg3 from "../../assets/biryani2.png";
 import biryaniherocompressed from "../../assets/biryaniherocompressed.png";
 import heroimage from "../../assets/heroimage.jpg";
 
-const Hero = () => {
-	const bgImage = {
+const Hero: React.FC<{}> = () => {
+	const bgImageStyle: React.CSSProperties = {
 		backgroundImage: `url(${heroimage})`,
 		backgroundPosition: "center",
 		backgroundRepeat: "no-repeat",
@@ -24,7 +21,7 @@ const Hero = () => {
 	return (
 		<section
 			className="heroSection min-h-[550px] sm:min-h-[600px] pt-10 md:pt-32 pb-8 sm:pb-0 flex justify-center items-center px-[5vw] md:px-[8vw] lg:px-[10vw] "
-			style={bgImage}
+			style={bgImageStyle}
 		>
 			<div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-20 xl:gap-x-36">
 				{/* <div className="flex flex-col sm:flex-row justify-center items-center"> */}

@@ -1,22 +1,40 @@
+import React, { useState } from "react";
 import Logo from "../../assets/food-logo.png";
 import DarkMode from "./DarkMode";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../CartContext";
 import { useUserContext } from "../../UserContext";
 import { toBanglaNumber } from "../../utils/toBanglaNumber";
-import { useState } from "react";
 import MobileMenu from "../MobileMenu";
 import NotificationDropdown from "../NotificationDropdown";
 import { FiShoppingCart } from "react-icons/fi";
 import { CgMenuOreos } from "react-icons/cg";
 
-const Navbar = () => {
-	const { totalItemsCount } = useCart();
-	const navigate = useNavigate();
-	const { loading, isAuthenticated, user, logoutUser } = useUserContext();
-	const [isMenuOpen, setIsMenuOpen] = useState(false); // for mobile
+/***
+ * CAUTION:
+ * Since we haven't typed `UserContext` and `CartContext` yet,
+ * We used in-line placeholder types to avoid warnings.
+ * We'll resolve them later when we type the context files
+ */
 
-	const handleLogout = () => {
+interface LocalUserShape {
+	name: string;
+	email?: string;
+	[key: string]: any;
+}
+
+const Navbar: React.FC<{}> = () => {
+	const navigate = useNavigate();
+	const { totalItemsCount } = useCart() as { totalItemsCount: number };
+	const { isAuthenticated, user, logoutUser } = useUserContext() as {
+		loading: boolean;
+		isAuthenticated: boolean;
+		user: LocalUserShape | null;
+		logoutUser: () => void;
+	};
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false); // for mobile
+
+	const handleLogout = (): void => {
 		logoutUser();
 		navigate("/login");
 	};
@@ -31,6 +49,7 @@ const Navbar = () => {
 				>
 					<img
 						src={Logo}
+						alt="খাবারবাড়ি লোগো"
 						className="max-sm:hidden w-8 md:w-12 drop-shadow-[1px_1px_1px_black]"
 					/>
 
