@@ -1,6 +1,6 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 import { apiFetch } from "../../utils/api";
-import { backend_base_url } from "../../workMode";
+import { backend_base_url } from "../../workMode.ts";
 
 interface EditableImageProps {
 	link: string;

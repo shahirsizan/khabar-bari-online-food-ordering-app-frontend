@@ -1,4 +1,4 @@
-import { backend_base_url } from "../../workMode";
+import { backend_base_url } from "../../workMode.ts";
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import { useCart } from "../../CartContext";

@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Error2: React.FC<{}> = () => {

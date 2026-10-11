@@ -1,6 +1,5 @@
 import { FaLocationArrow, FaMobileAlt } from "react-icons/fa";
 import footerLogo from "../../assets/food-logo.png";
-import { Link } from "react-router-dom";
 import React from "react";
 
 const Footer: React.FC<{}> = () => {

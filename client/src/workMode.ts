@@ -1,6 +1,12 @@
-const mode = "prod"; // prod or dev
-var frontend_base_url;
-var backend_base_url;
+type modeType = "prod" | "dev";
+
+let mode: modeType;
+
+mode = "prod" as modeType; // prod or dev
+
+let frontend_base_url: string;
+let backend_base_url: string;
+
 if (mode === "dev") {
 	frontend_base_url = "http://localhost:5173";
 	backend_base_url = "http://localhost:5000";

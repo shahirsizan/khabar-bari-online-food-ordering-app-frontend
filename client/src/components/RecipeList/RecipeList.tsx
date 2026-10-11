@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "../../CartContext";
 import { useLocation } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
-import { backend_base_url } from "../../workMode";
+import { backend_base_url } from "../../workMode.ts";
 import { toBanglaNumber } from "../../utils/toBanglaNumber";
 import { toast } from "react-toastify";
 
@@ -139,7 +139,7 @@ const RecipeList: React.FC<{}> = () => {
 
 			{/* CARDS */}
 			<div className="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] justify-center mx-auto gap-2 xl:gap-3">
-				{menuItems.map((item, index) => {
+				{menuItems.map((item) => {
 					const quantity = getQuantity(item.id);
 
 					/***
