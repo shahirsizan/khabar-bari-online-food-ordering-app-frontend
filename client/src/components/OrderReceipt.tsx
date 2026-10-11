@@ -1,36 +1,50 @@
 import React from "react";
 import Logo from "../assets/food-logo.png";
 import { toBanglaNumber } from "../utils/toBanglaNumber";
+import { IOrderDetail } from "./Success/Success2";
 
-const OrderReceipt = ({ orderDetail: orderDetail, receiptRef }) => {
+interface IOrderReceiptProps {
+	orderDetail: IOrderDetail | null;
+	receiptRef: React.RefObject<HTMLDivElement>;
+}
+
+const statusConfig: any = {
+	pending: {
+		text: "অপেক্ষমান",
+		bg: "bg-yellow-100",
+		textClass: "text-yellow-800",
+		dot: "bg-yellow-500",
+	},
+	preparing: {
+		text: "প্রক্রিয়াধীন",
+		bg: "bg-blue-100",
+		textClass: "text-blue-800",
+		dot: "bg-blue-500",
+	},
+	dispatched: {
+		text: "পাঠানো হয়েছে",
+		bg: "bg-indigo-100",
+		textClass: "text-indigo-800",
+		dot: "bg-indigo-500",
+	},
+	delivered: {
+		text: "ডেলিভারি সম্পন্ন",
+		bg: "bg-green-100",
+		textClass: "text-green-800",
+		dot: "bg-green-500",
+	},
+};
+
+const OrderReceipt = ({ orderDetail, receiptRef }: IOrderReceiptProps) => {
+	if (!orderDetail || !receiptRef) {
+		return (
+			<div className="bg-white shadow-2xl rounded-2xl p-8 w-full border-t-8 border-red-500 text-center font-atma text-gray-500">
+				কোনো অর্ডারের তথ্য পাওয়া যায়নি!
+			</div>
+		);
+	}
+
 	// config object for dynamic visual features based on order status
-	const statusConfig = {
-		pending: {
-			text: "অপেক্ষমান",
-			bg: "bg-yellow-100",
-			textClass: "text-yellow-800",
-			dot: "bg-yellow-500",
-		},
-		preparing: {
-			text: "প্রক্রিয়াধীন",
-			bg: "bg-blue-100",
-			textClass: "text-blue-800",
-			dot: "bg-blue-500",
-		},
-		dispatched: {
-			text: "পাঠানো হয়েছে",
-			bg: "bg-indigo-100",
-			textClass: "text-indigo-800",
-			dot: "bg-indigo-500",
-		},
-		delivered: {
-			text: "ডেলিভারি সম্পন্ন",
-			bg: "bg-green-100",
-			textClass: "text-green-800",
-			dot: "bg-green-500",
-		},
-	};
-
 	const currentStatus = statusConfig[orderDetail?.status?.toLowerCase()];
 
 	return (

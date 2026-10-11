@@ -1,12 +1,15 @@
 import React from "react";
-import Img from "../../assets/biryani.png";
-import Img2 from "../../assets/biryani2.png";
-import Img3 from "../../assets/biryani4.png";
 import scooterImg from "../../assets/scooter.png";
 import dineImg from "../../assets/dine-in.png";
 import takeaway from "../../assets/takeaway.png";
-import StarRatings from "react-star-ratings";
-const ServicesData = [
+
+interface ServiceItem {
+	id: number;
+	img: string;
+	name: string;
+}
+
+const ServicesData: ServiceItem[] = [
 	{
 		id: 1,
 		img: scooterImg,
@@ -24,7 +27,7 @@ const ServicesData = [
 	},
 ];
 
-const Services = () => {
+const Services: React.FC<{}> = () => {
 	return (
 		<section
 			className="servicesSection font-atma py-6 lg:py-12 px-[5vw] md:px-[8vw] lg:px-[10vw]"

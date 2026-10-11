@@ -1,26 +1,51 @@
 import React, { useEffect, useState } from "react";
-import AchariChicken from "../../assets/AchariChicken.png";
-import BeefBrainMasala from "../../assets/BeefBrainMasala.png";
-import chickenkarai from "../../assets/chickenkarai.png";
-import ChickenTikkaButterMasala from "../../assets/ChickenTikkaButterMasala.png";
-import ShahiMorogPolao from "../../assets/ShahiMorogPolao.png";
-import rice from "../../assets/rice.png";
-import EggKhichuri from "../../assets/EggKhichuri.png";
-import mixedvegetable from "../../assets/mixedvegetable.jpg";
-import moogdal from "../../assets/moogdal.png";
-
 import { useCart } from "../../CartContext";
 import { useLocation } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 import { backend_base_url } from "../../workMode";
+import { toBanglaNumber } from "../../utils/toBanglaNumber";
+import { toast } from "react-toastify";
 
-const RecipeList = () => {
-	const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
-	const [menuItems, setMenuItems] = useState([]);
-	const [isLoading, setIsLoading] = useState(true);
+/***
+ * Te below type interfaces will be modified later when we finish our
+ * `userContext` and `cartContext` files.
+ */
 
+interface RecipeItem {
+	id: string;
+	name: string;
+	price: number;
+	desc: string;
+	image: string;
+}
+
+interface BackendMenuItemShape {
+	_id: string;
+	name: string;
+	basePrice: number;
+	description: string;
+	image: string;
+	[key: string]: any;
+}
+
+interface useCartTypes {
+	cartItems: { id: string; quantity: number; [key: string]: any }[];
+	addToCart: (item: RecipeItem, quantity: number) => void;
+	updateQuantity: (id: string, quantity: number) => void;
+	removeFromCart: (id: string) => void;
+}
+
+const RecipeList: React.FC<{}> = () => {
+	const { cartItems, addToCart, updateQuantity, removeFromCart } =
+		useCart() as useCartTypes;
+	const [menuItems, setMenuItems] = useState<RecipeItem[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+
+	/***
+	 * Fetch menu items on mount
+	 */
 	useEffect(() => {
-		const fetchMenuItems = async () => {
+		const fetchMenuItems = async (): Promise<void> => {
 			try {
 				const response = await apiFetch(
 					`${backend_base_url}/api/menu-items`,
@@ -30,12 +55,13 @@ const RecipeList = () => {
 				);
 
 				if (response.ok) {
-					const data = await response.json();
+					const data =
+						(await response.json()) as BackendMenuItemShape[];
 
 					// console.log(data);
 
 					// Map the DB documents to match the UI's expected structure
-					const normalizedItems = data.map((item) => ({
+					const normalizedItems: RecipeItem[] = data.map((item) => ({
 						id: item._id,
 						name: item.name,
 						price: item.basePrice,
@@ -53,6 +79,9 @@ const RecipeList = () => {
 					throw new Error("Error in fetchMenuItems");
 				}
 			} catch (error) {
+				toast.error(
+					"খাবার আইটেম লোডে সমস্যা হয়েছে। অনুগ্রহ করে পেজ রিফ্রেশ করুন।",
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -61,12 +90,10 @@ const RecipeList = () => {
 		fetchMenuItems();
 	}, []);
 
-	// `cartItems` e already item ta thakle count return koro. Nahole return 0.
-	const getQuantity = (id) => {
-		return cartItems.find((item) => item.id === id)?.quantity || 0;
-	};
-
-	// scroll to selected-id section
+	/***
+	 * scroll to recipeList section when user clicks
+	 * "খাবারের তালিকা দেখুন" in empty cart page
+	 */
 	const location = useLocation();
 	useEffect(() => {
 		if (location.hash) {
@@ -84,6 +111,11 @@ const RecipeList = () => {
 			return () => clearTimeout(timer);
 		}
 	}, []);
+
+	// `cartItems` e already item ta thakle count return koro. Nahole return 0.
+	const getQuantity = (id: string): number => {
+		return cartItems.find((item) => item.id === id)?.quantity || 0;
+	};
 
 	if (isLoading) {
 		return (
@@ -109,25 +141,6 @@ const RecipeList = () => {
 			<div className="grid grid-cols-[repeat(auto-fit,_minmax(150px,_1fr))] justify-center mx-auto gap-2 xl:gap-3">
 				{menuItems.map((item, index) => {
 					const quantity = getQuantity(item.id);
-					const toBanglaNumber = (number) => {
-						const banglaDigits = [
-							"০",
-							"১",
-							"২",
-							"৩",
-							"৪",
-							"৫",
-							"৬",
-							"৭",
-							"৮",
-							"৯",
-						];
-						return number
-							.toString()
-							.split("")
-							.map((d) => banglaDigits[parseInt(d)])
-							.join("");
-					};
 
 					/***
 					 * items:
@@ -145,9 +158,10 @@ const RecipeList = () => {
 }
 					 * 
 					 */
+
 					return (
 						<div
-							key={index}
+							key={item.id}
 							// nicher dark/bright class gula rakhte hobe. Do not remove
 							className="flex flex-col font-atma bg-gradient-to-r from-primary to-secondary text-white p-2 md:p-3 rounded-3xl shadow-xl group transition-all duration-200"
 						>
@@ -156,6 +170,7 @@ const RecipeList = () => {
 								<img
 									src={item.image}
 									className="object-cover group-hover:scale-110 transition-all duration-500"
+									loading="lazy"
 								/>
 							</div>
 
