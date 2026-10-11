@@ -273,7 +273,7 @@ export const forgotPassword: RequestHandler<
 		// console.log("resetUrl: ", resetUrl);
 		const message = `You received this email because you have requested a password reset.\n\nPlease click the link below within 10 minutes to reset your password:\n\n${resetUrl}`;
 
-		await sendEmail({
+		sendEmail({
 			// for free tier usage, only the khabarbari email can be used.
 			// email: user.email,
 			email: "khabarbari.restaurant125@gmail.com",
