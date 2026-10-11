@@ -53,7 +53,7 @@ export const getOrders: RequestHandler<
 			/***
 			 * Admins can search by email or order ID
 			 */
-			let searchConditions = [];
+			let searchConditions: any = [];
 
 			/***
 			 * If `search` contains ID,
