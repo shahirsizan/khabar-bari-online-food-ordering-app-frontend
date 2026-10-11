@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"allowJs": true,
+		"checkJs": false,
+		"useDefineForClassFields": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
+		"module": "ESNext",
+		"skipLibCheck": true,
+
+		/* Bundler mode configuration */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+
+		/* Strict Type-Checking Rules */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true
+	},
+	"include": ["src", "src/**/*", "src/custom.d.ts"]
+}

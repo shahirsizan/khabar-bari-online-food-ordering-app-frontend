@@ -1,0 +1,68 @@
+import React from "react";
+import AppStoreImg from "../../assets/app_store.png";
+import PlayStoreImg from "../../assets/play_store.png";
+import cook from "../../assets/cooking.png";
+
+const AppStore: React.FC = () => {
+	return (
+		<section className="appstoreSection py-6 lg:py-16 px-[5vw] md:px-[8vw] lg:px-[10vw]">
+			<div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-4">
+				{/* LEFT */}
+				<div className="space-y-6 max-w-lg mx-auto">
+					{/* TEXT */}
+					<h1 className="font-atma text-3xl xl:text-5xl text-center font-semibold">
+						<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+							Android
+						</span>{" "}
+						এবং{" "}
+						<span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+							iOS
+						</span>{" "}
+						<br />
+						ব্যবহারকারীদের জন্য
+					</h1>
+
+					{/* BUTTONS */}
+					<div className="flex flex-wrap justify-center items-center max-sm:pb-5">
+						<a
+							href="https://play.google.com/store/apps?hl=en"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="border-none"
+						>
+							<img
+								src={PlayStoreImg}
+								alt="Google Play Store Badge"
+								className="max-w-[150px] lg:max-w-[200px]"
+							/>
+						</a>
+
+						<a
+							href="https://www.apple.com/app-store/"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="border-none"
+						>
+							<img
+								src={AppStoreImg}
+								alt="Apple App Store Badge"
+								className="max-w-[150px] lg:max-w-[200px]"
+							/>
+						</a>
+					</div>
+				</div>
+
+				{/* RIGHT */}
+				<div>
+					<img
+						src={cook}
+						alt="Chef cooking graphic illustration"
+						className="animate-tilt w-full block rounded-md mx-auto mix-blend-multiply dark:mix-blend-difference"
+					/>
+				</div>
+			</div>
+		</section>
+	);
+};
+
+export default AppStore;
