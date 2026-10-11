@@ -1,4 +1,4 @@
-import { backend_base_url } from "../workMode.js";
+import { backend_base_url } from "../workMode.ts";
 
 let inMemoryToken = null;
 // Lock to prevent parallel refresh calls
