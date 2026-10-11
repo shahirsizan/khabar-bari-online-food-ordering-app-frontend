@@ -37,5 +37,8 @@
 		"sslcommerz-lts": "^1.2.0",
 		"streamifier": "^0.1.1",
 		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.6"
 	}
 }
