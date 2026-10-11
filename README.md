@@ -17,13 +17,14 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Pay Online:** Users can pay online through `SSLCommerz`.
 - **Download Receipt:** Users can `download order receipts`.
 - **Chat:** `Bidirectional communication` between the client and the store admin.
-- **Get Notified:** `Real-time notification` to notify relevant party about important events.
+- **Notification:** `Real-time notification` to notify relevant party about important events.
 - **Control Panel:** `Control panel` for both admin and customers.
-- **Activity Log:** `System-wide` activity logging to keep track of different activities.
+- **Activity Log:** `System-wide` activity logging to keep track of important activities.
 - **Search, Filter & Pagination:** Search, Filter & Pagination implemented `to improve UX`.
 
 ### Non-Functional Features
 
+- **Type Safety:** TypeScript integrated in order to maintain data consistency and prevent runtime crashes due to type mismatch.
 - **Rate Limiting:** `Sliding-Window Rate limit` to prevent bot attacks.
 - **Dual-Token Authentication (AT/RT):** `Access-Token` paired with `Refresh-Token` to authenticate users.
 - **Role-Based Access Control (RBAC):** `Role based access` for admin and non-admin users.
