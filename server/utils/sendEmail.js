@@ -17,7 +17,7 @@ const sendEmail = async (options) => {
 			// We should not keep rejectUnauthorized: false in production.
 			// For detail on what to do in production, ask gemini.
 			rejectUnauthorized: false,
-			servername: "://gmail.com",
+			servername: "smtp.gmail.com",
 		},
 	});
 
