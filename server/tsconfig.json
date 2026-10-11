@@ -9,8 +9,10 @@
 		"rootDir": "./",
 		"strict": true,
 		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+
+		"noImplicitAny": false,
+		"skipLibCheck": true
 	},
 	"include": ["**/*.ts", "**/*.js", "types/**/*.d.ts"],
 	"exclude": ["node_modules", "dist"]
