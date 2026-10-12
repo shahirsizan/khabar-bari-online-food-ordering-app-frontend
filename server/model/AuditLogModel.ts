@@ -15,20 +15,18 @@ export type AuditTargetEntity = "MenuItem" | "Order" | "User";
 
 export interface IAuditLog {
 	_id?: mongoose.Types.ObjectId;
-	userId?: mongoose.Types.ObjectId | IUser;
-	userEmail?: string;
+	userId: mongoose.Types.ObjectId | IUser;
+	userEmail: string;
 	action: AuditAction;
 	targetEntityType: AuditTargetEntity;
 	details: {
-		method?: string;
-		url?: string | null;
-		urlParams?: Record<string, any> | null;
-		queryParams?: Record<string, any> | null;
-		reqBody?: Record<string, any>;
-		resBody?: Record<string, any>;
+		method: string;
+		url: string;
+		urlParams: Record<string, any>;
+		queryParams: Record<string, any>;
+		reqBody: Record<string, any>;
+		resBody: Record<string, any>;
 	};
-	ipAddress?: string;
-	userAgent?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }
@@ -38,14 +36,9 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
-			default: null,
-			/***
-			 * Mongoose assumes `userId` references the `_id` (primary key) field of documents in User collection.
-			 */
 		},
 		userEmail: {
 			type: String,
-			default: "Unknown",
 		},
 		action: {
 			type: String,
@@ -64,22 +57,15 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
 			type: String,
 			enum: ["MenuItem", "Order", "User"],
 			index: true,
+			required: true,
 		},
 		details: {
 			method: { type: String },
-			url: { type: String, default: null },
-			urlParams: { type: Object, default: null },
-			queryParams: { type: Object, default: null },
+			url: { type: String },
+			urlParams: { type: Object },
+			queryParams: { type: Object },
 			reqBody: { type: Object },
 			resBody: { type: Object },
-		},
-		ipAddress: {
-			type: String,
-			default: "Unknown",
-		},
-		userAgent: {
-			type: String,
-			default: "Unknown",
 		},
 	},
 	{

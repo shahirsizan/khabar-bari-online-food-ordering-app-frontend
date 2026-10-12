@@ -271,7 +271,8 @@ export const forgotPassword: RequestHandler<
 		// 3. Create URL(Will redirect to frontend) with resetToken embedded
 		const resetUrl = `${frontend_base_url}/reset-password-after-link?resetToken=${uriSafeToken}`;
 		// console.log("resetUrl: ", resetUrl);
-		const message = `You received this email because you have requested a password reset.\n\nPlease click the link below within 10 minutes to reset your password:\n\n${resetUrl}`;
+		const message = `You received this email because you have requested a password reset.\n\n
+		Please click the link below within 10 minutes to reset your password:\n\n${resetUrl}`;
 
 		sendEmail({
 			// for free tier usage, only the khabarbari email can be used.
@@ -303,7 +304,8 @@ export const forgotPassword: RequestHandler<
  */
 export const resetPasswordWithToken: RequestHandler<
 	{},
-	{ success: boolean; message: string } | { message: string },
+	| { success: boolean; userObj: Omit<IUser, "password">; message: string }
+	| { message: string },
 	{ resetToken?: string; password?: string },
 	{}
 > = async (req, res) => {
@@ -355,6 +357,9 @@ export const resetPasswordWithToken: RequestHandler<
 				.json({ message: "এই ইমেইল সংশ্লিষ্ট কোনো আইডি পাওয়া যায়নি!" });
 		}
 
+		let userObj = user?.toObject();
+		delete userObj.password;
+
 		const givenPlainPassword = password;
 		const hashedPassword = await bcrypt.hash(givenPlainPassword, 10);
 		user.password = hashedPassword;
@@ -367,6 +372,7 @@ export const resetPasswordWithToken: RequestHandler<
 
 		res.status(200).json({
 			success: true,
+			userObj: userObj,
 			message: "আপনার পাসওয়ার্ড রিসেট সফল হয়েছে।",
 		});
 	} catch (error: unknown) {

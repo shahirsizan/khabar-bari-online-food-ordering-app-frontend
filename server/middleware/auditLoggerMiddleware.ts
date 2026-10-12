@@ -5,6 +5,7 @@ import {
 	IAuditLog,
 } from "../model/AuditLogModel.js";
 import { NextFunction, Request, RequestHandler, Response } from "express";
+import mongoose from "mongoose";
 
 /**
  * This middleware hooks into Express's res.on("finish") event.
@@ -21,8 +22,8 @@ export const auditLoggerMiddleware = (
 		res: Response,
 		next: NextFunction,
 	): Promise<void> => {
-		let resBody: any = null;
 		// Hijacking the Express response streaming method to extract response data copies
+		let resBody: any = null;
 		const originalSend = res.send;
 		res.send = function (body: any): Response {
 			resBody = typeof body === "string" ? JSON.parse(body) : body;
@@ -30,22 +31,33 @@ export const auditLoggerMiddleware = (
 		};
 
 		if (!req.user) {
-			return next();
+			console.log("auditlog middleware: No `user`...");
 		}
 		/***
 		 * We have to Intercept both the `req` and `res` bodies early
 		 * because the moment we encounter the "finish" event,
 		 * ExpressJS might have already dumped them out of memory.
 		 */
-		const userId = req.user._id;
-		const userEmail = req.user.email;
+
+		const userId = req.user?._id || null;
+		const userEmail = req.user?.email || null;
 		const method = req.method;
 		const url = req.originalUrl;
 		const urlParams = req.params;
 		const queryParams = req.query;
-		const reqBody = req.body;
-		const ipAddress = req.ip || "Unknown";
-		const userAgent = req.headers["user-agent"] || "Unknown";
+		const reqBody = { ...req.body };
+		/***
+		 * mask the passwords no matter what
+		 */
+		if (reqBody.password) {
+			reqBody.password = "********";
+		}
+		if (reqBody.confirmPassword) {
+			reqBody.confirmPassword = "********";
+		}
+		if (reqBody.newPassword) {
+			reqBody.newPassword = "********";
+		}
 
 		// await new Promise((resolve, reject) => {
 		// 	setTimeout(() => {
@@ -64,9 +76,11 @@ export const auditLoggerMiddleware = (
 					/***
 					 * Enqueue job to Redis (Non-blocking operation) upon "finish" event
 					 */
-					let data: IAuditLog = {
-						userId: userId || null,
-						userEmail: userEmail || "unknown",
+					const data: IAuditLog = {
+						userId:
+							userId ||
+							new mongoose.Types.ObjectId(resBody.userObj._id),
+						userEmail: userEmail || resBody.userObj.email,
 						action: action,
 						targetEntityType: targetEntityType,
 						details: {
@@ -74,15 +88,14 @@ export const auditLoggerMiddleware = (
 							url: url,
 							urlParams: urlParams,
 							queryParams: queryParams,
-							reqBody: reqBody || {},
+							reqBody: reqBody,
 							resBody: resBody,
 						},
-						ipAddress,
-						userAgent,
 					};
-					await auditQueue.add("new-audit-log", data);
 
-					console.log("job added to bullmq queue.");
+					// console.log("data: ", data);
+
+					await auditQueue.add("new-audit-log", data);
 				} catch (err: unknown) {
 					if (err instanceof Error) {
 						console.error(

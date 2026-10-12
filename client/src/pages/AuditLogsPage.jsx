@@ -67,6 +67,8 @@ const AuditLogsPage = () => {
 
 				const data = await res.json();
 
+				console.log("logs data: ", data);
+
 				if (res.ok) {
 					setLogs(data.logs || []);
 					setTotalPages(data.totalPages || 1);
@@ -179,20 +181,20 @@ const AuditLogsPage = () => {
 										<div>
 											<p className="text-xs font-semibold text-gray-800">
 												{log.userId?.name ||
-													log.userId.name ||
+													log.userId?.name ||
 													"System / Unknown"}{" "}
-												({log.userId.role})
+												({log.userId?.role})
 											</p>
 
 											<p className="text-xs font-semibold text-gray-800">
 												{log.userId?.email ||
-													log.userId.email ||
+													log.userId?.email ||
 													"System / Unknown"}{" "}
 											</p>
 
 											<p className="text-xs font-semibold text-gray-800">
 												{log.userId?.phone ||
-													log.userId.phone ||
+													log.userId?.phone ||
 													"System / Unknown"}{" "}
 											</p>
 
