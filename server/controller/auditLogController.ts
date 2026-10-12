@@ -19,7 +19,7 @@ interface IAuditLogQuery {
 type IPopulatedUser = Pick<IUser, "_id" | "name" | "email" | "phone" | "role">;
 
 export interface IAuditLogWithPopulatedUser extends Omit<IAuditLog, "userId"> {
-	userId: IPopulatedUser | mongoose.Types.ObjectId;
+	userId?: IPopulatedUser | mongoose.Types.ObjectId;
 }
 
 interface AuditLogsResponse {
