@@ -1,9 +1,12 @@
 import { Worker } from "bullmq";
 import { bullMqConsumerRedisConnection } from "./redis.js";
 import { AUDIT_QUEUE_NAME } from "./auditQueue.js";
-import { AuditLog } from "../model/AuditLogModel.js";
+import { AuditLog, IAuditLog } from "../model/AuditLogModel.js";
 
-const SENSITIVE_KEYS = new Set([
+type SanitizeInput = unknown;
+type SanitizeOutput = any;
+
+const SENSITIVE_KEYS: Set<string> = new Set([
 	"password",
 	"confirmpassword",
 	"token",
@@ -25,26 +28,35 @@ const sanitizeAndTruncate = (obj, maxStringLen = 300) => {
 		});
 	}
 
-	const cleanedObj = {};
-	for (const [key, value] of Object.entries(obj)) {
-		if (SENSITIVE_KEYS.has(key.toLowerCase())) {
-			cleanedObj[key] = "[SENSITIVE INFO]";
-		} else if (typeof value === "string") {
-			cleanedObj[key] =
-				value.length > maxStringLen
-					? `${value.substring(0, maxStringLen)}... [TRUNCATED]`
-					: value;
-		} else if (typeof value === "object" && value !== null) {
-			cleanedObj[key] = sanitizeAndTruncate(value, maxStringLen);
-		} else {
-			cleanedObj[key] = value;
+	const cleanedObj: Record<string, any> = {};
+
+	try {
+		for (const [key, value] of Object.entries(obj)) {
+			if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+				cleanedObj[key] = "[SENSITIVE INFO]";
+			} else if (typeof value === "string") {
+				cleanedObj[key] =
+					value.length > maxStringLen
+						? `${value.substring(0, maxStringLen)}... [TRUNCATED]`
+						: value;
+			} else if (typeof value === "object" && value !== null) {
+				cleanedObj[key] = sanitizeAndTruncate(value, maxStringLen);
+			} else {
+				cleanedObj[key] = value;
+			}
 		}
+		return cleanedObj;
+	} catch (error) {
+		console.error(
+			"⚠️ auditWorker: Error processing complex object entries structure:",
+			error,
+		);
+		return "[UNPARSABLE DATA STRUCTURE]";
 	}
-	return cleanedObj;
 };
 
 export const initAuditWorker = () => {
-	const worker = new Worker(
+	const worker = new Worker<IAuditLog>(
 		AUDIT_QUEUE_NAME,
 		async (job) => {
 			/***
@@ -66,7 +78,7 @@ export const initAuditWorker = () => {
 											userAgent,
 						});
 			 */
-			const data = job.data;
+			const data: IAuditLog = job.data;
 			const sanitizedReqBody = sanitizeAndTruncate(data.details.reqBody);
 			const sanitizedResBody = sanitizeAndTruncate(data.details.resBody);
 
@@ -93,17 +105,9 @@ export const initAuditWorker = () => {
 					url: data.details.url,
 					urlParams: data.details.urlParams,
 					queryParams: data.details.queryParams,
-					reqBody:
-						Object.keys(sanitizedReqBody).length > 0
-							? sanitizedReqBody
-							: undefined,
-					resBody:
-						Object.keys(sanitizedResBody).length > 0
-							? sanitizedResBody
-							: undefined,
+					reqBody: sanitizedReqBody,
+					resBody: sanitizedResBody,
 				},
-				ipAddress: data.ipAddress,
-				userAgent: data.userAgent,
 			});
 
 			console.log("job processed in bullmq queue. Added to mongoDB");
