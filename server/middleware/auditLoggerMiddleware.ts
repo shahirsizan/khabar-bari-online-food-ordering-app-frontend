@@ -1,5 +1,9 @@
 import { auditQueue } from "../utils/auditQueue.js";
-import { AuditAction, AuditTargetEntity } from "../model/AuditLogModel.js";
+import {
+	AuditAction,
+	AuditTargetEntity,
+	IAuditLog,
+} from "../model/AuditLogModel.js";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
 /**
@@ -17,6 +21,14 @@ export const auditLoggerMiddleware = (
 		res: Response,
 		next: NextFunction,
 	): Promise<void> => {
+		let resBody: any = null;
+		// Hijacking the Express response streaming method to extract response data copies
+		const originalSend = res.send;
+		res.send = function (body: any): Response {
+			resBody = typeof body === "string" ? JSON.parse(body) : body;
+			return originalSend.apply(res, arguments as any);
+		};
+
 		if (!req.user) {
 			return next();
 		}
@@ -35,14 +47,6 @@ export const auditLoggerMiddleware = (
 		const ipAddress = req.ip || "Unknown";
 		const userAgent = req.headers["user-agent"] || "Unknown";
 
-		let resBody: any = null;
-		// Hijacking the Express response streaming method to extract response data copies
-		const originalSend = res.send;
-		res.send = function (body: any): Response {
-			resBody = typeof body === "string" ? JSON.parse(body) : body;
-			return originalSend.apply(res, arguments as any);
-		};
-
 		// await new Promise((resolve, reject) => {
 		// 	setTimeout(() => {
 		// 		resolve();
@@ -60,9 +64,9 @@ export const auditLoggerMiddleware = (
 					/***
 					 * Enqueue job to Redis (Non-blocking operation) upon "finish" event
 					 */
-					await auditQueue.add("new-audit-log", {
-						userId: userId,
-						userEmail: userEmail,
+					let data: IAuditLog = {
+						userId: userId || null,
+						userEmail: userEmail || "unknown",
 						action: action,
 						targetEntityType: targetEntityType,
 						details: {
@@ -70,12 +74,13 @@ export const auditLoggerMiddleware = (
 							url: url,
 							urlParams: urlParams,
 							queryParams: queryParams,
-							reqBody: reqBody,
+							reqBody: reqBody || {},
 							resBody: resBody,
 						},
 						ipAddress,
 						userAgent,
-					});
+					};
+					await auditQueue.add("new-audit-log", data);
 
 					console.log("job added to bullmq queue.");
 				} catch (err: unknown) {

@@ -14,8 +14,8 @@ export type AuditAction =
 export type AuditTargetEntity = "MenuItem" | "Order" | "User";
 
 export interface IAuditLog {
-	_id: mongoose.Types.ObjectId;
-	userId: mongoose.Types.ObjectId | IUser;
+	_id?: mongoose.Types.ObjectId;
+	userId?: mongoose.Types.ObjectId | IUser;
 	userEmail?: string;
 	action: AuditAction;
 	targetEntityType: AuditTargetEntity;
@@ -27,10 +27,10 @@ export interface IAuditLog {
 		reqBody?: Record<string, any>;
 		resBody?: Record<string, any>;
 	};
-	ipAddress: string;
-	userAgent: string;
-	createdAt: Date;
-	updatedAt: Date;
+	ipAddress?: string;
+	userAgent?: string;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 const auditLogSchema = new mongoose.Schema<IAuditLog>(
@@ -38,18 +38,17 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
+			default: null,
 			/***
 			 * Mongoose assumes `userId` references the `_id` (primary key) field of documents in User collection.
 			 */
-			required: true,
-			index: true,
 		},
 		userEmail: {
 			type: String,
+			default: "Unknown",
 		},
 		action: {
 			type: String,
-			required: true,
 			enum: [
 				"CREATE_MENU_ITEM",
 				"UPDATE_MENU_ITEM",
@@ -60,11 +59,9 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
 				"UPDATE_USER",
 				"RESET_USER_PASSWORD",
 			],
-			index: true,
 		},
 		targetEntityType: {
 			type: String,
-			required: true,
 			enum: ["MenuItem", "Order", "User"],
 			index: true,
 		},
