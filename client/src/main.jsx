@@ -5,7 +5,7 @@ import "./index.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { BrowserRouter } from "react-router-dom";
-import { CartProvider } from "./CartContext.jsx";
+import { CartProvider } from "./CartContext.tsx";
 import { UserProvider } from "./UserContext.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
