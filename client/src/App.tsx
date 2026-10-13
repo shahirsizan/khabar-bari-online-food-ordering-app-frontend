@@ -2,33 +2,32 @@ import React, { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Route, Routes } from "react-router-dom";
-import LandingPage from "./pages/LandingPage.jsx";
-import CartPage from "./pages/CartPage.jsx";
-import SuccessPage from "./pages/SuccessPage.jsx";
-import ErrorPage from "./pages/ErrorPage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import { useUserContext } from "./UserContext.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
-import ProtectedLayout from "./ProtectedLayout.jsx";
-import GuestRoute from "./GuestRoute.jsx";
-import ProfilePage from "./pages/ProfilePage.jsx";
-import OrdersPage from "./pages/OrdersPage.jsx";
-import Layout from "./Layout.jsx";
-import ProfileLayout from "./ProfileLayout.jsx";
-import MenuItemsPage from "./pages/MenuItemsPage.jsx";
-import UsersPage from "./pages/UsersPage.jsx";
-import NewMenuItemPage from "./pages/NewMenuItemPage.jsx";
-import EditMenuItemPage from "./pages/EditMenuItemPage.jsx";
-import EditUserPage from "./pages/EditUserPage.jsx";
-import OrderPage from "./pages/OrderPage.jsx";
-import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal.jsx";
-import { AdminChatPanel } from "./pages/AdminChatPanel.jsx";
-import { ResetPasswordAfterLink } from "./pages/ResetPasswordAfterLink.jsx";
-import ChangePassword from "./pages/ChangePassword.jsx";
-import AuditLogsPage from "./pages/AuditLogsPage.jsx";
 
-const App = () => {
+import LandingPage from "./pages/LandingPage";
+import CartPage from "./pages/CartPage";
+import SuccessPage from "./pages/SuccessPage";
+import ErrorPage from "./pages/ErrorPage";
+import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+import ProtectedLayout from "./ProtectedLayout";
+import GuestRoute from "./GuestRoute";
+import ProfilePage from "./pages/ProfilePage";
+import OrdersPage from "./pages/OrdersPage";
+import Layout from "./Layout";
+import ProfileLayout from "./ProfileLayout";
+import MenuItemsPage from "./pages/MenuItemsPage";
+import UsersPage from "./pages/UsersPage";
+import NewMenuItemPage from "./pages/NewMenuItemPage";
+import EditMenuItemPage from "./pages/EditMenuItemPage";
+import EditUserPage from "./pages/EditUserPage";
+import OrderPage from "./pages/OrderPage";
+import { GlobalRateLimitModal } from "./components/GlobalRateLimitModal";
+import { AdminChatPanel } from "./pages/AdminChatPanel";
+import { ResetPasswordAfterLink } from "./pages/ResetPasswordAfterLink";
+import ChangePassword from "./pages/ChangePassword";
+import AuditLogsPage from "./pages/AuditLogsPage";
+
+const App: React.FC<{}> = () => {
 	// smooth intro
 	useEffect(() => {
 		AOS.init({
