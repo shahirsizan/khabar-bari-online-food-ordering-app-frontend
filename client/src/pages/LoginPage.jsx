@@ -14,19 +14,13 @@ const LoginPage = () => {
 	const navigate = useNavigate();
 	// get the `state` object which containt the route where to navigate after login
 	// this is needed because we might need to navigate to `/cart` route if non-auth user already has a populated cart.
-	const location = useLocation();
 	const targetRoute = location.state?.from || "/";
 	// console.log("targetRoute: ", targetRoute);
 
 	async function handleLogin(ev) {
 		ev.preventDefault();
 
-		const response = await loginUser(
-			email,
-			password,
-			navigate,
-			targetRoute,
-		);
+		const response = await loginUser(email, password, targetRoute);
 
 		if (!response.success) {
 			// console.log(response.errorMessage);
