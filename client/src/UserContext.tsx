@@ -4,40 +4,96 @@ import {
 	useState,
 	useEffect,
 	useCallback,
+	ReactNode,
 } from "react";
-import { replace, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 import { apiFetch, setAccessToken } from "./utils/api";
 import { backend_base_url } from "./workMode";
 import { initializeSocket } from "./utils/socket";
 import { toast } from "react-toastify";
 
-const UserContext = createContext();
+export interface IUserProfile {
+	_id: string;
+	name: string;
+	email: string;
+	phone?: string;
+	streetAddress?: string;
+	city?: string;
+	role: "user" | "admin";
+}
 
-export const UserProvider = ({ children }) => {
+export interface NotificationItem {
+	_id?: string;
+	type: "chat" | "order";
+	message: string;
+	link?: string;
+	isRead: boolean;
+	createdAt: string;
+}
+
+interface UserContextType {
+	user: IUserProfile | null;
+	setUser: React.Dispatch<React.SetStateAction<IUserProfile | null>>;
+	isAdmin: boolean;
+	loading: boolean;
+	isInitializing: boolean;
+	isAuthenticated: boolean;
+	loginUser: (
+		email: string,
+		password: string,
+		navigate: any,
+		targetRoute?: string,
+	) => Promise<{ success: boolean; message?: string; errorMessage?: string }>;
+	logoutUser: (reasonMessage?: string | null) => Promise<void>;
+	handleProfileInfoUpdate: (
+		ev: React.FormEvent,
+		data: Partial<IUserProfile>,
+	) => Promise<void>;
+	socket: any | null;
+	isAdminOnline: boolean;
+	notifications: NotificationItem[];
+	setNotifications: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
+	unreadCount: number;
+	setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+	blinkNonAdminUsersChatLauncher: boolean;
+	setBlinkNonAdminUsersChatLauncher: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	isChatBoxOpen: boolean;
+	setIsChatBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const UserContext = createContext<UserContextType | null>(null);
+
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
+	children,
+}) => {
 	const { clearCart } = useCart();
 	const navigate = useNavigate();
-	const [isInitializing, setIsInitializing] = useState(true);
-	const [user, setUser] = useState(null);
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [loading, setLoading] = useState(false);
-	const [socket, setSocket] = useState(null);
-	const [isAdminOnline, setIsAdminOnline] = useState(false); // Tracks admin's online status
-	const { pathname } = useLocation(); // Tracks the current URL path
-	const [notifications, setNotifications] = useState([]);
-	const [unreadCount, setUnreadCount] = useState(0);
+	const [isInitializing, setIsInitializing] = useState<boolean>(true);
+	const [user, setUser] = useState<IUserProfile | null>(null);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+	const [isAdmin, setIsAdmin] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
+	const [socket, setSocket] = useState<any | null>(null);
+	const [isAdminOnline, setIsAdminOnline] = useState<boolean>(false); // Tracks admin's online status
+	const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+	const [unreadCount, setUnreadCount] = useState<number>(0);
 	const [blinkNonAdminUsersChatLauncher, setBlinkNonAdminUsersChatLauncher] =
-		useState(false);
+		useState<boolean>(false);
 	/***
 	 * below states are for non-admin users to track their chatbox open/close states
 	 */
-	const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
+	const [isChatBoxOpen, setIsChatBoxOpen] = useState<boolean>(false);
+	const { pathname } = useLocation(); // Tracks the current URL path
 
-	// Verify user auth state everytime URL path changes
+	/***
+	 * Verify user session credentials everytime URL path changes
+	 */
 	useEffect(() => {
 		const verifyUser = async () => {
-			const publicRoutes = [
+			const publicRoutes: string[] = [
 				"/",
 				"/cart",
 				"/register",
@@ -51,53 +107,64 @@ export const UserProvider = ({ children }) => {
 
 			const user = localStorage.getItem("user");
 
+			/***
+			 * Unauthenticated user.
+			 */
 			if (!user) {
 				setIsInitializing(false);
+				/***
+				 * On protected routes, redirect to /login
+				 */
 				if (!userCurrentlyOnPublicRoute) {
-					// no `user obj`, also currently on private route, so redirect to "/login.
-					// Else let them stay on the public routes"
 					navigate("/login");
 				}
+				/***
+				 * On public routes, let them be.
+				 */
 				return;
 			}
 
-			// User has auth(unverified) tokens and on protected routes.
-			// So verify them.
+			/***
+			 * Authenticated user (apparently).
+			 */
+
 			try {
 				const response = await apiFetch(`${backend_base_url}/api/me`, {
 					method: "GET",
 				});
 
+				/***
+				 * Valid session, set the relevant data.
+				 */
 				if (response.ok) {
-					// Authenticated user
 					const user = await response.json();
 					setUser(user);
 					setIsAdmin(user.role === "admin");
 					setIsAuthenticated(true);
 				} else {
-					// Unauthenticated user
+					/***
+					 * Invalid session, unset the relevant data.
+					 */
 					localStorage.clear();
 					setUser(null);
 					setIsAdmin(false);
 					setIsAuthenticated(false);
 
-					// redirect to `login` if they are in protected route
 					if (!userCurrentlyOnPublicRoute) {
 						/***
 						 * Use window.location.replace() for security redirects, such as knocking a user
 						 * out to a login screen when their session expires or after they click "Log Out."
 						 * This ensures they cannot navigate back into protected, private routes.
 						 */
-						toast.warn(
-							"Authentication check failed. Please log in again.",
-						);
+						toast.warn("পুনরায় লগইন করুন");
 						window.location.replace("/login");
 					}
 				}
-			} catch (error) {
+			} catch (error: any) {
 				if (error.message === "429") {
 					/***
-					 * Rate limiting error. No need to logout, just make them wait.
+					 * Rate limiting error. No need to logout,
+					 * just make them wait.
 					 */
 					return;
 				}
@@ -106,7 +173,7 @@ export const UserProvider = ({ children }) => {
 				setIsAuthenticated(false);
 				setIsAdmin(false);
 				navigate("/login");
-				toast.warn("Authentication check failed. Please log in again.");
+				toast.warn("পুনরায় লগইন করুন");
 			} finally {
 				setIsInitializing(false);
 			}
@@ -118,14 +185,18 @@ export const UserProvider = ({ children }) => {
 		// the app checks their authentication status and redirects them if necessary.
 	}, [pathname]);
 
-	// create socket instance on mount
+	/***
+	 * Initialize socket (on mount)
+	 */
 	useEffect(() => {
 		const socketInstance = initializeSocket();
 		setSocket(socketInstance);
 	}, [user]);
 
-	// join-room emit for non-admin users will occur from below
-	// but for admin, it will occur from chatBox.jsx when the admin selects a specific room from the sidebar.
+	/***
+	 * `join-room` emission for non-admin users will occur here.
+	 * For admin, it will occur from `chatBox.jsx` when the admin selects a specific room from the sidebar.
+	 */
 	useEffect(() => {
 		if (!socket || !user) {
 			return;
@@ -138,12 +209,14 @@ export const UserProvider = ({ children }) => {
 			// Admin joins the global admin_room for realtime order alerts
 			socket.emit("join_room", { roomId: "admin_room" });
 		} else {
-			// Non-admin users join their individual room based on their unique database ID
+			// Non-admin users join their individual room based on their id
 			socket.emit("join_room", { roomId: user._id });
 		}
 	}, [user, socket]);
 
-	// for non-admin users to check whether admin is online (on mount).
+	/***
+	 * For non-admin users to check whether admin is online (on mount).
+	 */
 	useEffect(() => {
 		if (!socket || !user || user.role === "admin") {
 			return;
@@ -151,8 +224,7 @@ export const UserProvider = ({ children }) => {
 
 		socket.emit("check_admin_status");
 
-		// 1. Define a named handler to isolate the reference
-		const handleAdminStatus = ({ status }) => {
+		const handleAdminStatus = ({ status }: { status: string }) => {
 			setIsAdminOnline(status === "online");
 		};
 
@@ -163,48 +235,49 @@ export const UserProvider = ({ children }) => {
 		};
 	}, [user, socket]);
 
-	// fetch historical notifications from DB (on mount).
-	const fetchNotifications = async () => {
-		if (!user) {
-			return;
-		}
-
-		try {
-			const response = await apiFetch(
-				`${backend_base_url}/api/notifications`,
-			);
-			if (response.ok) {
-				const res = await response.json();
-				setNotifications(res);
-				setUnreadCount(res.filter((noti) => !noti.isRead).length);
-			}
-		} catch (error) {
-			console.error("error -> fetchNotifications: ", error.message);
-		}
-	};
-
-	// ⬆️ call above method (on mount).
+	/***
+	 * Fetch historical notifications from DB (on mount).
+	 */
 	useEffect(() => {
+		const fetchNotifications = async () => {
+			try {
+				const response = await apiFetch(
+					`${backend_base_url}/api/notifications`,
+				);
+
+				if (response.ok) {
+					const res = await response.json();
+					setNotifications(res);
+					setUnreadCount(
+						res.filter((noti: NotificationItem) => !noti.isRead)
+							.length,
+					);
+				}
+			} catch (error: any) {
+				console.error("error -> fetchNotifications: ", error.message);
+			}
+		};
+
 		if (isAuthenticated) {
 			fetchNotifications();
 		}
 	}, [isAuthenticated]);
 
-	// Listen for `chat` &  `order update` notifications (on mount).
+	/***
+	 * Set up event listeners for `chat` & `order`
+	 * notifications (on mount).
+	 */
 	useEffect(() => {
 		if (!socket || !user) {
 			return;
 		}
 
-		const handleNewNotification = (notification) => {
+		const handleNewNotification = (notification: NotificationItem) => {
 			if (notification.type === "chat") {
-				/***
-				 * If chat notification
-				 */
 				if (user.role === "user") {
 					/***
-					 * Notification came from `admin`.
-					 * So blink the non-admin users chat launcher.
+					 * New notification from `admin`.
+					 * Blink non-admin users chat launcher.
 					 */
 					setBlinkNonAdminUsersChatLauncher(true);
 				}
@@ -214,30 +287,34 @@ export const UserProvider = ({ children }) => {
 				 */
 				setNotifications((prev) => {
 					/***
-					 * here,prev = [notification, notification, notification....]
+					 * here, prev = [n, n, n, n, n....]
 					 */
-					const existingIdx = prev.findIndex(
+					const prevUnreadNotiIndex = prev.findIndex(
 						(n) =>
+							!n.isRead &&
 							n.type === "chat" &&
-							n.link === notification.link &&
-							!n.isRead,
+							n.link === notification.link,
 					);
 
-					if (existingIdx !== -1) {
+					if (prevUnreadNotiIndex !== -1) {
 						const existingNotificationList = [...prev];
-						existingNotificationList[existingIdx] = {
-							...existingNotificationList[existingIdx],
+						existingNotificationList[prevUnreadNotiIndex] = {
+							...existingNotificationList[prevUnreadNotiIndex],
 							message: notification.message,
 							createdAt: notification.createdAt,
 						};
 						/***
 						 * Move the updated notification to top
 						 */
-						const [item] = existingNotificationList.splice(
-							existingIdx,
-							1,
-						);
-						return [item, ...existingNotificationList];
+						const [updatedNotification] =
+							existingNotificationList.splice(
+								prevUnreadNotiIndex,
+								1,
+							);
+						return [
+							updatedNotification,
+							...existingNotificationList,
+						];
 					}
 
 					/***
@@ -269,12 +346,18 @@ export const UserProvider = ({ children }) => {
 		};
 	}, [socket, user]);
 
-	const handleProfileInfoUpdate = async (ev, data) => {
+	/***
+	 * Update profile
+	 */
+	const handleProfileInfoUpdate = async (
+		ev: React.FormEvent,
+		data: Partial<IUserProfile>,
+	): Promise<void> => {
 		/***
-		 * from profilePage.jsx component, function call is like below:
+		 * from `profilePage.jsx` component, function call is like below:
 		 * onSubmit={(e) =>
 							handleProfileInfoUpdate(e, {
-							    user old object,
+								user old object: user,
 								userName,
 								phone,
 								streetAddress,
@@ -283,12 +366,11 @@ export const UserProvider = ({ children }) => {
 							})
 						}
 		 */
+
 		ev.preventDefault();
 
 		try {
-			// 2. Execute apiFetch() with the required header
 			// console.log("data: ", data);
-
 			const response = await apiFetch(`${backend_base_url}/api/profile`, {
 				method: "PUT",
 				headers: {
@@ -303,25 +385,26 @@ export const UserProvider = ({ children }) => {
 				// console.log("handleProfileInfoUpdate -> updated user: ", res);
 
 				setUser((prevUser) => ({
-					...prevUser,
+					// prevUser could theoritically be `null` because it was initialized with `null`.
+					...(prevUser || {}),
 					...res.user, // Merge old user data with the new returned data
 				}));
 
 				localStorage.removeItem("user");
 				localStorage.setItem("user", JSON.stringify(res.user));
 
-				toast.success("আপনার প্রোফাইল আপডেট হয়েছে।");
+				toast.success("প্রোফাইল আপডেট প্রক্রিয়া সফল হয়েছে");
 			} else if (response.status === 401) {
-				logoutUser();
+				await logoutUser();
 			} else {
 				const errorData = await response.json();
 				console.error(
 					"handleProfileInfoUpdate() -> Failed to update: ",
 					errorData.message,
 				);
-				alert("Profile update failed!");
+				alert("প্রোফাইল আপডেট প্রক্রিয়া ব্যর্থ হয়েছে!");
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error(
 				"handleProfileInfoUpdate() -> error: ",
 				error.message,
@@ -329,8 +412,11 @@ export const UserProvider = ({ children }) => {
 		}
 	};
 
+	/***
+	 * Login user
+	 */
 	const loginUser = useCallback(
-		async (email, password, navigate, targetRoute) => {
+		async (email: string, password: string, targetRoute?: string) => {
 			setLoading(true);
 
 			try {
@@ -348,10 +434,14 @@ export const UserProvider = ({ children }) => {
 				if (!response.ok) {
 					return {
 						success: false,
-						message: res.message || "Login failed",
+						message: res.message || "লগইন প্রক্রিয়া ব্যর্থ হয়েছে",
 					};
 				}
 
+				/***
+				 * After logging in, set access token in an in-memory variable.
+				 * Refresh token is set in the cookie by the server.
+				 */
 				setAccessToken(res.accessToken);
 
 				// if user has a populated cart, redirect them to cart page after login
@@ -367,11 +457,11 @@ export const UserProvider = ({ children }) => {
 					replace: true,
 				});
 				return { success: true, message: res.message };
-			} catch (error) {
+			} catch (error: any) {
 				console.error(error.message);
 				return {
 					success: false,
-					errorMessage: `Catch block: ${error.message}`,
+					errorMessage: `লগইন প্রক্রিয়া ব্যর্থ হয়েছে`,
 				};
 			} finally {
 				setLoading(false);
@@ -380,7 +470,12 @@ export const UserProvider = ({ children }) => {
 		[],
 	);
 
-	const logoutUser = async (reasonMessage = null) => {
+	/***
+	 * Logout user
+	 * */
+	const logoutUser = async (
+		reasonMessage: string | null = null,
+	): Promise<void> => {
 		try {
 			/***
 			 * Instruct backend to clear httpOnly cookie
@@ -388,7 +483,7 @@ export const UserProvider = ({ children }) => {
 			await apiFetch(`${backend_base_url}/api/logout`, {
 				method: "POST",
 			});
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Backend logout failed: ", error.message);
 		} finally {
 			/***
@@ -405,7 +500,7 @@ export const UserProvider = ({ children }) => {
 			if (reasonMessage) {
 				toast.warn(reasonMessage);
 			} else {
-				toast.success("Logged Out");
+				toast.success("লগআউট সফল হয়েছে");
 			}
 
 			navigate("/login", { replace: true });
@@ -413,11 +508,12 @@ export const UserProvider = ({ children }) => {
 	};
 
 	/***
-	 * Global listener for session expiry dispatched from apiFetch
+	 * Set up listeners for `session expiry` event
+	 * dispatched from apiFetch utility.
 	 */
 	useEffect(() => {
 		const handleSessionExpired = () => {
-			logoutUser("Logged out because refresh token is invalid!");
+			logoutUser("এক্সেস টোকেন এবং রিফ্রেশ টোকেন ইনভ্যালিডেটেড");
 		};
 
 		window.addEventListener("auth-session-expired", handleSessionExpired);
@@ -459,4 +555,14 @@ export const UserProvider = ({ children }) => {
 	);
 };
 
-export const useUserContext = () => useContext(UserContext);
+export const useUserContext = (): UserContextType => {
+	const context = useContext(UserContext);
+
+	if (!context) {
+		throw new Error(
+			"🚨 useUserContext hook error: This element must live inside a valid UserProvider container hierarchy.",
+		);
+	}
+
+	return context;
+};
