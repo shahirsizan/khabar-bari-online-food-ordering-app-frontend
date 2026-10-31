@@ -1,16 +1,15 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import App from "./App";
 import "./index.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { BrowserRouter } from "react-router-dom";
-import { CartProvider } from "./CartContext.tsx";
-import { UserProvider } from "./UserContext.jsx";
+import { CartProvider } from "./CartContext";
+import { UserProvider } from "./UserContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById("root") as HTMLElement | null;
 
 if (!rootElement) {
 	throw new Error(
