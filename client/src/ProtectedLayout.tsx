@@ -1,7 +1,8 @@
+import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useUserContext } from "./UserContext";
 
-const ProtectedLayout = () => {
+const ProtectedLayout: React.FC<{}> = () => {
 	const { isInitializing, isAuthenticated } = useUserContext();
 
 	// If not authenticated, redirect to login
