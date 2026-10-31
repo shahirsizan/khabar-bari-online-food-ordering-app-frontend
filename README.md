@@ -17,10 +17,13 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Pay Online:** Users can pay online through `SSLCommerz`.
 - **Download Receipt:** Users can `download order receipts`.
 - **Chat:** `Bidirectional communication` between the client and the store admin.
+- **Online Status Indicator:** `Online Status indicator` in chat to see who's online.
 - **Notification:** `Real-time notification` to notify relevant party about important events.
 - **Control Panel:** `Control panel` for both admin and customers.
-- **Activity Log:** `System-wide` activity logging to keep track of important activities.
+- **Audit Log:** `System-wide` audit logging to keep track of important activities.
 - **Search, Filter & Pagination:** Search, Filter & Pagination implemented `to improve UX`.
+- **Password Reset:** Authenticated users can `reset` their password. Unauthenticated users can reset if they `forget` their password.
+- **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback.
 
 ### Non-Functional Features
 
@@ -28,18 +31,13 @@ An online food ordering platform featuring SSLCommerz Payment Gateway, real-time
 - **Rate Limiting:** `Sliding-Window Rate limit` to prevent bot attacks.
 - **Dual-Token Authentication (AT/RT):** `Access-Token` paired with `Refresh-Token` to authenticate users.
 - **Role-Based Access Control (RBAC):** `Role based access` for admin and non-admin users.
-- **Activity Logging:** Admin can inspect system-wide `activity logs` in their admin panel.
-- **Online Status Indicator:** `Online Status indicator` in chat to see who's online.
-- **Password Reset:** Authenticated users can `reset` their password. Unauthenticated users can reset if they `forget` their password.
-- **Background Job:** The task to track and log activities is `Offloaded as background tasks` using BullMQ to ensure the main request-response cycles are not blocked.
-- **WebSocket:** `Socket.io` utilized to eliminate costly HTTP polling for live chats and notifications.
+- **Background Job:** To ensure the HTTP threads are not blocked and the clients are not kept in a loading state for prolonged period, `heavy backend jobs` such as audit-log generation is offloaded to `asynchronous background workers`.
+- **WebSocket:** To eliminate costly HTTP polling in order to get the latest chats and notifications, `websocket` is utilized.
 - **Search, Filter & Pagination:** Utilized MongoDB `indexing` and limit/skip `pagination` to efficiently serve search results.
-- **Optimized Image Uploads:** Admin can upload images from the frontend `directly to the Cloudinary server` bypassing our Express server using `pre-signed URLs` to reduce our server CPUs computation overhead.
+- **Optimized Image Uploads:** To reduce backend server load by uploading multimedia files from the frontend directly to the Cloudinary server, `Valet-Key pattern` is implemented with `pre-signed URLs`
 - **Caching:** Utilized `Redis` to cache hot data like recipe items and password `reset tokens with TTLs` to reduce database read and write overhead.
-- **Toast Notifications:** Integrated `react-hot-toast` to provide UI feedback.
 - **Email Dispatch:** Integrated `nodemailer` to send emails for `password reset verification link`.
 - **Frontend PDF Generation:** PDF generation delegated to `clients browser` to eliminate server-side rendering overhead.
-- **Bengali Format:** `Bengali` numeral formatting implemented for all types of numerical calculation.
 
 ---
 
