@@ -8,6 +8,7 @@ export const ChatBox = ({
 	selectedRoomId,
 	isChatBoxOpen,
 	setIsChatBoxOpen,
+	isSelectedUserOnline,
 }) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [messages, setMessages] = useState([]);
@@ -19,6 +20,8 @@ export const ChatBox = ({
 	const [roomName, setRoomName] = useState(null);
 	const currentSenderId = user?._id;
 	const currentSenderRole = isAdmin ? "admin" : "user";
+
+	// console.log("isSelectedUserOnline:", isSelectedUserOnline);
 
 	// console.log("selectedRoomId: ", selectedRoomId);
 	// console.log("isChatBoxOpen: ", isChatBoxOpen);
@@ -223,7 +226,14 @@ export const ChatBox = ({
 			{/* Chat Header */}
 			<div className="bg-[#075e54] text-white text-xs md:text-sm p-2 font-semibold flex items-center justify-between">
 				<span>{isAdmin ? `${roomName}` : "এডমিন"}</span>
-				{isAdminOnline ? (
+
+				{isAdmin ? (
+					isSelectedUserOnline ? (
+						<span className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-green-500 shadow-lg"></span>
+					) : (
+						<span className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-red-700 shadow-lg"></span>
+					)
+				) : isAdminOnline ? (
 					<span className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-green-500 shadow-lg"></span>
 				) : (
 					<span className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-red-700 shadow-lg"></span>

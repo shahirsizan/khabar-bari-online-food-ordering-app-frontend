@@ -57,26 +57,34 @@ export const AdminChatPanel = () => {
 		// Fetch initial list of online keys
 		socket.emit("get_online_users");
 
-		socket.on("initial_online_list", (ids) => {
+		const handleInitialList = (ids) => {
 			setOnlineUserIds(ids);
-		});
+		};
 
-		// Listen for live entries/exits
-		socket.on("user_status_change", ({ userId, status }) => {
+		const handleStatusChange = ({ userId, status }) => {
 			setOnlineUserIds((prev) => {
 				if (status === "online") {
-					return [...prev, userId];
+					// Prevent duplicate IDs using Set
+					return [...new Set([...prev, userId])];
 				} else {
 					return prev.filter((id) => id !== userId);
 				}
 			});
-		});
+		};
+
+		socket.on("initial_online_list", handleInitialList);
+		socket.on("user_status_change", handleStatusChange);
 
 		return () => {
-			socket.off("initial_online_list");
-			socket.off("user_status_change");
+			socket.off("initial_online_list", handleInitialList);
+			socket.off("user_status_change", handleStatusChange);
 		};
 	}, [socket]);
+
+	// Dynamically check if the currently selected chat user is online
+	const isSelectedUserOnline = selectedRoomId
+		? onlineUserIds.includes(selectedRoomId)
+		: false;
 
 	/***
 	 * 1️⃣ If a `roomId` is provided through URL parameter, update `selectedRoomId`.
@@ -138,7 +146,7 @@ export const AdminChatPanel = () => {
 									}}
 									className={`p-4 border-b cursor-pointer transition ${
 										selectedRoomId === room._id
-											? "bg-[#ebebeb]"
+											? "bg-[#d9d9d9]"
 											: "hover:bg-gray-100"
 									}
 								grid grid-cols-[1fr_8fr_3fr] mb-1`}
@@ -179,7 +187,10 @@ export const AdminChatPanel = () => {
 			<div className="w-4/6 bg-[#e5ddd5] flex items-center justify-center">
 				{selectedRoomId ? (
 					<div className="w-full h-full flex flex-col">
-						<ChatBox selectedRoomId={selectedRoomId} />
+						<ChatBox
+							selectedRoomId={selectedRoomId}
+							isSelectedUserOnline={isSelectedUserOnline}
+						/>
 					</div>
 				) : (
 					<div className="text-gray-500 bg-white/50 px-6 py-2 rounded-full shadow-sm">

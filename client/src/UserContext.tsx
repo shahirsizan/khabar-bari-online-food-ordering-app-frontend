@@ -191,9 +191,17 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 	useEffect(() => {
 		const socketInstance = initializeSocket();
 		setSocket(socketInstance);
+
+		// Cleanup socket connection when component unmounts
+		return () => {
+			if (socketInstance) {
+				socketInstance.disconnect();
+			}
+		};
 	}, [user]);
 
 	/***
+	 * Handle presence registration, room joining, and automatic reconnections.
 	 * `join-room` emission for non-admin users will occur here.
 	 * For admin, it will occur from `chatBox.jsx` when the admin selects a specific room from the sidebar.
 	 */
@@ -202,16 +210,31 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 			return;
 		}
 
-		// Declare presence to server upon app mount
-		socket.emit("register_presence", { user });
+		// Function to run on initial connect and every reconnection
+		const handleConnect = () => {
+			// Declare presence to server
+			socket.emit("register_presence", { user });
 
-		if (user.role === "admin") {
-			// Admin joins the global admin_room for realtime order alerts
-			socket.emit("join_room", { roomId: "admin_room" });
-		} else {
-			// Non-admin users join their individual room based on their id
-			socket.emit("join_room", { roomId: user._id });
+			if (user.role === "admin") {
+				// Admin joins the global admin room
+				socket.emit("join_room", { roomId: "admin_room" });
+			} else {
+				// Non-admin users join their individual room
+				socket.emit("join_room", { roomId: user._id });
+			}
+		};
+
+		// If socket is already connected when this effect runs, trigger immediately
+		if (socket.connected) {
+			handleConnect();
 		}
+
+		// Listen for connection drops and automatic reconnections
+		socket.on("connect", handleConnect);
+
+		return () => {
+			socket.off("connect", handleConnect);
+		};
 	}, [user, socket]);
 
 	/***
@@ -222,7 +245,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 			return;
 		}
 
-		socket.emit("check_admin_status");
+		const checkAdmin = () => {
+			socket.emit("check_admin_status");
+		};
+
+		// Check on initial load and reconnects
+		if (socket.connected) {
+			checkAdmin();
+		}
+		socket.on("connect", checkAdmin);
 
 		const handleAdminStatus = ({ status }: { status: string }) => {
 			setIsAdminOnline(status === "online");
@@ -231,6 +262,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 		socket.on("admin_status", handleAdminStatus);
 
 		return () => {
+			socket.off("connect", checkAdmin);
 			socket.off("admin_status", handleAdminStatus);
 		};
 	}, [user, socket]);
