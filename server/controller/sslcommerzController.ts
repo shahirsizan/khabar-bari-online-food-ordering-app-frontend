@@ -10,6 +10,10 @@ import { Notification } from "../model/NotificationModel.js";
 import sendEmail from "../utils/sendEmail.js";
 import { backend_base_url, frontend_base_url, mode } from "../workMode.js";
 import { auditQueue } from "../utils/auditQueue.js";
+import {
+	generateOrderNumber,
+	generateTrxId,
+} from "../utils/orderidAndTrxidGenerator.js";
 
 interface IPopulatedUser {
 	_id: mongoose.Types.ObjectId;
@@ -92,7 +96,7 @@ export const sslPaymentInitialize: RequestHandler<
 
 		// nanoid() -> default size is 21.
 		// const tran_id = nanoid(30);
-		const tran_id = nanoid();
+		const tran_id = generateTrxId();
 		const data = {
 			total_amount: amount,
 			currency: "BDT",
@@ -128,6 +132,8 @@ export const sslPaymentInitialize: RequestHandler<
 			let GatewayPageURL = apiResponse.GatewayPageURL;
 
 			const finalOrder: Partial<IOrder> = {
+				orderNumber: generateOrderNumber(),
+				tran_id: tran_id,
 				totalAmount: `${amount}`,
 				userId: user._id,
 				userName: user.name,
@@ -136,7 +142,6 @@ export const sslPaymentInitialize: RequestHandler<
 				streetAddress: user.streetAddress,
 				city: user.city,
 				cartProducts: cartItems,
-				tran_id: tran_id,
 				paid: false,
 			};
 

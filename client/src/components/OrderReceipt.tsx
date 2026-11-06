@@ -94,7 +94,7 @@ const OrderReceipt = ({ orderDetail, receiptRef }: IOrderReceiptProps) => {
 						অর্ডার আইডি
 					</p>
 					<p className="font-semibold max-md:text-xs">
-						{orderDetail._id}
+						{orderDetail.orderNumber}
 					</p>
 				</div>
 
