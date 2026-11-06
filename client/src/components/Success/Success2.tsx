@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 export interface IOrderDetail {
 	_id: string;
 	tran_id: string;
+	orderNumber: string;
 	totalAmount: string;
 	userName: string;
 	userEmail: string;
@@ -107,7 +108,7 @@ const Success2: React.FC<{}> = () => {
 
 		const opt = {
 			margin: 1,
-			filename: `Receipt-order-${orderDetail?._id}.pdf`,
+			filename: `Receipt-order-${orderDetail?.orderNumber}.pdf`,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
 			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
