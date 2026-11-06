@@ -1,7 +1,7 @@
 import mongoose, { model, Schema, Document } from "mongoose";
 import { IUser } from "./userModel.js";
 
-export interface ICartProduct {
+export interface ICartProduct extends Document {
 	id: string;
 	name: string;
 	price: number;
@@ -17,8 +17,9 @@ export type OrderStatusType =
 	| "Delivered"
 	| "All";
 
-export interface IOrder {
+export interface IOrder extends Document {
 	_id: mongoose.Types.ObjectId;
+	orderNumber: string;
 	userId: mongoose.Types.ObjectId | IUser;
 	userName: string;
 	userEmail: string;
@@ -40,6 +41,12 @@ const OrderSchema = new Schema<IOrder>(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 			required: true,
+		},
+		orderNumber: {
+			type: String,
+			required: true,
+			unique: true,
+			index: true,
 		},
 		userName: { type: String, required: true },
 		userEmail: { type: String, required: true },
