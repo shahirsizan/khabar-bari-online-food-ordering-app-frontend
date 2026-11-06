@@ -55,20 +55,19 @@ export const getOrders: RequestHandler<
 			 */
 			let searchConditions: any = [];
 
-			/***
-			 * If `search` contains ID,
-			 */
-			if (mongoose.Types.ObjectId.isValid(search)) {
-				searchConditions.push({
-					_id: new mongoose.Types.ObjectId(search),
-				});
-			}
+			// Partial search on orderNumber
+			searchConditions.push({
+				orderNumber: { $regex: search, $options: "i" },
+			});
 
-			/***
-			 * if search contains other text ( email)
-			 */
+			// Partial search on user email
 			searchConditions.push({
 				userEmail: { $regex: search, $options: "i" },
+			});
+
+			// Partial search on trxid
+			searchConditions.push({
+				tran_id: { $regex: search, $options: "i" },
 			});
 
 			queryObj.$or = searchConditions;
