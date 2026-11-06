@@ -165,8 +165,8 @@ const OrdersPage: React.FC = () => {
 						type="text"
 						placeholder={
 							isAdmin
-								? "Search by email or Order ID..."
-								: "Search by Order ID..."
+								? "Search by TrxId, OrderID or Email..."
+								: "Search by TrxId or OrderID..."
 						}
 						value={searchTerm}
 						onChange={(e) => {
