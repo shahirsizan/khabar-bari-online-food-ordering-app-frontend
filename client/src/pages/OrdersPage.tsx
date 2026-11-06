@@ -8,29 +8,53 @@ import { GrFormPrevious } from "react-icons/gr";
 import { GrFormNext } from "react-icons/gr";
 import { toast } from "react-toastify";
 
-const OrdersPage = () => {
+interface ICartProduct {
+	id: string;
+	name: string;
+	price: number;
+	desc: string;
+	image: string;
+	quantity: number;
+}
+
+interface IOrderFrontend {
+	_id: string;
+	orderNumber: string;
+	tran_id: string;
+	totalAmount: string;
+	userEmail: string;
+	cartProducts: ICartProduct[];
+	paid: boolean;
+	status: "Pending" | "Preparing" | "Dispatched" | "Delivered";
+	createdAt: string;
+}
+
+const OrdersPage: React.FC = () => {
 	const statuses = {
 		All: "All",
 		Pending: "Pending",
 		Preparing: "Preparing",
 		Dispatched: "Dispatched",
 		Delivered: "Delivered",
-	};
+	} as const;
 
-	const [orders, setOrders] = useState([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const { user, isAdmin } = useUserContext();
+	const [orders, setOrders] = useState<IOrderFrontend[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const { isAdmin } = useUserContext();
 
-	// Pagination, Search, and Filter State
-	const [page, setPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
-	const [filterStatus, setFilterStatus] = useState("All");
+	// Pagination, Search and Filter State
+	const [page, setPage] = useState<number>(1);
+	const [totalPages, setTotalPages] = useState<number>(1);
+	const [searchTerm, setSearchTerm] = useState<string>("");
+	const [debouncedSearchTerm, setDebouncedSearchTerm] =
+		useState<string>(searchTerm);
+	const [filterStatus, setFilterStatus] = useState<string>("All");
 
-	const handleStatusChange = async (orderId, changedStatus) => {
+	const handleStatusChange = async (
+		orderId: string,
+		changedStatus: string,
+	) => {
 		// enum: ["Pending", "Preparing", "Dispatched", "Delivered"],
-		let res;
 		try {
 			const response = await apiFetch(
 				`${backend_base_url}/api/order/${orderId}`,
@@ -48,15 +72,25 @@ const OrdersPage = () => {
 				setOrders((prev) =>
 					prev.map((order) =>
 						order._id === orderId
-							? { ...order, status: changedStatus }
+							? {
+									...order,
+									status: changedStatus as IOrderFrontend["status"],
+								}
 							: order,
 					),
 				);
-				res = await response.json();
+				const res = await response.json();
 				toast.success(res.message);
+			} else {
+				const errRes = await response.json();
+				toast.error(
+					errRes.message || "একটি সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।",
+				);
 			}
-		} catch (error) {
-			toast.error(res.message);
+		} catch (error: any) {
+			toast.error(
+				error.message || "একটি সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।",
+			);
 		}
 	};
 
@@ -98,8 +132,10 @@ const OrdersPage = () => {
 					setOrders(res.currentPageOrders);
 					setTotalPages(res.totalPages);
 				}
-			} catch (error) {
-				console.error("fetchOrders -> error: ", error.message);
+			} catch (error: any) {
+				toast.error(
+					error.message || "একটি সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।",
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -156,11 +192,17 @@ const OrdersPage = () => {
 						multiple={false}
 						className="px-3 text-xs font-atma rounded-md border border-gray-300 bg-white cursor-pointer focus:outline-none"
 					>
-						{Object.keys(statuses).map((key) => (
-							<option key={key} value={statuses[key]}>
-								{key}
-							</option>
-						))}
+						{Object.keys(statuses).map((key) => {
+							const statusKey = key as keyof typeof statuses;
+							return (
+								<option
+									key={statusKey}
+									value={statuses[statusKey]}
+								>
+									{key}
+								</option>
+							);
+						})}
 					</select>
 				</div>
 			</div>
@@ -188,7 +230,11 @@ const OrdersPage = () => {
 							<div className="grow">
 								{/* Order ID and Time Row */}
 								<div className="flex gap-2 items-center mb-1 text-[10px] text-gray-500 font-mono tracking-wider">
-									<span>Order ID: {order._id}</span>
+									<span>OrderID: {order.orderNumber}</span>
+								</div>
+
+								<div className="flex gap-2 items-center mb-1 text-[10px] text-gray-500 font-mono tracking-wider">
+									<span>TrxID: {order.tran_id}</span>
 								</div>
 
 								<div className="flex gap-2 items-center mb-1">
@@ -249,14 +295,14 @@ const OrdersPage = () => {
 										{Object.keys(statuses)
 											.filter((s) => s !== "All")
 											.map((statusKey) => {
+												const sKey =
+													statusKey as keyof typeof statuses;
 												return (
 													<option
-														key={statusKey}
-														value={
-															statuses[statusKey]
-														}
+														key={sKey}
+														value={statuses[sKey]}
 													>
-														{statuses[statusKey]}
+														{statuses[sKey]}
 													</option>
 												);
 											})}
